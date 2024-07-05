@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://vrsacnekretnine.rs/</loc>
+        <lastmod>2023-19-10</lastmod>
+        <changefreq>early</changefreq>
+        <priority>1</priority>
+    </url>
+    <url>
+        <loc>https://vrsacnekretnine.rs/nekretnine</loc>
+        <lastmod>2023-19-10</lastmod>
+        <changefreq>early</changefreq>
+        <priority>0.9</priority>
+    </url>
+    <url>
+        <loc>https://vrsacnekretnine.rs/kontakt</loc>
+        <lastmod>2013-01-02</lastmod>
+        <changefreq>weekly</changefreq>
+    </url>
+    <url>
+        <loc>https://vrsacnekretnine.rs/onama</loc>
+        <lastmod>2013-01-02T13:00:12+00:00</lastmod>
+        <priority>0.5</priority>
+    </url>
+</urlset>
