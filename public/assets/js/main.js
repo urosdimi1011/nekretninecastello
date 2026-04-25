@@ -579,16 +579,18 @@ function azurirajBrojKaraktera() {
 
     brojPreostalihKaraktera.textContent = `${preostaliKarakteri}`;
 }
-
 // ===== NOTIFIKACIJE =====
 const notifOverlay = document.getElementById("notifOverlay");
 const notifFormBody = document.getElementById("notifFormBody");
 const notifSuccess = document.getElementById("notifSuccess");
 let notifTipId = null;
+let odabranaMesta = new Set();
 
+// Otvori/zatvori modal
 document.getElementById("openNotifModal")?.addEventListener("click", () => {
     notifOverlay.classList.add("active");
     document.body.classList.add("skloni-scroll");
+    ucitajMesta(); // lazy load mesta
 });
 
 function closeNotifModal() {
@@ -602,11 +604,11 @@ document
 document
     .getElementById("notifBtnOtkazi")
     ?.addEventListener("click", closeNotifModal);
-
-notifOverlay?.addEventListener("click", function (e) {
+notifOverlay?.addEventListener("click", (e) => {
     if (e.target === notifOverlay) closeNotifModal();
 });
 
+// Tip nekretnine
 document.querySelectorAll(".notif-tip-pill").forEach((pill) => {
     pill.addEventListener("click", function () {
         document
@@ -620,6 +622,44 @@ document.querySelectorAll(".notif-tip-pill").forEach((pill) => {
     });
 });
 
+// Učitaj mesta
+let mestaUcitana = false;
+function ucitajMesta() {
+    if (mestaUcitana) return;
+    const grid = document.getElementById("notifMestaGrid");
+    const csrf = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+
+    fetch("/api/mesta", { headers: { "X-CSRF-TOKEN": csrf } })
+        .then((r) => r.json())
+        .then((mesta) => {
+            mestaUcitana = true;
+            grid.innerHTML = "";
+            mesta.forEach((m) => {
+                const pill = document.createElement("div");
+                pill.className = "notif-mesto-pill";
+                pill.textContent = m.naziv;
+                pill.dataset.id = m.id;
+                pill.addEventListener("click", function () {
+                    this.classList.toggle("active");
+                    if (odabranaMesta.has(m.id)) {
+                        odabranaMesta.delete(m.id);
+                    } else {
+                        odabranaMesta.add(m.id);
+                    }
+                    document.getElementById("mestaError").textContent = "";
+                });
+                grid.appendChild(pill);
+            });
+        })
+        .catch(() => {
+            grid.innerHTML =
+                '<span style="color:#dc3545;font-size:13px;">Greška pri učitavanju lokacija</span>';
+        });
+}
+
+// Učitaj atribute za tip
 const opcijePoAtributu = {
     grejanje: ["Centralno", "Etažno", "TA peć", "Klima", "Podno"],
     parking: ["Da", "Ne"],
@@ -629,13 +669,11 @@ const opcijePoAtributu = {
 function ucitajAtribute(tipId) {
     const sekcija = document.getElementById("notifAtributiSekcija");
     const grid = document.getElementById("notifAtributiGrid");
-    const csrfToken = document
+    const csrf = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
 
-    fetch(`/api/tip-atributi/${tipId}`, {
-        headers: { "X-CSRF-TOKEN": csrfToken },
-    })
+    fetch(`/api/tip-atributi/${tipId}`, { headers: { "X-CSRF-TOKEN": csrf } })
         .then((r) => r.json())
         .then((atributi) => {
             const exclude = new Set(["kvadratura", "površina placa"]);
@@ -660,7 +698,7 @@ function ucitajAtribute(tipId) {
                 if (naziv === "sobe") {
                     inputHtml = `
                         <div class="sobe-range">
-                            <select name="atributi_min[${a.id}]" data-atribut-id="${a.id}" data-tip="sobe_min">
+                            <select data-atribut-id="${a.id}" data-tip="sobe_min">
                                 <option value="">Svejedno (od)</option>
                                 <option value="1">1 soba</option>
                                 <option value="2">2 sobe</option>
@@ -668,7 +706,7 @@ function ucitajAtribute(tipId) {
                                 <option value="4">4 sobe</option>
                                 <option value="5">5+ soba</option>
                             </select>
-                            <select name="atributi_max[${a.id}]" data-atribut-id="${a.id}" data-tip="sobe_max">
+                            <select data-atribut-id="${a.id}" data-tip="sobe_max">
                                 <option value="">Svejedno (do)</option>
                                 <option value="1">1 soba</option>
                                 <option value="2">2 sobe</option>
@@ -680,7 +718,7 @@ function ucitajAtribute(tipId) {
                 } else {
                     const opcije = opcijePoAtributu[naziv] || ["Da", "Ne"];
                     inputHtml = `
-                        <select name="atributi[${a.id}]" data-atribut-id="${a.id}">
+                        <select data-atribut-id="${a.id}">
                             <option value="">Svejedno</option>
                             ${opcije.map((o) => `<option value="${o.toLowerCase()}">${o}</option>`).join("")}
                         </select>`;
@@ -692,6 +730,7 @@ function ucitajAtribute(tipId) {
         });
 }
 
+// Cena toggle
 function setCenaToggle(poMetru) {
     document.getElementById("cenaPoMetru").value = poMetru ? "1" : "0";
     document
@@ -700,14 +739,12 @@ function setCenaToggle(poMetru) {
     document
         .getElementById("notifBtnMetar")
         .classList.toggle("active", poMetru);
-
     document.getElementById("notifCenaMin").placeholder = poMetru
         ? "npr. 500"
         : "npr. 30000";
     document.getElementById("notifCenaMax").placeholder = poMetru
         ? "npr. 2000"
         : "npr. 150000";
-
     const sufiks = poMetru ? " (€/m²)" : " (€)";
     document.getElementById("labelCenaMin").textContent = "Min cena" + sufiks;
     document.getElementById("labelCenaMax").textContent = "Max cena" + sufiks;
@@ -720,6 +757,7 @@ document
     .getElementById("notifBtnMetar")
     ?.addEventListener("click", () => setCenaToggle(true));
 
+// Submit
 document
     .getElementById("notifBtnPrijavi")
     ?.addEventListener("click", function () {
@@ -744,7 +782,7 @@ document
             document.getElementById("tipError").textContent = "";
         }
 
-        // Cena — bar jedno polje mora biti popunjeno
+        // Cena
         const cenaMinVal = document.getElementById("notifCenaMin").value.trim();
         const cenaMaxVal = document.getElementById("notifCenaMax").value.trim();
         const cenaMin = cenaMinVal !== "" ? Number(cenaMinVal) : null;
@@ -754,21 +792,13 @@ document
             document.getElementById("cenaError").textContent =
                 "Unesite bar min ili max cenu";
             valid = false;
-        } else if (cenaMin !== null && isNaN(cenaMin)) {
+        } else if (cenaMin !== null && (isNaN(cenaMin) || cenaMin < 0)) {
             document.getElementById("cenaError").textContent =
-                "Unesite ispravan broj za min cenu";
+                "Unesite ispravnu min cenu";
             valid = false;
-        } else if (cenaMax !== null && isNaN(cenaMax)) {
+        } else if (cenaMax !== null && (isNaN(cenaMax) || cenaMax < 0)) {
             document.getElementById("cenaError").textContent =
-                "Unesite ispravan broj za max cenu";
-            valid = false;
-        } else if (cenaMin !== null && cenaMin < 0) {
-            document.getElementById("cenaError").textContent =
-                "Cena ne može biti negativna";
-            valid = false;
-        } else if (cenaMax !== null && cenaMax < 0) {
-            document.getElementById("cenaError").textContent =
-                "Cena ne može biti negativna";
+                "Unesite ispravnu max cenu";
             valid = false;
         } else if (cenaMin !== null && cenaMax !== null && cenaMin > cenaMax) {
             document.getElementById("cenaError").textContent =
@@ -778,7 +808,7 @@ document
             document.getElementById("cenaError").textContent = "";
         }
 
-        // Kvadratura — bar jedno polje mora biti popunjeno
+        // Kvadratura
         const kvadMinVal = document.getElementById("notifKvadMin").value.trim();
         const kvadMaxVal = document.getElementById("notifKvadMax").value.trim();
         const kvadMin = kvadMinVal !== "" ? Number(kvadMinVal) : null;
@@ -788,21 +818,13 @@ document
             document.getElementById("kvadError").textContent =
                 "Unesite bar min ili max kvadraturu";
             valid = false;
-        } else if (kvadMin !== null && isNaN(kvadMin)) {
+        } else if (kvadMin !== null && (isNaN(kvadMin) || kvadMin < 0)) {
             document.getElementById("kvadError").textContent =
-                "Unesite ispravan broj";
+                "Unesite ispravnu min kvadraturu";
             valid = false;
-        } else if (kvadMax !== null && isNaN(kvadMax)) {
+        } else if (kvadMax !== null && (isNaN(kvadMax) || kvadMax < 0)) {
             document.getElementById("kvadError").textContent =
-                "Unesite ispravan broj";
-            valid = false;
-        } else if (kvadMin !== null && kvadMin < 0) {
-            document.getElementById("kvadError").textContent =
-                "Kvadratura ne može biti negativna";
-            valid = false;
-        } else if (kvadMax !== null && kvadMax < 0) {
-            document.getElementById("kvadError").textContent =
-                "Kvadratura ne može biti negativna";
+                "Unesite ispravnu max kvadraturu";
             valid = false;
         } else if (kvadMin !== null && kvadMax !== null && kvadMin > kvadMax) {
             document.getElementById("kvadError").textContent =
@@ -812,13 +834,15 @@ document
             document.getElementById("kvadError").textContent = "";
         }
 
-        // Sobe validacija
+        // Sobe
         const sobeMinSel = document.querySelector('[data-tip="sobe_min"]');
         const sobeMaxSel = document.querySelector('[data-tip="sobe_max"]');
         if (sobeMinSel && sobeMaxSel) {
-            const sobeMin = sobeMinSel.value;
-            const sobeMax = sobeMaxSel.value;
-            if (sobeMin && sobeMax && parseInt(sobeMin) > parseInt(sobeMax)) {
+            if (
+                sobeMinSel.value &&
+                sobeMaxSel.value &&
+                parseInt(sobeMinSel.value) > parseInt(sobeMaxSel.value)
+            ) {
                 sobeMaxSel.style.borderColor = "#dc3545";
                 valid = false;
             } else {
@@ -830,24 +854,19 @@ document
 
         // Skupljanje atributa
         const atributi = {};
-
-        // Obični atributi (ne sobe)
         document
             .querySelectorAll("#notifAtributiGrid select:not([data-tip])")
             .forEach((sel) => {
                 if (sel.value) atributi[sel.dataset.atributId] = sel.value;
             });
-
-        // Sobe kao raspon
-        if (sobeMinSel && (sobeMinSel?.value || sobeMaxSel?.value)) {
-            const sobeId = sobeMinSel.dataset.atributId;
-            atributi[sobeId] = {
+        if (sobeMinSel && (sobeMinSel.value || sobeMaxSel?.value)) {
+            atributi[sobeMinSel.dataset.atributId] = {
                 min: sobeMinSel.value || null,
                 max: sobeMaxSel?.value || null,
             };
         }
 
-        const csrfToken = document
+        const csrf = document
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content");
 
@@ -855,7 +874,7 @@ document
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": csrfToken,
+                "X-CSRF-TOKEN": csrf,
             },
             body: JSON.stringify({
                 email: email,
@@ -866,6 +885,7 @@ document
                     document.getElementById("cenaPoMetru").value === "1",
                 kvadratura_min: kvadMin,
                 kvadratura_max: kvadMax,
+                mesta: odabranaMesta.size ? [...odabranaMesta] : null,
                 atributi: Object.keys(atributi).length ? atributi : null,
             }),
         })
@@ -881,4 +901,29 @@ document
             })
             .catch((err) => console.error(err));
     });
+
+const cenaMinInput = document.getElementById("notifCenaMin");
+const cenaMaxInput = document.getElementById("notifCenaMax");
+
+function formatirajCenu(input) {
+    // Ukloni sve osim brojeva
+    let cistaVrednost = input.value.replace(/[^\d]/g, "");
+
+    if (cistaVrednost === "") {
+        input.value = "";
+        return;
+    }
+
+    // Dodaj tačke na svake 3 cifre s leva
+    let formatirano = cistaVrednost.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    input.value = formatirano;
+}
+
+cenaMinInput.addEventListener("input", function () {
+    formatirajCenu(this);
+});
+
+cenaMaxInput.addEventListener("input", function () {
+    formatirajCenu(this);
+});
 // ===== KRAJ NOTIFIKACIJE =====

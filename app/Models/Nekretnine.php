@@ -27,6 +27,12 @@ class Nekretnine extends Model
     {
         return $this->hasOne(TipNekretnine::class, 'id', 'id_tip_nekretnine');
     }
+
+    public function mesto()
+    {
+        return $this->belongsTo(Mesto::class, 'mesto_id');
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';

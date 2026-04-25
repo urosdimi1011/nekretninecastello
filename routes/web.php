@@ -39,6 +39,9 @@ Route::post('/pretplatnici', [\App\Http\Controllers\PretplatnikController::class
 
 Route::get('/nekretnine/{tip?}/{page?}', [\App\Http\Controllers\NekeretnineController::class, 'index'])->name("nekretnineSve");
 
+Route::get('/api/mesta', [\App\Http\Controllers\PretplatnikController::class, 'getMesta']);
+
+
 Route::get('/{tip}', [\App\Http\Controllers\NekeretnineController::class, 'index'])
     ->where('tip', "kuće|kuce|stanovi|lokali|poljoprivredno_zemljište|poljoprivredno_zamljiste|poljoprivredno_zemlji%C5%A1te|placevi")
     ->name("nekretnineSvePoTipu");
