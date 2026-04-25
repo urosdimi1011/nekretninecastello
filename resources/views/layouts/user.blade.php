@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="sr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="@yield('description')" />
+    <meta name="keywords" content="@yield('keywords')">
+    <meta name="theme-color" content="#31409c">
+    @php
+    $canonicalUrl = url()->current();
+    @endphp
+    <link rel="icon" href="{{asset("assets/img/icon/iconCastello.jpg")}}">
+    <link rel="apple-touch-icon" href="{{asset("assets/img/icon/iconCastello.jpg")}}">
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HNWJHTB221"></script>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-HNWJHTB221');
+    </script>
+    <link rel='canonical' href='{{$canonicalUrl}}' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="{{asset("assets/js/splide-4.1.3/dist/css/splide.min.css")}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/user.css') }}?v=16">
+    <meta property="og:locale" content="sr_RS" />
+    <meta property="og:title" content="@yield('title')" />
+    <meta property="og:description" content="@yield('description')" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:site_name" content="Vršac nekretnine" />
+    <meta property="article:publisher" content="https://www.facebook.com/castello.nekretnine" />
+    <meta property="article:modified_time" content="{{ now()->toIso8601String() }}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
+    <meta property="og:image" content="@yield('og_image', asset('assets/img/Castello-zut.png'))" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="@yield('og_type', 'website')" />
+
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title')</title>
+
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "RealEstateAgent",
+            "@id": "{{ url('/') }}#agency",
+            "name": "Castello Nekretnine Vršac",
+            "url": "{{ url('/') }}",
+            "telephone": "+381658234501",
+            "email": "castellonekretnine@gmail.com",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Vaska Pope 2",
+                "addressLocality": "Vršac",
+                "addressCountry": "RS"
+            },
+            "openingHours": ["Mo-Fr 08:00-16:00", "Sa 09:00-15:00"],
+            "sameAs": [
+                "https://www.facebook.com/castello.nekretnine",
+                "https://www.instagram.com/castello_nekretnine/"
+            ]
+        }
+    </script>
+</head>
+
+<body>
+    <div class="black-wall">
+
+    </div>
+    <header>
+        <div class="page__header__top">
+            <div class="page__header__top__inner container">
+                <div class="region region-top">
+                    <nav role="navigation">
+
+                        <h2 class="visually-hidden block__title" id="block-topheadersociallinks-2-menu">Top Header Social Links</h2>
+
+                        <ul class="nav nav-links">
+                            <li class="nav-item">
+                                <a href="tel:+381658234501" rel="noopener nofollow" class="btn btn-social link-icon label-only-size-big">
+                                    <i class="fa fa-phone"></i>
+                                    <span class="label">+381 65 8234 501</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="mailto:&#099;&#097;&#115;&#116;&#101;&#108;&#108;&#111;&#110;&#101;&#107;&#114;&#101;&#116;&#110;&#105;&#110;&#101;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;" class="btn btn-social link-icon label-only-size-big text-lowercase">
+                                    <i class="fa fa-envelope"></i>
+                                    <span class="label">castellonekretnine@gmail.com</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" rel="noopener nofollow" class="btn btn-social link-icon label-only-size-big text-lowercase">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <span class="label">RADNO VREME: PON-PET 08-16h SUB: 09-15h</span>
+                                </a>
+                            </li>
+                        </ul>
+
+                    </nav>
+                    <nav role="navigation" aria-labelledby="block-sociallinks-menu">
+
+                        <h2 class="visually-hidden block__title" id="block-sociallinks-menu">Social Links</h2>
+                        <ul class="nav nav-links">
+                            <li class="nav-item">
+                                <a href="https://www.facebook.com/castello.nekretnine" target="_blank" rel="noopener nofollow" class="link-icon ext-no btn btn-social hide-label link-social">
+                                    <i class="fab fa-facebook"></i>
+                                    CASTELLO NEKRETNINE</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://www.instagram.com/castello_nekretnine/" target="_blank" rel="noopener nofollow" class="link-icon ext-no btn btn-social hide-label link-social">
+                                    <i class="fab fa-instagram"></i>
+                                    CASTELLO_NEKRETNINE</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://www.youtube.com/@castellonekretninevrsac196" target="_blank" rel="noopener nofollow" class="link-icon ext-no btn btn-social hide-label link-social">
+                                    <i class="fab fa-youtube"></i>
+                                    castellonekretninevrsac196</a>
+                            </li>
+                        </ul>
+
+
+
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+        <div id="header-section" class="header-desktop header-v4 header" data-sticky="1">
+            <div class="container">
+                <div class="header-inner-wrap">
+                    <div class="navbar d-flex align-items-center p-0">
+
+
+
+                        <div class="logo logo-desktop resposive">
+                            <a href="{{route("home")}}">
+                                <img src="<?= asset("assets/img/logo.png") ?>" alt="Castello Nekretnine" width="177" height="83">
+                            </a>
+                        </div>
+
+                        <div class="response-button">
+                            <i class="fa-solid fa-bars"></i>
+                        </div>
+                        <nav class="main-nav on-hover-menu navbar-expand-lg flex-grow-1">
+                            <div class="close-button">
+                                <i class="fa-regular fa-circle-xmark"></i>
+                            </div>
+                            <ul id="main-nav" class="navbar-nav">
+                                <li id="menu-item-17381" class="nav-item {{ request()->routeIs('home') ? 'current_page_item' : '' }}">
+                                    <a class="nav-link" href="{{ route('home') }}">Početna</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button">
+                                        Ponuda nekretnina
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        @foreach($tipoviNekretnina as $a)
+                                        @php
+                                        $slug = strtolower(str_replace(' ', '_', $a->tip));
+
+                                        if ($slug == 'kuce') {
+                                        $slug = 'kuće';
+                                        } elseif (str_contains($slug, 'poslovni')) {
+                                        $slug = 'poslovni_prostor'; // Čuvanje konzistentnosti
+                                        }
+
+                                        $icon = 'ti ti-home';
+                                        if(str_contains($slug, 'stan')) $icon = 'ti ti-building-community';
+                                        if(str_contains($slug, 'plac') || str_contains($slug, 'zemlj')) $icon = 'ti ti-map-2';
+                                        if(str_contains($slug, 'poslovni')) $icon = 'ti ti-briefcase';
+                                        if(str_contains($slug, 'poljoprivredno')) $icon = 'ti ti-tractor';
+                                        if(str_contains($slug, 'lokali')) $icon = 'ti ti-building-store';
+                                        @endphp
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center" href="{{ route('nekretnineSvePoTipu', ['tip' => $slug]) }}">
+                                                <i class="{{ $icon }} me-2" style="font-size: 1.2rem;"></i>
+                                                {{ $a->tip }}
+                                            </a>
+                                        </li>
+                                        @endforeach
+
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center" href="https://www.castellonekretnine.rs/">
+                                                <i class="ti ti-map-pin me-2"></i> Beograd
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li id="menu-item-18177" class="nav-item menu-item menu-item-type-post_type menu-item-object-page {{ request()->is("kontakt") ? 'current-page-item' : '' }}">
+                                    <a class="nav-link" href="{{ route('kontakt') }}">Kontakt</a>
+                                </li>
+                                <li id="menu-item-18177" class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
+                                    <div class="logo logo-desktop">
+                                        <a href="{{ route('home') }}">
+                                            <img src="<?= asset("assets/img/logo.png") ?>" alt="logo" width="177" height="83">
+                                        </a>
+                                    </div>
+                                </li>
+                                <li id="menu-item-18144" class="nav-item menu-item menu-item-type-post_type menu-item-object-page {{ request()->routeIs('nekretnineSve') ? 'current-menu-item page_item page-item-10 current_page_item' : '' }}">
+                                    <a class="nav-link" href="{{ route('nekretnineSve') }}">Nekretnine</a>
+                                </li>
+                                <li id="menu-item-18144" class="nav-item menu-item menu-item-type-post_type menu-item-object-page {{ request()->routeIs('onama') ? ' current_page_item' : '' }}">
+                                    <a class="nav-link" href="{{ route('onama') }}">O nama</a>
+                                </li>
+                                <li id="menu-item-18144" class="nav-item menu-item menu-item-type-post_type menu-item-object-page">
+                                    <a class="nav-link" rel="noopener nofollow" href="https://www.castellonekretnine.rs/stambeni-kredit-kalkulator/">Kreditni Kalkulator</a>
+                                </li>
+                            </ul>
+                            <div class="socila-menu-response">
+                                <ul>
+                                    <li class="nav-item">
+                                        <a href="https://www.facebook.com/castello.nekretnine" target="_blank" rel="noopener nofollow" class="link-icon ext-no btn btn-social hide-label link-social">
+                                            <i class="fab fa-facebook"></i>
+                                            CASTELLO NEKRETNINE</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="https://www.instagram.com/castello_nekretnine/" target="_blank" rel="noopener nofollow" class="link-icon ext-no btn btn-social hide-label link-social">
+                                            <i class="fab fa-instagram"></i>
+                                            CASTELLO_NEKRETNINE</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="https://www.youtube.com/@castellonekretninevrsac196" target="_blank" rel="noopener nofollow" class="link-icon ext-no btn btn-social hide-label link-social">
+                                            <i class="fab fa-youtube"></i>
+                                            castellonekretninevrsac196</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="https://www.facebook.com/castello.nekretnine" target="_blank" rel="noopener nofollow" class="link-icon ext-no btn btn-social hide-label link-social">
+                                            <i class="fab fa-facebook"></i>
+                                            CASTELLO NEKRETNINE</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </nav>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main aria-label="Glavni sadržaj">
+        @yield('content')
+    </main>
+
+
+
+    <footer>
+        <div class="container-fluid">
+            <div class="container">
+                <div class="row pt-5 moj-flex">
+                    <div class="col-12 col-md-4 col-lg-3 logo-block">
+                        <div class="content-block-my">
+                            <div class="slika-block">
+                                <img src="{{asset("assets/img/Castello-zut.png")}}" alt="logo footer" width="230" height="108">
+                            </div>
+                            <div class="text-logo-belowe">
+                                <p>Pronađite vaš novi dom</p>
+                            </div>
+                            <ul class="link-icon-block p-0">
+                                <li>
+                                    <a href="https://www.facebook.com/castello.nekretnine" rel="noopener nofollow" target="_blank">
+                                        <i class="fa-brands fa-facebook"></i>
+                                        <span class="hidden-link">CASTELLO NEKRETNINE</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.instagram.com/castello_nekretnine/" rel="noopener nofollow" target="_blank">
+                                        <i class="fa-brands fa-instagram"></i>
+                                        <span class="hidden-link">CASTELLO_NEKRETNINE</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.youtube.com/@castellonekretninevrsac196" rel="noopener nofollow" target="_blank">
+                                        <i class="fa-brands fa-youtube"></i>
+                                        <span class="hidden-link">castellonekretninevrsac196</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-5 col-md-5 col-lg-3">
+                        <div class="header-block-content">
+                            <h2>Kontakt informacije</h2>
+                        </div>
+                        <ul class="footer_details p-0">
+                            <li><i class="fa-solid fa-location-dot"></i> <span>Vaska Pope 2 (ulaz iz Gavrila Principa)</span></li>
+                            <li><i class="fa-solid fa-mobile"></i><span><a href="tel:065-823-4501">065-823-4501</a></span></li>
+                            <li><i class="fa-regular fa-envelope"></i> <span><a href="mailto:&#099;&#097;&#115;&#116;&#101;&#108;&#108;&#111;&#110;&#101;&#107;&#114;&#101;&#116;&#110;&#105;&#110;&#101;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;"> castellonekretnine@gmail.com </a></span></li>
+                            <li><i class="fa-solid fa-pencil"></i> <span><a href="#"> Broj u Reg. Posr. <strong>1228</strong> </a></span></li>
+                            <li><i class="fa-solid fa-pencil"></i> <span><a href="#"> Licenca br. <strong>3499</strong> </a></span></li>
+
+                        </ul>
+
+                    </div>
+                    <div class="col-5 col-md-5 col-lg-2">
+                        <div class="header-block-content">
+                            <h2>Nekretnine</h2>
+                            <ul class="footer_details">
+                                @foreach($tipoviNekretnina as $a)
+                                <li class=" link nav-item menu-item menu-item-type-post_type menu-item-object-page "><a class="dropdown-item " href="{{ route('nekretnineSvePoTipu', ['tip' => str_replace("ć","c",strtolower($a->tip))]) }}">{{$a->tip}}</a> </li>
+                                @endforeach
+                            </ul>
+                        </div>
+
+                    </div>
+                    <div class="col-5 col-md-5 col-lg-2">
+                        <div class="header-block-content">
+                            <h2>O nama</h2>
+                            <p class="mt-4">Trudimo se da održimo visok nivo kvaliteta usluge kao i da posao završimo brzo tako da od vašeg prvog poziva do useljenja u vaš novi dom prođe što manje vremena. Svaki klijent je naš prioritet .</p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row bt-color pt-2 pb-2">
+                    <div class="col-12 text-center">
+                        <ul class="footer-link">
+                            <li>
+                                <small>&copy; Castello Nekretnine Vršac – Sva prava zadržana</small>
+                            </li>
+                            <li>
+                                <a href="{{route("uslovi")}}">Uslovi korišćenja</a>
+                            </li>
+                            <li>
+                                <a href="{{route("kolacici")}}">Kolačići</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <button class="notif-fab" id="openNotifModal">
+        <span class="notif-fab__dot"></span>
+        Obavesti me o novim nekretninama
+    </button>
+
+
+    <div class="notif-overlay" id="notifOverlay">
+        <div class="notif-modal">
+            <div class="notif-modal__header">
+                <div>
+                    <h3><i class="ph ph-bell"></i> Obaveštenja o nekretninama</h3>
+                    <p>Primite mejl kada se pojavi nekretnina po vašim kriterijumima</p>
+                </div>
+                <button class="notif-modal__close" id="closeNotifModal">&#215;</button>
+            </div>
+
+            <div class="notif-modal__body" id="notifFormBody">
+                <div class="notif-section">
+                    <div class="notif-section__title">Kontakt</div>
+                    <div class="notif-form-group">
+                        <label>Email adresa *</label>
+                        <input type="email" id="notifEmail" placeholder="vasa@email.com">
+                        <span class="notif-error" id="emailError"></span>
+                    </div>
+                </div>
+
+                <div class="notif-section">
+                    <div class="notif-section__title">Tip nekretnine *</div>
+                    <div class="notif-tipovi" id="notifTipovi">
+                        @foreach($tipoviNekretnina as $t)
+                        @if($t->tip != 'Beograd')
+                        <div class="notif-tip-pill"
+                            data-id="{{ $t->id }}"
+                            data-tip="{{ $t->tip }}">
+                            {{ $t->tip }}
+                        </div>
+                        @endif
+                        @endforeach
+                    </div>
+                    <span class="notif-error" id="tipError"></span>
+                    <input type="hidden" id="odabraniTipId">
+                </div>
+
+                <div class="notif-section">
+                    <div class="notif-section__title">Cena</div>
+                    <div class="notif-cena-toggle">
+                        <button type="button" class="active" id="notifBtnUkupno">&#8364; Ukupno</button>
+                        <button type="button" id="notifBtnMetar">&#8364;/m&#178; Po metru</button>
+                    </div>
+                    <input type="hidden" id="cenaPoMetru" value="0">
+                    <div class="notif-row-2">
+                        <div class="notif-form-group">
+                            <label id="labelCenaMin">Min cena</label>
+                            <input type="number" id="notifCenaMin" placeholder="npr. 30000" min="0">
+                        </div>
+                        <div class="notif-form-group">
+                            <label id="labelCenaMax">Max cena</label>
+                            <input type="number" id="notifCenaMax" placeholder="npr. 150000" min="0">
+                        </div>
+                    </div>
+                    <span class="notif-error" id="cenaError"></span>
+                </div>
+
+                <div class="notif-section">
+                    <div class="notif-section__title">Kvadratura</div>
+                    <div class="notif-row-2">
+                        <div class="notif-form-group">
+                            <label>Min m&#178;</label>
+                            <input type="number" id="notifKvadMin" placeholder="npr. 30">
+                        </div>
+                        <div class="notif-form-group">
+                            <label>Max m&#178;</label>
+                            <input type="number" id="notifKvadMax" placeholder="npr. 100">
+                        </div>
+                    </div>
+                    <span class="notif-error" id="kvadError"></span>
+                </div>
+
+                <div class="notif-section" id="notifAtributiSekcija" style="display:none;">
+                    <div class="notif-section__title">Dodatni kriterijumi</div>
+                    <div class="notif-atributi-grid" id="notifAtributiGrid">
+                    </div>
+                </div>
+            </div>
+
+            <div class="notif-success" id="notifSuccess" style="display:none;">
+                <div class="notif-success__icon">&#10003;</div>
+                <h4>Uspešno ste se prijavili!</h4>
+                <p>Poslaćemo vam mejl čim se pojavi nekretnina koja odgovara vašim kriterijumima.</p>
+            </div>
+
+            <div class="notif-modal__footer">
+                <button class="notif-btn-otkazi" id="notifBtnOtkazi">Otkaži</button>
+                <button class="notif-btn-prijavi" id="notifBtnPrijavi">
+                    Prijavi se na obaveštenja
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="{{asset("assets/js/app.js")}}"></script>
+    <script src="{{asset("assets/js/splide-4.1.3/dist/js/splide.min.js")}}"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="{{asset("assets/js/main.js")}}"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async></script>
+    @stack('scripts')
+</body>
+
+</html>
