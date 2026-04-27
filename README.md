@@ -1,66 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Castello Nekretnine
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Official website project for **Castello Nekretnine Vrsac**, built to showcase available real estate listings, provide agency contact information, and allow visitors to subscribe to property alerts.
 
-## About Laravel
+The platform is focused on helping users browse properties in Vrsac and surrounding areas, with a simple experience for discovering apartments, houses, commercial spaces, land, and other listing categories.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Website: [vrsacnekretnine.rs](https://vrsacnekretnine.rs/)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The website includes:
 
-## Learning Laravel
+- a homepage with featured properties
+- category-based property browsing
+- detailed listing pages
+- agency contact information and social links
+- a mortgage calculator
+- email subscription for new property alerts based on selected criteria
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The public site presents listings and services related to:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- apartments
+- houses
+- commercial spaces
+- plots
+- agricultural land
+- Belgrade properties
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Key Features
 
-## Laravel Sponsors
+- featured and active property listings
+- filtering by property type and listing attributes
+- email subscription for new listings
+- email verification flow for subscribers
+- dynamic filters based on selected property type
+- groundwork for grouped daily email notifications
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Tech Stack
 
-### Premium Partners
+This project is built on Laravel with a server-rendered frontend.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+- PHP / Laravel
+- Blade templates
+- JavaScript
+- HTML / CSS
+- MySQL
+- SMTP-based email delivery
 
-## Contributing
+## Local Setup
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Clone the repository.
+2. Install PHP dependencies:
 
-## Code of Conduct
+```bash
+composer install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. Copy the environment file:
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+4. Configure database and mail settings inside `.env`.
+5. Generate the application key:
+
+```bash
+php artisan key:generate
+```
+
+6. Run migrations:
+
+```bash
+php artisan migrate
+```
+
+7. Seed the database if needed:
+
+```bash
+php artisan db:seed
+```
+
+8. Start the local development server:
+
+```bash
+php artisan serve
+```
+
+## Email Notifications
+
+The application supports user subscriptions for newly published properties based on selected search criteria. The typical flow is:
+
+- the visitor enters an email address and selects property criteria
+- a subscription record is created
+- a verification email is sent
+- once the email address is confirmed, the subscription becomes active
+- new properties can then be matched against active subscriptions
+
+If you are using a real SMTP server, make sure the following `.env` values are configured correctly:
+
+- `MAIL_HOST`
+- `MAIL_PORT`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
+- `MAIL_ENCRYPTION`
+
+For local development without sending real emails, you can use:
+
+```env
+MAIL_MAILER=log
+```
+
+## Project Structure Highlights
+
+The main functional areas of the project include:
+
+- property management
+- listing display and filtering
+- subscribers and subscription filters
+- subscription email verification
+- dynamic filter definitions by property type
+
+## Notes
+
+- filters can be displayed dynamically depending on the selected property type
+- named routes must be defined correctly for email verification links
+- queue-based mail sending is recommended for production use
+- daily digest notifications are a natural next step for improving the subscription experience
+
+## Contact
+
+**Castello Nekretnine Vrsac**  
+Vaska Pope 2, entrance from Gavrila Principa  
+Phone: `+381 65 8234 501`  
+Email: `castellonekretnine@gmail.com`
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project belongs to Castello Nekretnine unless stated otherwise in the repository.
