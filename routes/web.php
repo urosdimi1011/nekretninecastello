@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NekeretnineController;
+use App\Http\Controllers\PretplatnikController;
 use Illuminate\Support\Facades\Route;
 use App\Mail\TestEmail;
 use Illuminate\Support\Facades\Mail;
@@ -34,8 +35,13 @@ Route::get('/admin/nekretnine/vrati/{id}', [\App\Http\Controllers\NekeretnineCon
 
 
 Route::get('/api/tip-atributi/{id}', [\App\Http\Controllers\PretplatnikController::class, 'getAtributi']);
-Route::post('/pretplatnici', [\App\Http\Controllers\PretplatnikController::class, 'store'])->name('pretplatnici.store');
 
+Route::get('/api/filteri/{tipId}', [PretplatnikController::class, 'getFilteri']);
+
+
+Route::post('/pretplatnici', [\App\Http\Controllers\PretplatnikController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('pretplatnici.store');
 
 Route::get('/nekretnine/{tip?}/{page?}', [\App\Http\Controllers\NekeretnineController::class, 'index'])->name("nekretnineSve");
 

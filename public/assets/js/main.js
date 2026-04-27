@@ -581,23 +581,30 @@ function azurirajBrojKaraktera() {
 }
 // ===== NOTIFIKACIJE =====
 const notifOverlay = document.getElementById("notifOverlay");
+const openNotifModalBtn = document.getElementById("openNotifModal");
 const notifFormBody = document.getElementById("notifFormBody");
 const notifSuccess = document.getElementById("notifSuccess");
 let notifTipId = null;
-let odabranaMesta = new Set();
+let filteri = []; // definicije učitane iz API-ja
+let odabraneVrednosti = {}; // { kljuc: vrednost | { min, max } | [id, id] }
 
-// Otvori/zatvori modal
-document.getElementById("openNotifModal")?.addEventListener("click", () => {
+// Otvori modal
+openNotifModalBtn.addEventListener("click", () => {
+    console.log("Uslii", notifOverlay);
+    if (!notifOverlay) return;
     notifOverlay.classList.add("active");
     document.body.classList.add("skloni-scroll");
-    ucitajMesta(); // lazy load mesta
+
+    if (!filteri.length) {
+        ucitajFilteri();
+    }
 });
 
+// Zatvori modal
 function closeNotifModal() {
     notifOverlay.classList.remove("active");
     document.body.classList.remove("skloni-scroll");
 }
-
 document
     .getElementById("closeNotifModal")
     ?.addEventListener("click", closeNotifModal);
@@ -614,120 +621,151 @@ document.querySelectorAll(".notif-tip-pill").forEach((pill) => {
         document
             .querySelectorAll(".notif-tip-pill")
             .forEach((p) => p.classList.remove("active"));
+
         this.classList.add("active");
         notifTipId = this.dataset.id;
-        document.getElementById("odabraniTipId").value = notifTipId;
         document.getElementById("tipError").textContent = "";
-        ucitajAtribute(notifTipId);
+
+        ucitajFilteriZaTip(notifTipId);
     });
 });
 
-// Učitaj mesta
-let mestaUcitana = false;
-function ucitajMesta() {
-    if (mestaUcitana) return;
-    const grid = document.getElementById("notifMestaGrid");
+// Učitaj filtere iz API-ja
+function ucitajFilteriZaTip(tipId) {
     const csrf = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
 
-    fetch("/api/mesta", { headers: { "X-CSRF-TOKEN": csrf } })
+    fetch(`/api/filteri/${tipId}`, {
+        headers: {
+            "X-CSRF-TOKEN": csrf,
+            Accept: "application/json",
+        },
+    })
         .then((r) => r.json())
-        .then((mesta) => {
-            mestaUcitana = true;
-            grid.innerHTML = "";
-            mesta.forEach((m) => {
-                const pill = document.createElement("div");
-                pill.className = "notif-mesto-pill";
-                pill.textContent = m.naziv;
-                pill.dataset.id = m.id;
-                pill.addEventListener("click", function () {
-                    this.classList.toggle("active");
-                    if (odabranaMesta.has(m.id)) {
-                        odabranaMesta.delete(m.id);
-                    } else {
-                        odabranaMesta.add(m.id);
-                    }
-                    document.getElementById("mestaError").textContent = "";
-                });
-                grid.appendChild(pill);
-            });
+        .then((data) => {
+            filteri = data;
+            renderujDinamickeFilteri(data);
         })
-        .catch(() => {
-            grid.innerHTML =
-                '<span style="color:#dc3545;font-size:13px;">Greška pri učitavanju lokacija</span>';
-        });
+        .catch(() => console.error("Greška pri učitavanju filtera"));
 }
 
-// Učitaj atribute za tip
-const opcijePoAtributu = {
-    grejanje: ["Centralno", "Etažno", "TA peć", "Klima", "Podno"],
-    parking: ["Da", "Ne"],
-    garaža: ["Ima", "Nema"],
-};
+function renderujDinamickeFilteri(filteri) {
+    const container = document.getElementById("notifDinamickiFilteri");
+    if (!container) return;
 
-function ucitajAtribute(tipId) {
-    const sekcija = document.getElementById("notifAtributiSekcija");
-    const grid = document.getElementById("notifAtributiGrid");
-    const csrf = document
-        .querySelector('meta[name="csrf-token"]')
-        .getAttribute("content");
+    container.innerHTML = "";
 
-    fetch(`/api/tip-atributi/${tipId}`, { headers: { "X-CSRF-TOKEN": csrf } })
-        .then((r) => r.json())
-        .then((atributi) => {
-            const exclude = new Set(["kvadratura", "površina placa"]);
-            const filtrirani = atributi.filter(
-                (a) => !exclude.has(a.naziv.toLowerCase()),
-            );
+    filteri.forEach((f) => {
+        const sekcija = document.createElement("div");
+        sekcija.className = "notif-section dinamicka";
+        sekcija.dataset.kljuc = f.kljuc;
 
-            if (!filtrirani.length) {
-                sekcija.style.display = "none";
-                return;
+        let inputHtml = "";
+
+        switch (f.tip) {
+            case "raspon": {
+                const opcije = f.opcije
+                    ? f.opcije
+                          .map((o) => `<option value="${o}">${o}</option>`)
+                          .join("")
+                    : "";
+
+                const isSelect = f.opcije && f.opcije.length > 0;
+
+                inputHtml = `
+                    <div class="notif-row-2">
+                        <div class="notif-form-group">
+                            <label>Od ${f.jedinica ?? ""}</label>
+                            ${
+                                isSelect
+                                    ? `<select class="filter-input" data-kljuc="${f.kljuc}" data-pozicija="min">
+                                        <option value="">Svejedno</option>
+                                        ${opcije}
+                                      </select>`
+                                    : `<input type="number" class="filter-input"
+                                        data-kljuc="${f.kljuc}" data-pozicija="min"
+                                        min="0" placeholder="Min">`
+                            }
+                        </div>
+                        <div class="notif-form-group">
+                            <label>Do ${f.jedinica ?? ""}</label>
+                            ${
+                                isSelect
+                                    ? `<select class="filter-input" data-kljuc="${f.kljuc}" data-pozicija="max">
+                                        <option value="">Svejedno</option>
+                                        ${opcije}
+                                      </select>`
+                                    : `<input type="number" class="filter-input"
+                                        data-kljuc="${f.kljuc}" data-pozicija="max"
+                                        min="0" placeholder="Max">`
+                            }
+                        </div>
+                    </div>
+                    <span class="notif-error" id="error-${f.kljuc}"></span>`;
+                break;
             }
 
-            sekcija.style.display = "block";
-            grid.innerHTML = "";
+            case "kategorija": {
+                const katOpcije = (f.opcije || [])
+                    .map(
+                        (o) =>
+                            `<option value="${o.toLowerCase()}">${o}</option>`,
+                    )
+                    .join("");
 
-            filtrirani.forEach((a) => {
-                const div = document.createElement("div");
-                div.className = "notif-atribut-field";
-                const naziv = a.naziv.toLowerCase();
-                let inputHtml = "";
+                inputHtml = `
+                    <select class="filter-input" data-kljuc="${f.kljuc}" data-pozicija="vrednost">
+                        <option value="">Svejedno</option>
+                        ${katOpcije}
+                    </select>`;
+                break;
+            }
 
-                if (naziv === "sobe") {
-                    inputHtml = `
-                        <div class="sobe-range">
-                            <select data-atribut-id="${a.id}" data-tip="sobe_min">
-                                <option value="">Svejedno (od)</option>
-                                <option value="1">1 soba</option>
-                                <option value="2">2 sobe</option>
-                                <option value="3">3 sobe</option>
-                                <option value="4">4 sobe</option>
-                                <option value="5">5+ soba</option>
-                            </select>
-                            <select data-atribut-id="${a.id}" data-tip="sobe_max">
-                                <option value="">Svejedno (do)</option>
-                                <option value="1">1 soba</option>
-                                <option value="2">2 sobe</option>
-                                <option value="3">3 sobe</option>
-                                <option value="4">4 sobe</option>
-                                <option value="5">5+ soba</option>
-                            </select>
-                        </div>`;
-                } else {
-                    const opcije = opcijePoAtributu[naziv] || ["Da", "Ne"];
-                    inputHtml = `
-                        <select data-atribut-id="${a.id}">
-                            <option value="">Svejedno</option>
-                            ${opcije.map((o) => `<option value="${o.toLowerCase()}">${o}</option>`).join("")}
-                        </select>`;
-                }
+            case "boolean":
+                inputHtml = `
+                    <select class="filter-input" data-kljuc="${f.kljuc}" data-pozicija="vrednost">
+                        <option value="">Svejedno</option>
+                        <option value="da">Da</option>
+                        <option value="ne">Ne</option>
+                    </select>`;
+                break;
 
-                div.innerHTML = `<label>${a.naziv}</label>${inputHtml}`;
-                grid.appendChild(div);
+            case "vise_izbora": {
+                const pills = (f.opcije || [])
+                    .map(
+                        (o) => `
+                        <div class="notif-mesto-pill" data-id="${o.id}" data-kljuc="${f.kljuc}">
+                            ${o.naziv}
+                        </div>
+                    `,
+                    )
+                    .join("");
+
+                inputHtml = `
+                    <p class="notif-hint">Možete izabrati više lokacija</p>
+                    <div class="notif-mesta-grid">${pills}</div>`;
+                break;
+            }
+        }
+
+        sekcija.innerHTML = `
+            <div class="notif-section__title">
+                ${f.naziv}${f.obavezan ? " *" : ""}
+            </div>
+            ${inputHtml}
+        `;
+
+        container.appendChild(sekcija);
+
+        if (f.tip === "vise_izbora") {
+            sekcija.querySelectorAll(".notif-mesto-pill").forEach((pill) => {
+                pill.addEventListener("click", function () {
+                    this.classList.toggle("active");
+                });
             });
-        });
+        }
+    });
 }
 
 // Cena toggle
@@ -749,7 +787,6 @@ function setCenaToggle(poMetru) {
     document.getElementById("labelCenaMin").textContent = "Min cena" + sufiks;
     document.getElementById("labelCenaMax").textContent = "Max cena" + sufiks;
 }
-
 document
     .getElementById("notifBtnUkupno")
     ?.addEventListener("click", () => setCenaToggle(false));
@@ -757,150 +794,207 @@ document
     .getElementById("notifBtnMetar")
     ?.addEventListener("click", () => setCenaToggle(true));
 
+function parseBroj(vrednost) {
+    if (vrednost == null) return null;
+    const cisto = String(vrednost).replace(/[^\d]/g, "");
+    return cisto ? Number(cisto) : null;
+}
+
+// Skupi vrednosti filtera
+function skupiFilteri() {
+    const result = {};
+
+    // Raspon i select filteri
+    document.querySelectorAll(".filter-input").forEach((el) => {
+        const kljuc = el.dataset.kljuc;
+        const pozicija = el.dataset.pozicija;
+        const vrednost = el.value.trim();
+
+        if (!vrednost) return;
+
+        if (pozicija === "min" || pozicija === "max") {
+            if (!result[kljuc]) result[kljuc] = {};
+            result[kljuc][pozicija] = isNaN(Number(vrednost))
+                ? vrednost
+                : Number(vrednost);
+        } else {
+            result[kljuc] = vrednost;
+        }
+    });
+
+    // Više izbora (lokacija)
+    document.querySelectorAll(".notif-sekcija.dinamicka").forEach((sekcija) => {
+        const aktivni = [
+            ...sekcija.querySelectorAll(".notif-mesto-pill.active"),
+        ].map((p) => p.dataset.id);
+        if (aktivni.length) {
+            result[sekcija.dataset.kljuc] = aktivni;
+        }
+    });
+
+    // Lokacija — poseban selektor
+    document.querySelectorAll(".notif-mesto-pill.active").forEach((pill) => {
+        const kljuc = pill.dataset.kljuc;
+        if (!result[kljuc]) result[kljuc] = [];
+        if (!result[kljuc].includes(pill.dataset.id)) {
+            result[kljuc].push(pill.dataset.id);
+        }
+    });
+
+    return result;
+}
+
+// Validacija
+function validiraj() {
+    let valid = true;
+
+    // Email
+    const email = document.getElementById("notifEmail").value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        document.getElementById("emailError").textContent =
+            "Unesite ispravnu email adresu";
+        valid = false;
+    } else {
+        document.getElementById("emailError").textContent = "";
+    }
+
+    // Tip
+    if (!notifTipId) {
+        document.getElementById("tipError").textContent =
+            "Izaberite tip nekretnine";
+        valid = false;
+    } else {
+        document.getElementById("tipError").textContent = "";
+    }
+
+    // Helper za validaciju raspona
+    function validirajRaspon(minId, maxId, errorId, naziv) {
+        const min = parseBroj(document.getElementById(minId)?.value);
+        const max = parseBroj(document.getElementById(maxId)?.value);
+        const err = document.getElementById(errorId);
+
+        if (min !== null && min < 0) {
+            err.textContent = "Min vrednost nije ispravna";
+            return { valid: false, min: null, max: null };
+        }
+
+        if (max !== null && max < 0) {
+            err.textContent = "Max vrednost nije ispravna";
+            return { valid: false, min: null, max: null };
+        }
+
+        if (min !== null && max !== null && min > max) {
+            err.textContent = "Min ne može biti veći od max";
+            return { valid: false, min: null, max: null };
+        }
+
+        err.textContent = "";
+        return { valid: true, min, max };
+    }
+
+    const cena = validirajRaspon(
+        "notifCenaMin",
+        "notifCenaMax",
+        "cenaError",
+        "cenu",
+    );
+    if (!cena.valid) valid = false;
+
+    const kvad = validirajRaspon(
+        "notifKvadMin",
+        "notifKvadMax",
+        "kvadError",
+        "kvadraturu",
+    );
+    if (!kvad.valid) valid = false;
+
+    // Raspon filteri (sobe itd.) — validacija min <= max
+    document.querySelectorAll(".notif-section.dinamicka").forEach((sekcija) => {
+        const kljuc = sekcija.dataset.kljuc;
+        const minInput = sekcija.querySelector(
+            `[data-kljuc="${kljuc}"][data-pozicija="min"]`,
+        );
+        const maxInput = sekcija.querySelector(
+            `[data-kljuc="${kljuc}"][data-pozicija="max"]`,
+        );
+        const errEl = sekcija.querySelector(`#error-${kljuc}`);
+
+        if (!minInput || !maxInput || !errEl) return;
+
+        const min = minInput.value;
+        const max = maxInput.value;
+
+        if (min && max && Number(min) > Number(max)) {
+            errEl.textContent = "Min ne može biti veći od max";
+            maxInput.style.borderColor = "#dc3545";
+            valid = false;
+        } else {
+            if (errEl) errEl.textContent = "";
+            maxInput.style.borderColor = "";
+        }
+    });
+
+    return { valid, cena, kvad };
+}
+
 // Submit
 document
     .getElementById("notifBtnPrijavi")
     ?.addEventListener("click", function () {
-        let valid = true;
-
-        // Email
-        const email = document.getElementById("notifEmail").value.trim();
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            document.getElementById("emailError").textContent =
-                "Unesite ispravnu email adresu";
-            valid = false;
-        } else {
-            document.getElementById("emailError").textContent = "";
-        }
-
-        // Tip
-        if (!notifTipId) {
-            document.getElementById("tipError").textContent =
-                "Izaberite tip nekretnine";
-            valid = false;
-        } else {
-            document.getElementById("tipError").textContent = "";
-        }
-
-        // Cena
-        const cenaMinVal = document.getElementById("notifCenaMin").value.trim();
-        const cenaMaxVal = document.getElementById("notifCenaMax").value.trim();
-        const cenaMin = cenaMinVal !== "" ? Number(cenaMinVal) : null;
-        const cenaMax = cenaMaxVal !== "" ? Number(cenaMaxVal) : null;
-
-        if (cenaMin === null && cenaMax === null) {
-            document.getElementById("cenaError").textContent =
-                "Unesite bar min ili max cenu";
-            valid = false;
-        } else if (cenaMin !== null && (isNaN(cenaMin) || cenaMin < 0)) {
-            document.getElementById("cenaError").textContent =
-                "Unesite ispravnu min cenu";
-            valid = false;
-        } else if (cenaMax !== null && (isNaN(cenaMax) || cenaMax < 0)) {
-            document.getElementById("cenaError").textContent =
-                "Unesite ispravnu max cenu";
-            valid = false;
-        } else if (cenaMin !== null && cenaMax !== null && cenaMin > cenaMax) {
-            document.getElementById("cenaError").textContent =
-                "Min cena ne može biti veća od max";
-            valid = false;
-        } else {
-            document.getElementById("cenaError").textContent = "";
-        }
-
-        // Kvadratura
-        const kvadMinVal = document.getElementById("notifKvadMin").value.trim();
-        const kvadMaxVal = document.getElementById("notifKvadMax").value.trim();
-        const kvadMin = kvadMinVal !== "" ? Number(kvadMinVal) : null;
-        const kvadMax = kvadMaxVal !== "" ? Number(kvadMaxVal) : null;
-
-        if (kvadMin === null && kvadMax === null) {
-            document.getElementById("kvadError").textContent =
-                "Unesite bar min ili max kvadraturu";
-            valid = false;
-        } else if (kvadMin !== null && (isNaN(kvadMin) || kvadMin < 0)) {
-            document.getElementById("kvadError").textContent =
-                "Unesite ispravnu min kvadraturu";
-            valid = false;
-        } else if (kvadMax !== null && (isNaN(kvadMax) || kvadMax < 0)) {
-            document.getElementById("kvadError").textContent =
-                "Unesite ispravnu max kvadraturu";
-            valid = false;
-        } else if (kvadMin !== null && kvadMax !== null && kvadMin > kvadMax) {
-            document.getElementById("kvadError").textContent =
-                "Min kvadratura ne može biti veća od max";
-            valid = false;
-        } else {
-            document.getElementById("kvadError").textContent = "";
-        }
-
-        // Sobe
-        const sobeMinSel = document.querySelector('[data-tip="sobe_min"]');
-        const sobeMaxSel = document.querySelector('[data-tip="sobe_max"]');
-        if (sobeMinSel && sobeMaxSel) {
-            if (
-                sobeMinSel.value &&
-                sobeMaxSel.value &&
-                parseInt(sobeMinSel.value) > parseInt(sobeMaxSel.value)
-            ) {
-                sobeMaxSel.style.borderColor = "#dc3545";
-                valid = false;
-            } else {
-                sobeMaxSel.style.borderColor = "";
-            }
-        }
-
+        const { valid, cena, kvad } = validiraj();
         if (!valid) return;
-
-        // Skupljanje atributa
-        const atributi = {};
-        document
-            .querySelectorAll("#notifAtributiGrid select:not([data-tip])")
-            .forEach((sel) => {
-                if (sel.value) atributi[sel.dataset.atributId] = sel.value;
-            });
-        if (sobeMinSel && (sobeMinSel.value || sobeMaxSel?.value)) {
-            atributi[sobeMinSel.dataset.atributId] = {
-                min: sobeMinSel.value || null,
-                max: sobeMaxSel?.value || null,
-            };
-        }
 
         const csrf = document
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content");
+        const filteri = skupiFilteri();
 
         fetch("/pretplatnici", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": csrf,
+                Accept: "application/json",
             },
             body: JSON.stringify({
-                email: email,
+                email: document.getElementById("notifEmail").value.trim(),
                 id_tipa: notifTipId,
-                cena_min: cenaMin,
-                cena_max: cenaMax,
+                cena_min: cena.min,
+                cena_max: cena.max,
                 cena_po_metru:
                     document.getElementById("cenaPoMetru").value === "1",
-                kvadratura_min: kvadMin,
-                kvadratura_max: kvadMax,
-                mesta: odabranaMesta.size ? [...odabranaMesta] : null,
-                atributi: Object.keys(atributi).length ? atributi : null,
+                kvadratura_min: kvad.min,
+                kvadratura_max: kvad.max,
+                filteri: Object.keys(filteri).length ? filteri : null,
             }),
-        })
-            .then((r) => r.json())
-            .then((data) => {
-                if (data.uspeh) {
-                    notifFormBody.style.display = "none";
-                    notifSuccess.style.display = "block";
+        }).then(async (r) => {
+            const data = await r.json();
+
+            if (!r.ok) {
+                if (r.status === 422 && data.errors) {
+                    document.getElementById("emailError").textContent =
+                        data.errors.email?.[0] ?? "";
+                    document.getElementById("tipError").textContent =
+                        data.errors.id_tipa?.[0] ?? "";
+                    document.getElementById("cenaError").textContent =
+                        data.errors.cena_max?.[0] ?? "";
+                    document.getElementById("kvadError").textContent =
+                        data.errors.kvadratura_max?.[0] ?? "";
                 } else if (data.greska) {
                     document.getElementById("emailError").textContent =
                         data.greska;
                 }
-            })
-            .catch((err) => console.error(err));
+
+                return;
+            }
+
+            if (data.uspeh) {
+                notifFormBody.style.display = "none";
+                notifSuccess.style.display = "block";
+            }
+        });
     });
+// ===== KRAJ NOTIFIKACIJE =====
 
 const cenaMinInput = document.getElementById("notifCenaMin");
 const cenaMaxInput = document.getElementById("notifCenaMax");

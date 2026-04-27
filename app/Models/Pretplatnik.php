@@ -7,25 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Pretplatnik extends Model
 {
     protected $table = 'pretplatnici';
-    protected $fillable = [
-        'email',
-        'id_tipa',
-        'cena_min',
-        'cena_max',
-        'cena_po_metru',
-        'kvadratura_min',
-        'kvadratura_max',
-        'atributi_vrednosti',
-        'token'
-    ];
+    protected $fillable = ['email', 'token', 'verified_at'];
+    protected $casts = ['verified_at' => 'datetime'];
 
-    protected $casts = [
-        'atributi_vrednosti' => 'array',
-        'cena_po_metru' => 'boolean',
-    ];
 
-    public function tip()
+    public function filteri()
     {
-        return $this->belongsTo(TipNekretnine::class, 'id_tipa');
+        return $this->hasMany(PretplatnikFilter::class, 'pretplatnik_id');
+    }
+
+    public function jeVerifikovan(): bool
+    {
+        return $this->verified_at !== null;
     }
 }
