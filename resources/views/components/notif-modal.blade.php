@@ -81,6 +81,7 @@
             <button type="button" class="notif-btn-otkazi" id="notifBtnOtkazi">Otkaži</button>
             <button type="button" class="notif-btn-prijavi" id="notifBtnPrijavi">
                 Prijavi se na obaveštenja
+                <span class="notif-btn-spinner" aria-hidden="true"></span>
             </button>
         </div>
     </div>

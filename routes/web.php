@@ -3,18 +3,6 @@
 use App\Http\Controllers\NekeretnineController;
 use App\Http\Controllers\PretplatnikController;
 use Illuminate\Support\Facades\Route;
-use App\Mail\TestEmail;
-use Illuminate\Support\Facades\Mail;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 Route::get('/login', [\App\Http\Controllers\AuthenticateUser::class, 'prikaz'])->name("login");
 Route::get('/onama', [\App\Http\Controllers\OwnController::class, 'index'])->name("onama");
@@ -42,6 +30,15 @@ Route::get('/api/filteri/{tipId}', [PretplatnikController::class, 'getFilteri'])
 Route::post('/pretplatnici', [\App\Http\Controllers\PretplatnikController::class, 'store'])
     ->middleware('throttle:5,1')
     ->name('pretplatnici.store');
+
+
+Route::get('/pretplatnici/verifikuj/{token}', [PretplatnikController::class, 'verifikuj'])
+    ->name('pretplatnici.verifikuj');
+
+Route::get('/pretplatnici/odjava/{token}', [PretplatnikController::class, 'odjava'])
+    ->name('pretplatnici.odjava');
+
+
 
 Route::get('/nekretnine/{tip?}/{page?}', [\App\Http\Controllers\NekeretnineController::class, 'index'])->name("nekretnineSve");
 

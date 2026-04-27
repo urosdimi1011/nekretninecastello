@@ -36,7 +36,9 @@
                                         <table width="100%" cellpadding="0" cellspacing="0">
                                             <tr>
                                                 <td style="padding:6px 0;font-size:13px;color:#888;width:40%;">Tip nekretnine</td>
-                                                <td style="padding:6px 0;font-size:13px;color:#1a2035;font-weight:600;">{{ $pretplatnik->tip->tip }}</td>
+                                                <td style="padding:6px 0;font-size:13px;color:#1a2035;font-weight:600;">
+                                                    {{ $filter->tip?->tip ?? 'Nije definisano' }}
+                                                </td>
                                             </tr>
                                             @if($pretplatnik->cena_min || $pretplatnik->cena_max)
                                             <tr>

@@ -69,7 +69,7 @@ class PretplatnikController extends Controller
 
         if ($postojeci && ! $pretplatnik->jeVerifikovan()) {
             Mail::to($pretplatnik->email)
-                ->send(new VerifikacijaPretplate($pretplatnik));
+                ->send(new VerifikacijaPretplate($pretplatnik, $postojeci));
 
             return response()->json(['uspeh' => true]);
         }
@@ -83,13 +83,14 @@ class PretplatnikController extends Controller
             'kvadratura_min' => $data['kvadratura_min'] ?? null,
             'kvadratura_max' => $data['kvadratura_max'] ?? null,
         ]);
+        $filter->load('tip');
 
         if (! empty($data['filteri'])) {
             $this->sacuvajFilteri($filter, $data['filteri']);
         }
 
         Mail::to($pretplatnik->email)
-            ->send(new VerifikacijaPretplate($pretplatnik));
+            ->send(new VerifikacijaPretplate($pretplatnik, $filter));
 
         return response()->json(['uspeh' => true]);
     }

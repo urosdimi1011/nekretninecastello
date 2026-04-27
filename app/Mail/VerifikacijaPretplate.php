@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use App\Models\Pretplatnik;
+use App\Models\PretplatnikFilter;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -15,14 +15,13 @@ class VerifikacijaPretplate extends Mailable
     use Queueable, SerializesModels;
 
 
-    public function __construct(public Pretplatnik $pretplatnik) {}
+    public function __construct(
+        public Pretplatnik $pretplatnik,
+        public PretplatnikFilter $filter
+    ) {}
 
 
-    /**
-     * Get the message envelope.
-     *
-     * @return \Illuminate\Mail\Mailables\Envelope
-     */
+
     public function envelope()
     {
         return new Envelope(
@@ -30,11 +29,7 @@ class VerifikacijaPretplate extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     *
-     * @return \Illuminate\Mail\Mailables\Content
-     */
+
     public function content()
     {
         return new Content(
@@ -42,11 +37,6 @@ class VerifikacijaPretplate extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array
-     */
     public function attachments()
     {
         return [];
