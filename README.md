@@ -1,132 +1,139 @@
 # Castello Nekretnine
 
-Zvanični sajt agencije **Castello Nekretnine Vršac** za pregled ponude nekretnina, kontakt sa agencijom i prijavu na obaveštenja o novim oglasima.
+Official website project for **Castello Nekretnine Vrsac**, built to showcase available real estate listings, provide agency contact information, and allow visitors to subscribe to property alerts.
 
-Sajt je namenjen korisnicima koji traže stanove, kuće, lokale, placeve i poljoprivredno zemljište, sa fokusom na preglednu ponudu, brzu pretragu i jednostavan kontakt sa agencijom.
+The platform is focused on helping users browse properties in Vrsac and surrounding areas, with a simple experience for discovering apartments, houses, commercial spaces, land, and other listing categories.
 
-## Pregled
+Website: [vrsacnekretnine.rs](https://vrsacnekretnine.rs/)
 
-Na sajtu se nalaze:
+## Overview
 
-- početna stranica sa istaknutim nekretninama
-- pregled kategorija nekretnina
-- detalji pojedinačnih oglasa
-- kontakt informacije i društvene mreže agencije
-- kreditni kalkulator
-- prijava na email obaveštenja za nove nekretnine po zadatim kriterijumima
+The website includes:
 
-Prema javno dostupnim informacijama na sajtu, agencija posluje u Vršcu i nudi ponudu za:
+- a homepage with featured properties
+- category-based property browsing
+- detailed listing pages
+- agency contact information and social links
+- a mortgage calculator
+- email subscription for new property alerts based on selected criteria
 
-- stanove
-- kuće
-- lokale
-- placeve
-- poljoprivredno zemljište
-- nekretnine u Beogradu
+The public site presents listings and services related to:
 
-Sajt: [vrsacnekretnine.rs](https://vrsacnekretnine.rs/)
+- apartments
+- houses
+- commercial spaces
+- plots
+- agricultural land
+- Belgrade properties
 
-## Ključne funkcionalnosti
+## Key Features
 
-- prikaz istaknutih i aktuelnih nekretnina
-- filtriranje po tipu nekretnine i atributima oglasa
-- prijava korisnika na obaveštenja preko email adrese
-- verifikacija pretplate putem email linka
-- dinamički filteri u zavisnosti od tipa nekretnine
-- osnova za planirano grupno slanje dnevnih email obaveštenja
+- featured and active property listings
+- filtering by property type and listing attributes
+- email subscription for new listings
+- email verification flow for subscribers
+- dynamic filters based on selected property type
+- groundwork for grouped daily email notifications
 
-## Tehnologije
+## Tech Stack
 
-Projekat je razvijan na Laravel osnovi, uz klasičan serverski renderovan frontend.
+This project is built on Laravel with a server-rendered frontend.
 
 - PHP / Laravel
-- Blade templating
+- Blade templates
 - JavaScript
 - HTML / CSS
 - MySQL
-- SMTP email slanje
+- SMTP-based email delivery
 
-## Pokretanje projekta lokalno
+## Local Setup
 
-1. Klonirati repozitorijum.
-2. Instalirati PHP zavisnosti:
+1. Clone the repository.
+2. Install PHP dependencies:
 
 ```bash
 composer install
 ```
 
-3. Kopirati `.env` fajl:
+3. Copy the environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-4. Podesiti konekciju ka bazi i mail parametre u `.env`.
-5. Generisati aplikacioni ključ:
+4. Configure database and mail settings inside `.env`.
+5. Generate the application key:
 
 ```bash
 php artisan key:generate
 ```
 
-6. Pokrenuti migracije:
+6. Run migrations:
 
 ```bash
 php artisan migrate
 ```
 
-7. Po potrebi pokrenuti seedere:
+7. Seed the database if needed:
 
 ```bash
 php artisan db:seed
 ```
 
-8. Startovati lokalni server:
+8. Start the local development server:
 
 ```bash
 php artisan serve
 ```
 
-## Email obaveštenja
+## Email Notifications
 
-Sistem podržava pretplatu korisnika na nove oglase prema zadatim kriterijumima. Tok rada je sledeći:
+The application supports user subscriptions for newly published properties based on selected search criteria. The typical flow is:
 
-- korisnik unese email i izabere kriterijume
-- kreira se pretplata i šalje verifikacioni email
-- nakon potvrde email adrese pretplata postaje aktivna
-- nove nekretnine se mogu povezivati sa odgovarajućim pretplatama
+- the visitor enters an email address and selects property criteria
+- a subscription record is created
+- a verification email is sent
+- once the email address is confirmed, the subscription becomes active
+- new properties can then be matched against active subscriptions
 
-Ako se koristi pravi SMTP server, potrebno je da `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` i `MAIL_ENCRYPTION` budu ispravno podešeni u `.env`.
+If you are using a real SMTP server, make sure the following `.env` values are configured correctly:
 
-Za lokalno testiranje bez pravog slanja može se koristiti:
+- `MAIL_HOST`
+- `MAIL_PORT`
+- `MAIL_USERNAME`
+- `MAIL_PASSWORD`
+- `MAIL_ENCRYPTION`
+
+For local development without sending real emails, you can use:
 
 ```env
 MAIL_MAILER=log
 ```
 
-## Struktura funkcionalnosti
+## Project Structure Highlights
 
-Najvažniji delovi projekta uključuju:
+The main functional areas of the project include:
 
-- upravljanje nekretninama
-- prikaz i filtriranje oglasa
-- pretplatnike i filtere pretplate
-- verifikaciju pretplate email porukom
-- dinamičke filter definicije po tipu nekretnine
+- property management
+- listing display and filtering
+- subscribers and subscription filters
+- subscription email verification
+- dynamic filter definitions by property type
 
-## Napomene
+## Notes
 
-- filteri se mogu prikazivati dinamički u zavisnosti od odabranog tipa nekretnine
-- za email verifikaciju potrebno je da named rute budu pravilno definisane
-- za produkciju je preporučeno korišćenje queue sistema za slanje mejlova
-- dnevni digest obaveštenja je prirodan sledeći korak za unapređenje korisničkog iskustva
+- filters can be displayed dynamically depending on the selected property type
+- named routes must be defined correctly for email verification links
+- queue-based mail sending is recommended for production use
+- daily digest notifications are a natural next step for improving the subscription experience
 
-## Kontakt
+## Contact
 
-**Castello Nekretnine Vršac**  
-Vaska Pope 2, ulaz iz Gavrila Principa  
-Telefon: `+381 65 8234 501`  
+**Castello Nekretnine Vrsac**  
+Vaska Pope 2, entrance from Gavrila Principa  
+Phone: `+381 65 8234 501`  
 Email: `castellonekretnine@gmail.com`
 
-## Licenca
+## License
 
-Ovaj projekat je vlasništvo agencije Castello Nekretnine, osim ako u repozitorijumu nije drugačije naznačeno.
+This project belongs to Castello Nekretnine unless stated otherwise in the repository.
