@@ -1,66 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Castello Nekretnine
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Zvanični sajt agencije **Castello Nekretnine Vršac** za pregled ponude nekretnina, kontakt sa agencijom i prijavu na obaveštenja o novim oglasima.
 
-## About Laravel
+Sajt je namenjen korisnicima koji traže stanove, kuće, lokale, placeve i poljoprivredno zemljište, sa fokusom na preglednu ponudu, brzu pretragu i jednostavan kontakt sa agencijom.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Pregled
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Na sajtu se nalaze:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- početna stranica sa istaknutim nekretninama
+- pregled kategorija nekretnina
+- detalji pojedinačnih oglasa
+- kontakt informacije i društvene mreže agencije
+- kreditni kalkulator
+- prijava na email obaveštenja za nove nekretnine po zadatim kriterijumima
 
-## Learning Laravel
+Prema javno dostupnim informacijama na sajtu, agencija posluje u Vršcu i nudi ponudu za:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- stanove
+- kuće
+- lokale
+- placeve
+- poljoprivredno zemljište
+- nekretnine u Beogradu
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Sajt: [vrsacnekretnine.rs](https://vrsacnekretnine.rs/)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Ključne funkcionalnosti
 
-## Laravel Sponsors
+- prikaz istaknutih i aktuelnih nekretnina
+- filtriranje po tipu nekretnine i atributima oglasa
+- prijava korisnika na obaveštenja preko email adrese
+- verifikacija pretplate putem email linka
+- dinamički filteri u zavisnosti od tipa nekretnine
+- osnova za planirano grupno slanje dnevnih email obaveštenja
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Tehnologije
 
-### Premium Partners
+Projekat je razvijan na Laravel osnovi, uz klasičan serverski renderovan frontend.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+- PHP / Laravel
+- Blade templating
+- JavaScript
+- HTML / CSS
+- MySQL
+- SMTP email slanje
 
-## Contributing
+## Pokretanje projekta lokalno
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Klonirati repozitorijum.
+2. Instalirati PHP zavisnosti:
 
-## Code of Conduct
+```bash
+composer install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. Kopirati `.env` fajl:
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+4. Podesiti konekciju ka bazi i mail parametre u `.env`.
+5. Generisati aplikacioni ključ:
 
-## License
+```bash
+php artisan key:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+6. Pokrenuti migracije:
+
+```bash
+php artisan migrate
+```
+
+7. Po potrebi pokrenuti seedere:
+
+```bash
+php artisan db:seed
+```
+
+8. Startovati lokalni server:
+
+```bash
+php artisan serve
+```
+
+## Email obaveštenja
+
+Sistem podržava pretplatu korisnika na nove oglase prema zadatim kriterijumima. Tok rada je sledeći:
+
+- korisnik unese email i izabere kriterijume
+- kreira se pretplata i šalje verifikacioni email
+- nakon potvrde email adrese pretplata postaje aktivna
+- nove nekretnine se mogu povezivati sa odgovarajućim pretplatama
+
+Ako se koristi pravi SMTP server, potrebno je da `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD` i `MAIL_ENCRYPTION` budu ispravno podešeni u `.env`.
+
+Za lokalno testiranje bez pravog slanja može se koristiti:
+
+```env
+MAIL_MAILER=log
+```
+
+## Struktura funkcionalnosti
+
+Najvažniji delovi projekta uključuju:
+
+- upravljanje nekretninama
+- prikaz i filtriranje oglasa
+- pretplatnike i filtere pretplate
+- verifikaciju pretplate email porukom
+- dinamičke filter definicije po tipu nekretnine
+
+## Napomene
+
+- filteri se mogu prikazivati dinamički u zavisnosti od odabranog tipa nekretnine
+- za email verifikaciju potrebno je da named rute budu pravilno definisane
+- za produkciju je preporučeno korišćenje queue sistema za slanje mejlova
+- dnevni digest obaveštenja je prirodan sledeći korak za unapređenje korisničkog iskustva
+
+## Kontakt
+
+**Castello Nekretnine Vršac**  
+Vaska Pope 2, ulaz iz Gavrila Principa  
+Telefon: `+381 65 8234 501`  
+Email: `castellonekretnine@gmail.com`
+
+## Licenca
+
+Ovaj projekat je vlasništvo agencije Castello Nekretnine, osim ako u repozitorijumu nije drugačije naznačeno.
