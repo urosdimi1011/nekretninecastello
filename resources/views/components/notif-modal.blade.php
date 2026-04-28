@@ -75,6 +75,9 @@
             <div class="notif-success__icon">&#10003;</div>
             <h4>Uspešno ste se prijavili!</h4>
             <p>Poslali smo vam verifikacioni mejl. Potvrdite email adresu da aktivirate obaveštenja.</p>
+            <span class="notif-success__hint">
+                Ako poruka nije stigla u prijemno sanduče, proverite i spam ili promotions folder.
+            </span>
         </div>
 
         <div class="notif-modal__footer">

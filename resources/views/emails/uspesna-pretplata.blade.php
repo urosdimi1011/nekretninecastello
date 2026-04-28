@@ -19,7 +19,7 @@
                                 Castello Nekretnine Vršac
                             </p>
                             <h1 style="margin:8px 0 0;font-size:22px;color:#fec059;font-weight:700;">
-                                Potvrdite pretplatu
+                                Pretplata je aktivna
                             </h1>
                         </td>
                     </tr>
@@ -31,7 +31,7 @@
                             </p>
 
                             <p style="margin:0 0 24px;font-size:15px;color:#444;line-height:1.6;">
-                                Primili smo zahtev za prijavu na obaveštenja o novim nekretninama. Kliknite na dugme ispod da potvrdite vašu email adresu i aktivirate pretplatu.
+                                Uspešno ste potvrdili svoju email adresu i vaša pretplata na obaveštenja je sada aktivna.
                             </p>
 
                             <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9fc;border:1px solid #e8eaf0;margin-bottom:24px;">
@@ -65,13 +65,16 @@
                                             <tr>
                                                 <td style="padding:6px 0;font-size:13px;color:#888;">Kvadratura</td>
                                                 <td style="padding:6px 0;font-size:13px;color:#1a2035;font-weight:600;">
-                                                    {{ $filter->kvadratura_min ?? 'bez min' }}
-                                                    –
-                                                    {{ $filter->kvadratura_max ?? 'bez max' }} m²
+                                                    {{ $filter->kvadratura_min ?? 'bez min' }} – {{ $filter->kvadratura_max ?? 'bez max' }} m²
                                                 </td>
                                             </tr>
                                             @endif
                                         </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:14px 16px;font-size:14px;color:#6b5520;line-height:1.6;">
+                                        Obaveštenja se šalju jednom dnevno u 17:00h, i to samo ako ima novih nekretnina koje odgovaraju vašim kriterijumima.
                                     </td>
                                 </tr>
                             </table>
@@ -79,16 +82,16 @@
                             <table width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td align="center">
-                                        <a href="{{ route('pretplatnici.verifikuj', $filter->token) }}"
+                                        <a href="{{ route('pretplatnici.odjava', $filter->token) }}"
                                             style="display:inline-block;background:#fec059;color:#0f1f3d;padding:14px 36px;font-size:15px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:0.5px;">
-                                            Potvrdi pretplatu
+                                            Isključi obaveštenja
                                         </a>
                                     </td>
                                 </tr>
                             </table>
 
                             <p style="margin:24px 0 0;font-size:13px;color:#888;line-height:1.6;">
-                                Ako niste vi poslali ovaj zahtev, jednostavno ignorišite ovaj mejl.
+                                Ako u bilo kom trenutku više ne želite da primate obaveštenja, možete se odjaviti klikom na dugme iznad.
                             </p>
                         </td>
                     </tr>

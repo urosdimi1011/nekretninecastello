@@ -80,6 +80,15 @@
 </head>
 
 <body>
+    @if(session('success'))
+    <div id="flashToast" class="flash-toast">
+        <div class="flash-toast__content">
+            <i class="fa-solid fa-circle-check flash-toast__icon"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+        <button type="button" class="flash-toast__close" onclick="zatvoriFlashToast()">&times;</button>
+    </div>
+    @endif
     <div class="black-wall">
 
     </div>
@@ -370,6 +379,29 @@
     <script type="module" src="{{asset("assets/js/main.js")}}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async></script>
     @stack('scripts')
+
+    @if(session('success'))
+    <script>
+        function zatvoriFlashToast() {
+            const toast = document.getElementById('flashToast');
+            if (!toast) return;
+            toast.classList.remove('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const toast = document.getElementById('flashToast');
+            if (!toast) return;
+
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 80);
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        });
+    </script>
+    @endif
 </body>
 
 </html>

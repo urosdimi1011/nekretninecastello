@@ -28,7 +28,7 @@ Route::get('/api/filteri/{tipId}', [PretplatnikController::class, 'getFilteri'])
 
 
 Route::post('/pretplatnici', [\App\Http\Controllers\PretplatnikController::class, 'store'])
-    ->middleware('throttle:5,1')
+    // ->middleware('throttle:3,10')
     ->name('pretplatnici.store');
 
 

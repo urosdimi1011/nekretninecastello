@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PretplatnikFilter extends Model
@@ -10,6 +9,8 @@ class PretplatnikFilter extends Model
     protected $table = 'pretplatnik_filteri';
     protected $fillable = [
         'pretplatnik_id',
+        'token',
+        'verified_at',
         'id_tipa',
         'cena_min',
         'cena_max',
@@ -19,8 +20,12 @@ class PretplatnikFilter extends Model
     ];
     protected $casts = [
         'cena_po_metru' => 'boolean',
+        'verified_at' => 'datetime',
     ];
-
+    public function jeVerifikovan(): bool
+    {
+        return $this->verified_at !== null;
+    }
     public function pretplatnik()
     {
         return $this->belongsTo(Pretplatnik::class, 'pretplatnik_id');

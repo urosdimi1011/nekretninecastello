@@ -1,7 +1,18 @@
-// import {sum} from "./app.js";
-
 let sortingData = null;
 let trenutniTipNekretnine = null;
+
+const TIP_FILTERA = Object.freeze({
+    RASPON: "raspon",
+    KATEGORIJA: "kategorija",
+    BOOLEAN: "boolean",
+    VISE_IZBORA: "vise_izbora",
+});
+
+const POZICIJA_FILTERA = Object.freeze({
+    MIN: "min",
+    MAX: "max",
+    VREDNOST: "vrednost",
+});
 
 document
     .querySelectorAll(".main-nav .dropdown-toggle")
@@ -103,8 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-//Ovo otkomentarisati ukoliko budu vratili slajder za slike
-// sliderZaNekretnine();
+
 function sliderZaNekretnine() {
     var elms = document.getElementsByClassName("istaknuti");
     console.log(elms);
@@ -264,6 +274,7 @@ function regulisiFormu(e) {
 
 function resetNotifModalState() {
     notifTipId = null;
+
     filteri = [];
     odabraneVrednosti = {};
 
@@ -273,6 +284,7 @@ function resetNotifModalState() {
     if (notifFormBody) notifFormBody.style.display = "";
     if (notifSuccess) notifSuccess.style.display = "none";
 
+    // Resetuj polja
     document.getElementById("notifEmail").value = "";
     document.getElementById("notifCenaMin").value = "";
     document.getElementById("notifCenaMax").value = "";
@@ -286,9 +298,43 @@ function resetNotifModalState() {
         pill.classList.remove("active");
     });
 
-    if (notifDinamickiFilteri) {
-        notifDinamickiFilteri.innerHTML = "";
-    }
+    const dinamicki = document.getElementById("notifDinamickiFilteri");
+    if (dinamicki) dinamicki.innerHTML = "";
+
+    resetFooter();
+}
+
+function resetFooter() {
+    const footer = document.querySelector(".notif-modal__footer");
+    if (!footer) return;
+
+    footer.innerHTML = `
+        <button type="button" class="notif-btn-otkazi" id="notifBtnOtkazi">Otkaži</button>
+        <button type="button" class="notif-btn-prijavi" id="notifBtnPrijavi">
+            Prijavi se na obaveštenja
+            <span class="notif-btn-spinner" aria-hidden="true"></span>
+        </button>`;
+
+    document
+        .getElementById("notifBtnOtkazi")
+        ?.addEventListener("click", closeNotifModal);
+    document
+        .getElementById("notifBtnPrijavi")
+        ?.addEventListener("click", handleSubmit);
+}
+
+function showSuccessFooter() {
+    const footer = document.querySelector(".notif-modal__footer");
+    if (!footer) return;
+
+    footer.innerHTML = `
+        <button type="button" class="notif-btn-prijavi" id="notifBtnZatvori">
+            Zatvori
+        </button>`;
+
+    document
+        .getElementById("notifBtnZatvori")
+        ?.addEventListener("click", closeNotifModal);
 }
 
 function validateInput(input, regEx, errorMessage = "") {
@@ -611,12 +657,12 @@ function azurirajBrojKaraktera() {
 // ===== NOTIFIKACIJE =====
 
 function setSubmitLoading(loading) {
-    if (!notifSubmitBtn) return;
+    const btn = document.getElementById("notifBtnPrijavi");
+    if (!btn) return;
 
-    notifSubmitBtn.disabled = loading;
-    notifSubmitBtn.classList.toggle("is-loading", loading);
+    btn.disabled = loading;
+    btn.classList.toggle("is-loading", loading);
 }
-
 function clearNotifErrors() {
     ["emailError", "tipError", "cenaError", "kvadError"].forEach((id) => {
         const el = document.getElementById(id);
@@ -632,6 +678,7 @@ const notifOverlay = document.getElementById("notifOverlay");
 const openNotifModalBtn = document.getElementById("openNotifModal");
 const notifFormBody = document.getElementById("notifFormBody");
 const notifSuccess = document.getElementById("notifSuccess");
+const notifSubmitBtn = document.getElementById("notifBtnPrijavi");
 let notifTipId = null;
 let filteri = []; // definicije učitane iz API-ja
 let odabraneVrednosti = {}; // { kljuc: vrednost | { min, max } | [id, id] }
@@ -651,6 +698,10 @@ openNotifModalBtn.addEventListener("click", () => {
 function closeNotifModal() {
     notifOverlay.classList.remove("active");
     document.body.classList.remove("skloni-scroll");
+
+    setTimeout(() => {
+        resetNotifModalState();
+    }, 300);
 }
 document
     .getElementById("closeNotifModal")
@@ -711,7 +762,7 @@ function renderujDinamickeFilteri(filteri) {
         let inputHtml = "";
 
         switch (f.tip) {
-            case "raspon": {
+            case TIP_FILTERA.RASPON: {
                 const opcije = f.opcije
                     ? f.opcije
                           .map((o) => `<option value="${o}">${o}</option>`)
@@ -753,7 +804,7 @@ function renderujDinamickeFilteri(filteri) {
                 break;
             }
 
-            case "kategorija": {
+            case TIP_FILTERA.KATEGORIJA: {
                 const katOpcije = (f.opcije || [])
                     .map(
                         (o) =>
@@ -769,7 +820,7 @@ function renderujDinamickeFilteri(filteri) {
                 break;
             }
 
-            case "boolean":
+            case TIP_FILTERA.BOOLEAN:
                 inputHtml = `
                     <select class="filter-input" data-kljuc="${f.kljuc}" data-pozicija="vrednost">
                         <option value="">Svejedno</option>
@@ -778,7 +829,7 @@ function renderujDinamickeFilteri(filteri) {
                     </select>`;
                 break;
 
-            case "vise_izbora": {
+            case TIP_FILTERA.VISE_IZBORA: {
                 const pills = (f.opcije || [])
                     .map(
                         (o) => `
@@ -805,7 +856,7 @@ function renderujDinamickeFilteri(filteri) {
 
         container.appendChild(sekcija);
 
-        if (f.tip === "vise_izbora") {
+        if (f.tip === TIP_FILTERA.VISE_IZBORA) {
             sekcija.querySelectorAll(".notif-mesto-pill").forEach((pill) => {
                 pill.addEventListener("click", function () {
                     this.classList.toggle("active");
@@ -859,7 +910,10 @@ function skupiFilteri() {
 
         if (!vrednost) return;
 
-        if (pozicija === "min" || pozicija === "max") {
+        if (
+            pozicija === POZICIJA_FILTERA.MIN ||
+            pozicija === POZICIJA_FILTERA.MAX
+        ) {
             if (!result[kljuc]) result[kljuc] = {};
             result[kljuc][pozicija] = isNaN(Number(vrednost))
                 ? vrednost
@@ -984,74 +1038,75 @@ function validiraj() {
     return { valid, cena, kvad };
 }
 
-// Submit
+async function handleSubmit() {
+    const { valid, cena, kvad } = validiraj();
+    if (!valid) return;
+
+    const csrf = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+    const skupljeniFilteri = skupiFilteri();
+
+    setSubmitLoading(true);
+
+    try {
+        const r = await fetch("/pretplatnici", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrf,
+                Accept: "application/json",
+            },
+            body: JSON.stringify({
+                email: document.getElementById("notifEmail").value.trim(),
+                id_tipa: notifTipId,
+                cena_min: cena.min,
+                cena_max: cena.max,
+                cena_po_metru:
+                    document.getElementById("cenaPoMetru").value === "1",
+                kvadratura_min: kvad.min,
+                kvadratura_max: kvad.max,
+                filteri: Object.keys(skupljeniFilteri).length
+                    ? skupljeniFilteri
+                    : null,
+            }),
+        });
+
+        const data = await r.json();
+
+        if (!r.ok) {
+            if (r.status === 422 && data.errors) {
+                document.getElementById("emailError").textContent =
+                    data.errors.email?.[0] ?? "";
+                document.getElementById("tipError").textContent =
+                    data.errors.id_tipa?.[0] ?? "";
+                document.getElementById("cenaError").textContent =
+                    data.errors.cena_max?.[0] ?? "";
+                document.getElementById("kvadError").textContent =
+                    data.errors.kvadratura_max?.[0] ?? "";
+            } else if (data.greska) {
+                document.getElementById("emailError").textContent = data.greska;
+            }
+            return;
+        }
+
+        if (data.uspeh) {
+            notifFormBody.style.display = "none";
+            notifSuccess.style.display = "block";
+            showSuccessFooter(); // ← promeni footer
+        }
+    } catch (err) {
+        console.error(err);
+        document.getElementById("emailError").textContent =
+            "Došlo je do greške. Pokušajte ponovo.";
+    } finally {
+        setSubmitLoading(false);
+    }
+}
+
 document
     .getElementById("notifBtnPrijavi")
-    ?.addEventListener("click", async function () {
-        const { valid, cena, kvad } = validiraj();
-        if (!valid) return;
-
-        const csrf = document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute("content");
-
-        const filteri = skupiFilteri();
-
-        setSubmitLoading(true);
-
-        try {
-            const r = await fetch("/pretplatnici", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrf,
-                    Accept: "application/json",
-                },
-                body: JSON.stringify({
-                    email: document.getElementById("notifEmail").value.trim(),
-                    id_tipa: notifTipId,
-                    cena_min: cena.min,
-                    cena_max: cena.max,
-                    cena_po_metru:
-                        document.getElementById("cenaPoMetru").value === "1",
-                    kvadratura_min: kvad.min,
-                    kvadratura_max: kvad.max,
-                    filteri: Object.keys(filteri).length ? filteri : null,
-                }),
-            });
-
-            const data = await r.json();
-
-            if (!r.ok) {
-                if (r.status === 422 && data.errors) {
-                    document.getElementById("emailError").textContent =
-                        data.errors.email?.[0] ?? "";
-                    document.getElementById("tipError").textContent =
-                        data.errors.id_tipa?.[0] ?? "";
-                    document.getElementById("cenaError").textContent =
-                        data.errors.cena_max?.[0] ?? "";
-                    document.getElementById("kvadError").textContent =
-                        data.errors.kvadratura_max?.[0] ?? "";
-                } else if (data.greska) {
-                    document.getElementById("emailError").textContent =
-                        data.greska;
-                }
-
-                return;
-            }
-
-            if (data.uspeh) {
-                notifFormBody.style.display = "none";
-                notifSuccess.style.display = "block";
-            }
-        } catch (err) {
-            console.error(err);
-            document.getElementById("emailError").textContent =
-                "Došlo je do greške pri slanju. Pokušajte ponovo.";
-        } finally {
-            setSubmitLoading(false);
-        }
-    });
+    ?.addEventListener("click", handleSubmit);
 // ===== KRAJ NOTIFIKACIJE =====
 
 const cenaMinInput = document.getElementById("notifCenaMin");
