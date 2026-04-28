@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePretragaRequest;
+use App\Mail\UspesnaPretplata;
 use App\Mail\VerifikacijaPretplate;
 use App\Models\FilterDefinicija;
 use App\Models\Mesto;
@@ -10,6 +11,8 @@ use App\Models\Pretplatnik;
 use App\Models\PretplatnikFilter;
 use App\Models\PretplatnikFilterVrednost;
 use App\Models\TipNekretnine;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -37,45 +40,48 @@ class PretplatnikController extends Controller
         }));
     }
 
-    // API — atributi za tip (za kompatibilnost sa starim kodom)
     public function getAtributi($tipId)
     {
         $tip = TipNekretnine::with('atributi')->findOrFail($tipId);
 
         return response()->json($tip->atributi->map(fn($a) => [
-            'id'    => $a->id,
+            'id' => $a->id,
             'naziv' => $a->naziv,
         ]));
     }
 
-    public function store(StorePretragaRequest $request)
+    private function pronadjiPostojeci(Pretplatnik $pretplatnik, int $tipId): ?PretplatnikFilter
     {
-        $data = $request->validated();
-
-        $pretplatnik = Pretplatnik::firstOrCreate(
-            ['email' => $data['email']],
-            ['token' => Str::random(64)]
-        );
-
-        $postojeci = PretplatnikFilter::where('pretplatnik_id', $pretplatnik->id)
-            ->where('id_tipa', $data['id_tipa'])
+        return PretplatnikFilter::with('tip')
+            ->where('pretplatnik_id', $pretplatnik->id)
+            ->where('id_tipa', $tipId)
             ->first();
+    }
 
-        if ($postojeci && $pretplatnik->jeVerifikovan()) {
+    private function handlePostojeci(Pretplatnik $pretplatnik, PretplatnikFilter $filter): JsonResponse
+    {
+        if ($filter->jeVerifikovan()) {
             return response()->json([
-                'greska' => 'Vec ste prijavljeni za ovaj tip nekretnine.'
+                'greska' => 'Već ste prijavljeni za ovaj tip nekretnine.'
             ], 422);
         }
 
-        if ($postojeci && ! $pretplatnik->jeVerifikovan()) {
-            Mail::to($pretplatnik->email)
-                ->send(new VerifikacijaPretplate($pretplatnik, $postojeci));
 
-            return response()->json(['uspeh' => true]);
-        }
+        Mail::to($pretplatnik->email)
+            ->send(new VerifikacijaPretplate($pretplatnik, $filter));
 
+        return response()->json(['uspeh' => true]);
+    }
+
+    private function kreirajFilter(
+        Pretplatnik $pretplatnik,
+        array $data,
+        StorePretragaRequest $request
+    ): PretplatnikFilter {
         $filter = PretplatnikFilter::create([
             'pretplatnik_id' => $pretplatnik->id,
+            'token' => Str::random(64),
+            'verified_at' => null,
             'id_tipa' => $data['id_tipa'],
             'cena_min' => $data['cena_min'] ?? null,
             'cena_max' => $data['cena_max'] ?? null,
@@ -83,11 +89,40 @@ class PretplatnikController extends Controller
             'kvadratura_min' => $data['kvadratura_min'] ?? null,
             'kvadratura_max' => $data['kvadratura_max'] ?? null,
         ]);
-        $filter->load('tip');
 
         if (! empty($data['filteri'])) {
             $this->sacuvajFilteri($filter, $data['filteri']);
         }
+
+        return $filter;
+    }
+
+    public function store(StorePretragaRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        $pretplatnik = Pretplatnik::firstOrCreate([
+            'email' => $data['email'],
+        ]);
+
+        if ($postojeci = $this->pronadjiPostojeci($pretplatnik, (int)$data['id_tipa'])) {
+            return $this->handlePostojeci($pretplatnik, $postojeci);
+        }
+
+        try {
+            $filter = DB::transaction(
+                fn() => $this->kreirajFilter($pretplatnik, $data, $request)
+            );
+        } catch (\Throwable $e) {
+            report($e);
+
+            return response()->json([
+                'greska' => 'Došlo je do greške. Pokušajte ponovo.'
+            ], 500);
+        }
+
+        $filter->load('tip');
+
 
         Mail::to($pretplatnik->email)
             ->send(new VerifikacijaPretplate($pretplatnik, $filter));
@@ -99,16 +134,19 @@ class PretplatnikController extends Controller
     {
         foreach ($filteri as $kljuc => $vrednost) {
             $definicija = FilterDefinicija::where('kljuc', $kljuc)->first();
-            if (!$definicija) continue;
+
+            if (! $definicija) {
+                continue;
+            }
 
             switch ($definicija->tip) {
                 case FilterDefinicija::TIP_RASPON:
-                    if (!empty($vrednost['min']) || !empty($vrednost['max'])) {
+                    if (! empty($vrednost['min']) || ! empty($vrednost['max'])) {
                         PretplatnikFilterVrednost::create([
-                            'filter_id'            => $filter->id,
+                            'filter_id' => $filter->id,
                             'filter_definicija_id' => $definicija->id,
-                            'vrednost_min'         => $vrednost['min'] ?? null,
-                            'vrednost_max'         => $vrednost['max'] ?? null,
+                            'vrednost_min' => $vrednost['min'] ?? null,
+                            'vrednost_max' => $vrednost['max'] ?? null,
                         ]);
                     }
                     break;
@@ -116,20 +154,20 @@ class PretplatnikController extends Controller
                 case FilterDefinicija::TIP_VISE_IZBORA:
                     foreach ((array) $vrednost as $v) {
                         PretplatnikFilterVrednost::create([
-                            'filter_id'            => $filter->id,
+                            'filter_id' => $filter->id,
                             'filter_definicija_id' => $definicija->id,
-                            'vrednost'             => $v,
+                            'vrednost' => $v,
                         ]);
                     }
                     break;
 
                 case FilterDefinicija::TIP_KATEGORIJA:
                 case FilterDefinicija::TIP_BOOLEAN:
-                    if (!empty($vrednost)) {
+                    if (! empty($vrednost)) {
                         PretplatnikFilterVrednost::create([
-                            'filter_id'            => $filter->id,
+                            'filter_id' => $filter->id,
                             'filter_definicija_id' => $definicija->id,
-                            'vrednost'             => $vrednost,
+                            'vrednost' => $vrednost,
                         ]);
                     }
                     break;
@@ -139,14 +177,38 @@ class PretplatnikController extends Controller
 
     public function verifikuj($token)
     {
-        $pretplatnik = Pretplatnik::where('token', $token)->firstOrFail();
-        $pretplatnik->update(['verified_at' => now()]);
+        $filter = PretplatnikFilter::with(['pretplatnik', 'tip'])
+            ->where('token', $token)
+            ->firstOrFail();
+
+        $vecVerifikovan = $filter->verified_at !== null;
+
+        if (!$vecVerifikovan) {
+            $filter->update([
+                'verified_at' => now(),
+            ]);
+
+            Mail::to($filter->pretplatnik->email)
+                ->send(new UspesnaPretplata($filter->pretplatnik, $filter));
+        }
+
         return redirect('/')->with('success', 'Uspešno ste potvrdili pretplatu!');
     }
 
     public function odjava($token)
     {
-        Pretplatnik::where('token', $token)->delete();
+        $filter = PretplatnikFilter::with('pretplatnik')
+            ->where('token', $token)
+            ->firstOrFail();
+
+        $pretplatnik = $filter->pretplatnik;
+
+        $filter->delete();
+
+        if ($pretplatnik && $pretplatnik->filteri()->count() === 0) {
+            $pretplatnik->delete();
+        }
+
         return redirect('/')->with('success', 'Uspešno ste se odjavili od obaveštenja.');
     }
 }
