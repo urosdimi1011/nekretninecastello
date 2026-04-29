@@ -24,9 +24,10 @@ class NekretnineRequest extends ownRequest
             "link_ka_videu_virtual" => "nullable",
             "cena_metar" => "nullable",
             "sifra_nekretnine" => "required|string",
-            "id_tip_nekretnine"=>"required",
+            "id_tip_nekretnine" => "required",
             "opis" => "required",
             "cena" => "required|numeric",
+            "mesto_id" => "required|exists:mesta,id",
         ];
 
         if ($this->isMethod('post')) {
@@ -50,10 +51,12 @@ class NekretnineRequest extends ownRequest
             'naziv.required' => "Naziv je obavezno polje.",
             'opis.required' => "Opis je obavezno polje.",
             'cena.required' => "Cena je obavezno polje.",
-//            'id_tip_nekretnine.required'=>"Tip nekretnine je obavezno polje.",
+            'mesto_id.required' => "Lokacija je obavezno polje.",
+            'mesto_id.exists' => "Izabrana lokacija nije ispravna.",
+            'id_tip_nekretnine.required' => "Tip nekretnine je obavezno polje.",
+            "sifra_nekretnine.required" => "Šifra nekretnine je obavezno polje",
             'glavnaSlika.required' => "Glavna slika je obavezno polje.",
             'podSlike.required' => "Podslike su obavezno polje."
-//            'passwordLogin.regex' => "Password must contain at least one lowercase letter, one uppercase letter, one digit and one special character."
         ];
     }
 }

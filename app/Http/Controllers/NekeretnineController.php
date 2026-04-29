@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\NekretnineRequest;
+use App\Models\Mesto;
 use App\Models\Nekretnine;
 use App\Models\TipNekretnine;
 use App\Services\Form\NekretnineFromServices;
@@ -197,9 +198,20 @@ class NekeretnineController extends Controller
 
     public function create()
     {
-        $tipovi = TipNekretnine::all();
+        $tipovi = TipNekretnine::query()
+            ->select('id', 'tip')
+            ->orderBy('tip')
+            ->get();
 
-        return $this->nekretnineFromServices->formForInsert($tipovi);
+        $mesta = Mesto::query()
+            ->select('id', 'naziv')
+            ->orderBy('naziv')
+            ->get();
+
+        return $this->nekretnineFromServices->formForInsert([
+            'tipovi' => $tipovi,
+            'mesta' => $mesta,
+        ]);
     }
 
     public function store(NekretnineRequest $request)
@@ -221,7 +233,7 @@ class NekeretnineController extends Controller
             $idijeviDodatihSlika = $this->servisZaSliku->sacuvajViseSlikaIVratiIDjeve($podSlike, "podSlike");
 
 
-            $dodat = $this->nekretnineServices->create(array_merge($request->only("naziv", "cena", "opis", "id_tip_nekretnine", "link_ka_videu", "link_ka_videu_virtual", "sifra_nekretnine", "slug"), ['id_slike' => $idSlike], ["istaknuta" => $istaknuto, "cena_metar" => $cenaMetar]));
+            $dodat = $this->nekretnineServices->create(array_merge($request->only("naziv", "cena", "opis", "id_tip_nekretnine", "link_ka_videu", "mesto_id", "link_ka_videu_virtual", "sifra_nekretnine", "slug"), ['id_slike' => $idSlike], ["istaknuta" => $istaknuto, "cena_metar" => $cenaMetar]));
             $this->nekretnineServices->pridruziSlikeNekretninama($dodat, $idijeviDodatihSlika);
 
             DB::commit();
@@ -241,7 +253,7 @@ class NekeretnineController extends Controller
             abort(404);
         }
         if (is_numeric($identifier) && $nekretnina->slug && $identifier == $nekretnina->id) {
-            return redirect()->route('nekretnina.show', $nekretnina->slug, 301);
+            return redirect()->route('prikaziNekretninu', $nekretnina->slug, 301);
         }
 
         $this->dodajAtributeNekretnini($nekretnina);

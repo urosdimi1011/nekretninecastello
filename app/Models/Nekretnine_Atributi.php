@@ -14,12 +14,11 @@ class Nekretnine_Atributi extends Model
 
     public function ucitajAtribut()
     {
-        return $this->hasOne(Atributi::class, 'id', 'id_atributa');
+        return $this->belongsTo(Atributi::class, 'id_atributa');
     }
-
 
     public function ucitajTip()
     {
-        return $this->hasOne(TipNekretnine::class, 'id', 'id_tip_nekretnine');
+        return $this->belongsTo(TipNekretnine::class, 'id_tip_nekretnine');
     }
 }

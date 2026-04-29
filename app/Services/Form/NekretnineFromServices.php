@@ -57,6 +57,11 @@ class NekretnineFromServices extends BaseFormServices
             'type' => 'checkbox',
         ],
         [
+            'name' => 'mesto_id',
+            'label' => 'Lokacija nekretnine',
+            'type' => 'radio',
+        ],
+        [
             'name' => 'link_ka_videu',
             'label' => 'Link ka videu',
             'type' => 'text',
@@ -95,7 +100,8 @@ class NekretnineFromServices extends BaseFormServices
             collect($model)->get('nekretnine')->link_ka_videu_virtual,
             collect($model)->get('nekretnine')->sifra_nekretnine,
             collect($model)->get('nekretnine')->istaknuta,
-            collect($model)->get('nekretnine')->slug
+            collect($model)->get('nekretnine')->slug,
+            collect($model)->get('mesta'),
         );
     }
 }
