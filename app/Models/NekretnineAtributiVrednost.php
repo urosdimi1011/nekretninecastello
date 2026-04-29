@@ -11,7 +11,7 @@ class NekretnineAtributiVrednost extends Model
     protected $table = "nekretnine_atributi_vrednosi";
 
 
-    protected $fillable = ["id_tip_nekretnine_atributi","id_nekretnine","vrednost"];
+    protected $fillable = ["id_tip_nekretnine_atributi", "id_nekretnine", "vrednost"];
 
 
     public function nestoMoje()
@@ -19,11 +19,13 @@ class NekretnineAtributiVrednost extends Model
         return $this->hasOne(Nekretnine_Atributi::class, 'id', 'id_tip_nekretnine_atributi');
     }
 
+    public function getNazivAttribute(): ?string
+    {
+        return $this->nestoMoje?->ucitajAtribut?->naziv;
+    }
 
     public function nestoMoje1()
     {
         return $this->belongsTo(NekretnineAtributiVrednost::class, 'id', 'id_tip_nekretnine_atributi');
     }
-
-
 }

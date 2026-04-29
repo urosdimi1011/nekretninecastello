@@ -19,8 +19,13 @@ class PretplatnikFilter extends Model
         'kvadratura_max',
     ];
     protected $casts = [
+        'id_tipa' => 'integer',
         'cena_po_metru' => 'boolean',
         'verified_at' => 'datetime',
+        'cena_min' => 'float',
+        'cena_max' => 'float',
+        'kvadratura_min' => 'float',
+        'kvadratura_max' => 'float',
     ];
     public function jeVerifikovan(): bool
     {

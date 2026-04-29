@@ -24,6 +24,9 @@ abstract class BaseFormServices
 
     public function formForInsert($podaci = null)
     {
+        if (is_array($podaci)) {
+            $podaci = (object) $podaci;
+        }
         if ($podaci != null) {
             return view("formGeneration", ["fields" => $this->fields, "podaci" => $podaci, "insert" => true, "tip" => $this->tip]);
         }

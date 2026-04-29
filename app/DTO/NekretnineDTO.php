@@ -20,8 +20,9 @@ class NekretnineDTO
     public $sifra_nekretnine;
     public $istaknuta;
     public $slug;
+    public $mesto;
 
-    public function __construct($id, $naziv, $opis, $cena, $cena_metar, $slika, $slike, $sviPodaciZaListu, $cekiraniTip, $link_ka_videu, $link_ka_videu_virtual, $sifra_nekretnine, $istaknuta, $slug)
+    public function __construct($id, $naziv, $opis, $cena, $cena_metar, $slika, $slike, $sviPodaciZaListu, $cekiraniTip, $link_ka_videu, $link_ka_videu_virtual, $sifra_nekretnine, $istaknuta, $slug, $mesto)
     {
         $this->id = $id;
         $this->naziv = $naziv;
@@ -37,5 +38,6 @@ class NekretnineDTO
         $this->link_ka_videu_virtual = $link_ka_videu_virtual;
         $this->cena_metar = $cena_metar;
         $this->slug = $slug;
+        $this->mesto = $mesto;
     }
 }
