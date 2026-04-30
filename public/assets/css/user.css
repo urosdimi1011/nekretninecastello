@@ -6,6 +6,128 @@
 body {
     font-family: Roboto, Arial, Helvetica, sans-serif;
 }
+
+/* ── Video sekcija (jedna nekretnina) ─────────────────── */
+.video-sekcija {
+    margin: 0 20px;
+}
+
+.video-sekcija__blok {
+    background: #fff;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+                rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+    overflow: hidden;
+}
+
+.video-sekcija__header {
+    background-color: #004274;
+    color: #ffffff;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.video-sekcija__header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: "moj-font", Arial, sans-serif;
+    color: #ffffff;
+}
+
+.video-sekcija__ikona {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fec059;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.video-sekcija__ikona--yt { color: #ff4444; }
+.video-sekcija__ikona--vr { color: #7cc8f8; }
+
+/* Native video player */
+.video-sekcija__player {
+    background: #0f172a;
+    line-height: 0;
+}
+
+.video-sekcija__player video {
+    width: 100%;
+    max-height: 420px;
+    display: block;
+    outline: none;
+}
+
+/* ── Video status badge ──────────────────────────────── */
+.video-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(234, 179, 8, 0.15);
+    color: #ca8a04;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    margin-bottom: 6px;
+}
+
+.video-status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ca8a04;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.video-status-badge.status-poslan {
+    background: rgba(22, 163, 74, 0.12);
+    color: #16a34a;
+    border-color: rgba(22, 163, 74, 0.3);
+}
+
+.video-status-badge.status-poslan .video-status-dot {
+    background: #16a34a;
+    animation: none;
+}
+.video-sekcija__iframe-wrap {
+    position: relative;
+    padding-bottom: 52%;
+    height: 0;
+    background: #0f172a;
+}
+
+.video-sekcija__iframe-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .video-sekcija {
+        margin: 0 10px;
+    }
+    .video-sekcija__player video {
+        max-height: 240px;
+    }
+}
+
 .empty-block{
     padding: 20px 0;
     font-size: 0.6em;

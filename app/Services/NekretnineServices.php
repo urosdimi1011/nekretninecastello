@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Nekretnine;
 use App\Repositories\NekretnineRepository;
+use Illuminate\Support\Facades\Storage;
 
 class NekretnineServices extends OwnServices
 {
@@ -28,6 +29,32 @@ class NekretnineServices extends OwnServices
             ->where('id', $identifier)
             ->orWhere('slug', $identifier)
             ->first();
+    }
+
+    public function procesuirajISacuvajVideo($request, $nekretnina)
+    {
+        $videoUrl = null;
+
+        if ($request->hasFile('video_fajl')) {
+            $file = $request->file('video_fajl');
+            
+            // Upload na Cloudflare R2 (folder 'videa')
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+            $disk = Storage::disk('r2');
+            $path = $file->store('videa', 'r2');
+
+            $videoUrl = $disk->url($path);
+        } elseif ($request->filled('link_ka_videu')) {
+            $videoUrl = $request->input('link_ka_videu');
+        }
+
+        if ($videoUrl) {
+            return $nekretnina->video()->create([
+                'url' => $videoUrl
+            ]);
+        }
+
+        return null;
     }
 
     public function getFiltered($tip_id, $column, $direction, $relations = [])

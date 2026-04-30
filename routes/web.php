@@ -3,19 +3,18 @@
 use App\Http\Controllers\NekeretnineController;
 use App\Http\Controllers\PretplatnikController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/login', [\App\Http\Controllers\AuthenticateUser::class, 'prikaz'])->name("login");
 Route::get('/onama', [\App\Http\Controllers\OwnController::class, 'index'])->name("onama");
 Route::get('/kontakt', [\App\Http\Controllers\KontaktController::class, 'index'])->name("kontakt");
 
 Route::post('/login', [\App\Http\Controllers\AuthenticateUser::class, 'doLogin'])->name("doLogin");
-//Route::post('/logout', [\App\Http\Controllers\AuthenticateUser::class, 'doLogout'])->name("doLogin");
 Route::get('/register', [\App\Http\Controllers\AuthenticateUser::class, 'registracija'])->name("register");
 Route::post('/register', [\App\Http\Controllers\AuthenticateUser::class, 'registracijaKorisnika'])->name("registracijaKorisnika");
 
 Route::get('/logout', [\App\Http\Controllers\AuthenticateUser::class, 'doLogout'])->name('doLogout');
-//Route::get('/odobri-registraciju/{user}', [\App\Http\Controllers\Auth\RegisterController::class, 'odobriRegistraciju'])->name('odobriRegistraciju');
-//\Illuminate\Support\Facades\Auth::routes();
+
 Route::get('/nekretnine/{identifier}', [NekeretnineController::class, 'show'])
     ->name('prikaziNekretninu');
 
@@ -28,7 +27,7 @@ Route::get('/api/filteri/{tipId}', [PretplatnikController::class, 'getFilteri'])
 
 
 Route::post('/pretplatnici', [\App\Http\Controllers\PretplatnikController::class, 'store'])
-    // ->middleware('throttle:3,10')
+    ->middleware('throttle:3,10')
     ->name('pretplatnici.store');
 
 

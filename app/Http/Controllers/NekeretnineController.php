@@ -223,18 +223,18 @@ class NekeretnineController extends Controller
 
             $cenaMetar = filter_var($request->input('cena_metar'), FILTER_VALIDATE_BOOLEAN);
 
-
             $podSlike = $request->file("podSlike");
-            //            $obrnuteSlike = array_reverse($podSlike);
             $glavnaSlika = $request->file("glavnaSlika");
 
             $idSlike = $this->servisZaSliku->sacuvajSliku($glavnaSlika, "glavnaSlika");
 
             $idijeviDodatihSlika = $this->servisZaSliku->sacuvajViseSlikaIVratiIDjeve($podSlike, "podSlike");
 
-
             $dodat = $this->nekretnineServices->create(array_merge($request->only("naziv", "cena", "opis", "id_tip_nekretnine", "link_ka_videu", "mesto_id", "link_ka_videu_virtual", "sifra_nekretnine", "slug"), ['id_slike' => $idSlike], ["istaknuta" => $istaknuto, "cena_metar" => $cenaMetar]));
+
             $this->nekretnineServices->pridruziSlikeNekretninama($dodat, $idijeviDodatihSlika);
+
+            $this->nekretnineServices->procesuirajISacuvajVideo($request, $dodat);
 
             DB::commit();
             echo json_encode(["uspeh" => "Uspesno ste dodali nekretninu"]);
@@ -247,7 +247,7 @@ class NekeretnineController extends Controller
     public function show($identifier)
     {
         $nekretnina = $this->nekretnineServices
-            ->findByIdOrSlug($identifier, ['slika', 'slike', 'tip.atributi']);
+            ->findByIdOrSlug($identifier, ['slika', 'slike', 'tip.atributi', 'video']);
 
         if (!$nekretnina) {
             abort(404);

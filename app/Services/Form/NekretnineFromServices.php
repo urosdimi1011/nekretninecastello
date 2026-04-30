@@ -3,7 +3,6 @@
 namespace App\Services\Form;
 
 use App\DTO\NekretnineDTO;
-use Illuminate\Support\Facades\Form;
 
 class NekretnineFromServices extends BaseFormServices
 {
@@ -80,7 +79,12 @@ class NekretnineFromServices extends BaseFormServices
             'name' => 'sifra_nekretnine',
             'label' => 'Unesite sifru nekretnine',
             'type' => 'text',
-        ]
+        ],
+        [
+            'name' => 'video_fajl',
+            'label' => 'Video nekretnine',
+            'type' => 'video_upload',
+        ],
     ];
 
 
