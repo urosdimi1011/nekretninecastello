@@ -45,4 +45,9 @@ class Nekretnine extends Model
         return ($this->atributiVrednosti ?? collect())
             ->firstWhere('naziv', $naziv)?->vrednost;
     }
+
+    public function video()
+    {
+        return $this->hasOne(Video::class, 'nekretnina_id');
+    }
 }

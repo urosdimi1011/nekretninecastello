@@ -177,26 +177,41 @@ function openModal(target, data = null) {
                                             data.errors[fieldName][0];
 
                                         let inputField =
-                                            document.getElementById(fieldName);
-                                        if (inputField == null) {
-                                            inputField =
-                                                document.getElementById(
-                                                    fieldName + "Dropdown",
-                                                );
-                                            inputField =
-                                                document.getElementById(
-                                                    fieldName + "Dropdown",
-                                                );
-                                        }
+                                            document.getElementById(
+                                                fieldName,
+                                            ) ||
+                                            document.getElementById(
+                                                fieldName + "Dropdown",
+                                            ) ||
+                                            document.querySelector(
+                                                `[name="${fieldName}"]`,
+                                            ) ||
+                                            document.querySelector(
+                                                `[name="${fieldName}[]"]`,
+                                            ) ||
+                                            document.querySelector(
+                                                `[data-field="${fieldName}"]`,
+                                            );
+
+                                        if (!inputField) continue;
+                                        const formGroup =
+                                            inputField.closest(".form-group") ||
+                                            inputField.parentNode;
+                                        if (!formGroup) continue;
+
+                                        const postojecaGreska =
+                                            formGroup.querySelector(
+                                                ".greska-ispod-polja",
+                                            );
+                                        if (postojecaGreska)
+                                            postojecaGreska.remove();
+
                                         const errorElement =
                                             document.createElement("span");
                                         errorElement.className =
                                             "text-danger greska-ispod-polja";
                                         errorElement.innerText = errorMessage;
-
-                                        inputField.parentNode.appendChild(
-                                            errorElement,
-                                        );
+                                        formGroup.appendChild(errorElement);
                                     }
                                 }
                             } else {
@@ -209,14 +224,14 @@ function openModal(target, data = null) {
                                         "https://github.com/apvarun/toastify-js",
                                     newWindow: true,
                                     close: true,
-                                    gravity: "top", // `top` or `bottom`
-                                    position: "right", // `left`, `center` or `right`
-                                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                                    gravity: "top",
+                                    position: "right",
+                                    stopOnFocus: true,
                                     style: {
                                         background:
                                             "linear-gradient(to right, #00b09b, #00b09b)",
                                     },
-                                    onClick: function () {}, // Callback after click
+                                    onClick: function () {},
                                 }).showToast();
 
                                 setTimeout(function () {
@@ -261,7 +276,29 @@ function closeModal() {
     localStorage.removeItem("modalOpen");
     localStorage.removeItem("modalContent");
 }
+function showPreview(file) {
+    const url = URL.createObjectURL(file);
+    videoEl.src = url;
+    fileName.textContent = file.name;
+    fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+    dropZone.style.display = "none";
+    previewBox.style.display = "block";
 
+    // Postavi status na "čeka upload"
+    const badge = document.getElementById("videoStatusBadge");
+    const tekst = document.getElementById("videoStatusTekst");
+    if (badge && tekst) {
+        badge.className = "video-status-badge";
+        tekst.textContent = "Odabran – čeka slanje";
+    }
+}
+
+const badge = document.getElementById("videoStatusBadge");
+const tekst = document.getElementById("videoStatusTekst");
+if (badge && tekst) {
+    badge.classList.add("status-poslan");
+    tekst.textContent = "Video uspešno poslan";
+}
 document.addEventListener("click", function (event) {
     if (event.target.classList.contains("close-alert")) {
         event.target.parentNode.remove();
@@ -462,3 +499,90 @@ function ispisUploadovaneSlikeIMenjanjeRedosleda() {
         }
     });
 }
+document.addEventListener("click", function (e) {
+    // Zatvori sve panele ako klik nije unutar dropdowna
+    if (!e.target.closest(".custom-dropdown-field")) {
+        document
+            .querySelectorAll(".custom-dropdown-panel.is-open")
+            .forEach((p) => {
+                p.classList.remove("is-open");
+                p.closest(".custom-dropdown-field")
+                    ?.querySelector(".custom-dropdown-trigger")
+                    ?.classList.remove("is-open");
+            });
+    }
+});
+
+document.addEventListener("click", function (e) {
+    const trigger = e.target.closest(".custom-dropdown-trigger");
+    if (!trigger) return;
+
+    const field = trigger.closest(".custom-dropdown-field");
+    const panel = field.querySelector(".custom-dropdown-panel");
+    const isOpen = panel.classList.contains("is-open");
+
+    // Zatvori sve ostale
+    document.querySelectorAll(".custom-dropdown-panel.is-open").forEach((p) => {
+        if (p !== panel) {
+            p.classList.remove("is-open");
+            p.closest(".custom-dropdown-field")
+                ?.querySelector(".custom-dropdown-trigger")
+                ?.classList.remove("is-open");
+        }
+    });
+
+    panel.classList.toggle("is-open", !isOpen);
+    trigger.classList.toggle("is-open", !isOpen);
+});
+
+document.addEventListener("change", function (e) {
+    const input = e.target.closest(".custom-dropdown-input");
+    if (!input) return;
+
+    const field = input.closest(".custom-dropdown-field");
+    const trigger = field.querySelector(".custom-dropdown-trigger");
+    const label = field.querySelector(".custom-dropdown-trigger__text");
+    const opcija = input.closest(".custom-dropdown-opcija");
+
+    if (input.type === "radio") {
+        // Ukloni is-checked sa svih
+        field
+            .querySelectorAll(".custom-dropdown-opcija")
+            .forEach((o) => o.classList.remove("is-checked"));
+        opcija.classList.add("is-checked");
+
+        // Ažuriraj label dugmeta
+        label.textContent = opcija.dataset.label;
+        label.classList.add("has-value");
+
+        // Zatvori panel
+        field
+            .querySelector(".custom-dropdown-panel")
+            .classList.remove("is-open");
+        trigger.classList.remove("is-open");
+    } else if (input.type === "checkbox") {
+        opcija.classList.toggle("is-checked", input.checked);
+
+        // Ažuriraj label
+        const checked = field.querySelectorAll(
+            ".custom-dropdown-opcija.is-checked",
+        );
+        if (checked.length === 0) {
+            label.textContent =
+                field.querySelector(".custom-dropdown-trigger")
+                    .__defaultLabel || label.textContent;
+            label.classList.remove("has-value");
+        } else {
+            label.textContent = Array.from(checked)
+                .map((o) => o.dataset.label)
+                .join(", ");
+            label.classList.add("has-value");
+        }
+    }
+});
+
+document.querySelectorAll(".custom-dropdown-trigger").forEach((t) => {
+    t.__defaultLabel = t
+        .querySelector(".custom-dropdown-trigger__text")
+        ?.textContent?.trim();
+});

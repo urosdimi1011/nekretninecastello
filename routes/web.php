@@ -3,6 +3,17 @@
 use App\Http\Controllers\NekeretnineController;
 use App\Http\Controllers\PretplatnikController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+
+Route::get('/test-r2', function () {
+    try {
+        Storage::disk('r2')->put('provera.txt', 'Sajt za nekretnine radi!');
+
+        return "Čestitam! Fajl je uspešno poslat na Cloudflare R2.";
+    } catch (\Exception $e) {
+        return "Greška pri povezivanju: " . $e->getMessage();
+    }
+});
 
 Route::get('/login', [\App\Http\Controllers\AuthenticateUser::class, 'prikaz'])->name("login");
 Route::get('/onama', [\App\Http\Controllers\OwnController::class, 'index'])->name("onama");
