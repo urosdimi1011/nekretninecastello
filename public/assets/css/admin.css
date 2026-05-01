@@ -741,7 +741,6 @@ td button.danger:hover,
     align-items: center;
     justify-content: center;
 }
-/* .modal.show { display: flex; } */
 
 .modal-content {
     background: var(--white);
@@ -1072,7 +1071,87 @@ td button.danger:hover,
     transform: rotate(180deg);
     color: #004274;
 }
+/* ── Atribut red (text tip dropdown) ──────────────────── */
+.atribut-red {
+    display: flex;
+    align-items: center;
+    border: 0.5px solid var(--color-border-tertiary, rgba(0,66,116,0.15));
+    border-radius: 6px;
+    margin-bottom: 6px;
+    overflow: hidden;
+    opacity: 0.55;
+    transition: opacity 0.2s, border-color 0.2s;
+}
 
+.atribut-red--popunjen,
+.atribut-red:focus-within {
+    opacity: 1;
+    border-color: #004274;
+}
+
+.atribut-red__naziv {
+    flex: 0 0 120px;
+    padding: 0 12px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    background: #f8fafc;
+    border-right: 0.5px solid rgba(0,66,116,0.15);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+    user-select: none;
+}
+
+.atribut-red__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 0 12px;
+    height: 36px;
+    font-size: 14px;
+    color: #1b1b1b;
+    background: #fff;
+}
+
+.atribut-red__input:focus {
+    background: #fafeff;
+}
+
+.atribut-red__input::placeholder {
+    color: #cbd5e1;
+    font-style: italic;
+    font-size: 13px;
+}
+
+/* Footer sa Potvrdi dugmetom */
+.custom-dropdown-footer {
+    padding: 10px 12px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.custom-dropdown-zatvori {
+    background: #004274;
+    color: #fff;
+    border: none;
+    padding: 7px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 0;
+}
+
+.custom-dropdown-zatvori:hover {
+    background: #003560;
+}
 /* Panel */
 .custom-dropdown-panel {
     display: none;

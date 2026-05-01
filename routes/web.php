@@ -3,7 +3,6 @@
 use App\Http\Controllers\NekeretnineController;
 use App\Http\Controllers\PretplatnikController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 
 Route::get('/login', [\App\Http\Controllers\AuthenticateUser::class, 'prikaz'])->name("login");
 Route::get('/onama', [\App\Http\Controllers\OwnController::class, 'index'])->name("onama");
@@ -19,7 +18,6 @@ Route::get('/nekretnine/{identifier}', [NekeretnineController::class, 'show'])
     ->name('prikaziNekretninu');
 
 Route::get('/admin/nekretnine/vrati/{id}', [\App\Http\Controllers\NekeretnineController::class, 'vratiNekretninu'])->name("vratiNekretninu");
-
 
 Route::get('/api/tip-atributi/{id}', [\App\Http\Controllers\PretplatnikController::class, 'getAtributi']);
 

@@ -3,6 +3,7 @@
 namespace App\Services\Form;
 
 use App\DTO\NekretnineDTO;
+use App\Services\Form\SimpleDropdown\SimpleDropdown;
 
 class NekretnineFromServices extends BaseFormServices
 {
@@ -90,22 +91,45 @@ class NekretnineFromServices extends BaseFormServices
 
     protected function prepareModelData($model)
     {
+        $nekretnina = collect($model)->get('nekretnine');
+        $tipovi     = collect($model)->get('tipovi');
+        $mesta      = collect($model)->get('mesta');
+
         return new NekretnineDTO(
-            collect($model)->get('nekretnine')->id,
-            collect($model)->get('nekretnine')->naziv,
-            collect($model)->get('nekretnine')->opis,
-            collect($model)->get('nekretnine')->cena,
-            collect($model)->get('nekretnine')->cena_metar,
-            collect($model)->get('nekretnine')->slika->putanja,
-            collect($model)->get('nekretnine')->slike,
-            collect($model)->get('tipovi'),
-            collect($model)->get('nekretnine')->tip,
-            collect($model)->get('nekretnine')->link_ka_videu,
-            collect($model)->get('nekretnine')->link_ka_videu_virtual,
-            collect($model)->get('nekretnine')->sifra_nekretnine,
-            collect($model)->get('nekretnine')->istaknuta,
-            collect($model)->get('nekretnine')->slug,
-            collect($model)->get('mesta'),
+            id: $nekretnina->id,
+            naziv: $nekretnina->naziv,
+            opis: $nekretnina->opis,
+            cena: $nekretnina->cena,
+            cena_metar: $nekretnina->cena_metar,
+            slika: $nekretnina->slika->putanja,
+            slike: $nekretnina->slike,
+            link_ka_videu: $nekretnina->link_ka_videu,
+            link_ka_videu_virtual: $nekretnina->link_ka_videu_virtual,
+            sifra_nekretnine: $nekretnina->sifra_nekretnine,
+            istaknuta: $nekretnina->istaknuta,
+            slug: $nekretnina->slug,
+            mesta: $mesta,
+            dropdowns: [
+                'id_tip_nekretnine' => new SimpleDropdown(
+                    values: collect($tipovi),
+                    checkedValues: $nekretnina->tip?->id
+                ),
+            ]
         );
+    }
+    protected function prepareModelDataForInsert($podaci)
+    {
+        $tipovi = collect($podaci)->get('tipovi');
+        $mesta  = collect($podaci)->get('mesta');
+
+        return [
+            'mesta' => $mesta,
+            'dropdowns' => [
+                'id_tip_nekretnine' => new SimpleDropdown(
+                    values: collect($tipovi),
+                    checkedValues: null
+                ),
+            ]
+        ];
     }
 }

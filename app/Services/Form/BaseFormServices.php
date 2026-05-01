@@ -18,17 +18,19 @@ abstract class BaseFormServices
             return view("formGeneration", ["fields" => $this->fields, "podaci" => $modelData, "tip" => $this->tip]);
         }
     }
-
-
+    //template pattern
+    protected function prepareModelDataForInsert($model)
+    {
+        return null;
+    }
     protected abstract function prepareModelData($model);
 
     public function formForInsert($podaci = null)
     {
-        if (is_array($podaci)) {
-            $podaci = (object) $podaci;
-        }
+        $modelData = $podaci ? $this->prepareModelDataForInsert($podaci) : null;
+
         if ($podaci != null) {
-            return view("formGeneration", ["fields" => $this->fields, "podaci" => $podaci, "insert" => true, "tip" => $this->tip]);
+            return view("formGeneration", ["fields" => $this->fields, "podaci" => $modelData, "insert" => true, "tip" => $this->tip]);
         }
         return view("formGeneration", ["fields" => $this->fields, "insert" => true, "tip" => $this->tip]);
     }

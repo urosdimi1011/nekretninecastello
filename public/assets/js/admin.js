@@ -61,7 +61,6 @@ function openModal(target, data = null) {
     if (target.dataset.target.includes("obrisi")) {
         objekatZaSlanje.method = "POST";
         objekatZaSlanje.headers["X-HTTP-Method-Override"] = "DELETE";
-        // objekatZaSlanje.method = "DELETE";
         url += `?prikaziFormu=true`;
     } else if (target.dataset.target.includes("izmeni")) {
         objekatZaSlanje.method = "GET";
@@ -94,9 +93,18 @@ function openModal(target, data = null) {
             }
 
             if (html.includes("glavnaSlika") || html.includes("slika")) {
-                let listingPhotoField =
-                    document.querySelector("input[type='file']");
-                listingPhotoField.addEventListener("change", handleChangeEvent);
+                const listingPhotoField =
+                    document.getElementById("glavnaSlika") ||
+                    document.querySelector(
+                        "input[type='file'][name='glavnaSlika']",
+                    );
+
+                if (listingPhotoField) {
+                    listingPhotoField.addEventListener(
+                        "change",
+                        handleChangeEvent,
+                    );
+                }
             }
             if (html.includes("swiper")) {
                 setTimeout(function () {
@@ -119,136 +127,135 @@ function openModal(target, data = null) {
                     });
                 }, 0);
             }
-            document
-                .querySelector(".forma-admin-klik")
-                .addEventListener("click", function (e) {
-                    e.preventDefault();
-                    const formElement = document.getElementById("formaGeneric");
-                    const actionUrl = formElement.getAttribute("action");
 
-                    const existingErrorElements = document.querySelectorAll(
-                        ".text-danger.greska-ispod-polja",
-                    );
-                    existingErrorElements.forEach(function (errorElement) {
-                        errorElement.parentNode.removeChild(errorElement);
+            const submitBtn = document.querySelector(".forma-admin-klik");
+            if (!submitBtn) return;
+            const noviSubmit = submitBtn.cloneNode(true);
+            submitBtn.parentNode.replaceChild(noviSubmit, submitBtn);
+            noviSubmit.addEventListener("click", function (e) {
+                e.preventDefault();
+                const formElement = document.getElementById("formaGeneric");
+                const actionUrl = formElement.getAttribute("action");
+
+                const existingErrorElements = document.querySelectorAll(
+                    ".text-danger.greska-ispod-polja",
+                );
+                existingErrorElements.forEach(function (errorElement) {
+                    errorElement.parentNode.removeChild(errorElement);
+                });
+
+                const formDataObjekat = new FormData(
+                    document.getElementById("formaGeneric"),
+                );
+
+                let editorSadrzaj = "";
+                // Dohvatite sadržaj iz editora
+                if (editorMoj != null) {
+                    editorSadrzaj = editorMoj.getData();
+                    formDataObjekat.append("opis", editorSadrzaj);
+                }
+
+                if (promenjenRedosled.length) {
+                    if (formDataObjekat.has("podSlike[]")) {
+                        formDataObjekat.delete("podSlike[]");
+                    }
+                    promenjenRedosled.forEach((indeks) => {
+                        const slika =
+                            document.querySelector("#podSlike").files[indeks];
+                        formDataObjekat.append("podSlike[]", slika);
                     });
+                }
 
-                    const formDataObjekat = new FormData(
-                        document.getElementById("formaGeneric"),
-                    );
-
-                    let editorSadrzaj = "";
-                    // Dohvatite sadržaj iz editora
-                    if (editorMoj != null) {
-                        editorSadrzaj = editorMoj.getData();
-                        formDataObjekat.append("opis", editorSadrzaj);
-                    }
-
-                    if (promenjenRedosled.length) {
-                        if (formDataObjekat.has("podSlike[]")) {
-                            formDataObjekat.delete("podSlike[]");
-                        }
-                        promenjenRedosled.forEach((indeks) => {
-                            const slika =
-                                document.querySelector("#podSlike").files[
-                                    indeks
-                                ];
-                            formDataObjekat.append("podSlike[]", slika);
-                        });
-                    }
-
-                    dodajSpiner();
-                    fetch(actionUrl, {
-                        method: "POST",
-                        body: formDataObjekat,
-                    })
-                        .then((response) => response.json())
-                        .then((data) => {
-                            ukiniSpiner();
-                            if (data.neuspeh) {
-                                document.querySelector(
-                                    ".ako-ima-greske p",
-                                ).innerHTML = error.neuspeh;
-                            }
-                            if (data.errors) {
-                                for (const fieldName in data.errors) {
-                                    if (data.errors.hasOwnProperty(fieldName)) {
-                                        const errorMessage =
-                                            data.errors[fieldName][0];
-
-                                        let inputField =
-                                            document.getElementById(
-                                                fieldName,
-                                            ) ||
-                                            document.getElementById(
-                                                fieldName + "Dropdown",
-                                            ) ||
-                                            document.querySelector(
-                                                `[name="${fieldName}"]`,
-                                            ) ||
-                                            document.querySelector(
-                                                `[name="${fieldName}[]"]`,
-                                            ) ||
-                                            document.querySelector(
-                                                `[data-field="${fieldName}"]`,
-                                            );
-
-                                        if (!inputField) continue;
-                                        const formGroup =
-                                            inputField.closest(".form-group") ||
-                                            inputField.parentNode;
-                                        if (!formGroup) continue;
-
-                                        const postojecaGreska =
-                                            formGroup.querySelector(
-                                                ".greska-ispod-polja",
-                                            );
-                                        if (postojecaGreska)
-                                            postojecaGreska.remove();
-
-                                        const errorElement =
-                                            document.createElement("span");
-                                        errorElement.className =
-                                            "text-danger greska-ispod-polja";
-                                        errorElement.innerText = errorMessage;
-                                        formGroup.appendChild(errorElement);
-                                    }
-                                }
-                            } else {
-                                closeModal();
-
-                                Toastify({
-                                    text: data.uspeh,
-                                    duration: 3000,
-                                    destination:
-                                        "https://github.com/apvarun/toastify-js",
-                                    newWindow: true,
-                                    close: true,
-                                    gravity: "top",
-                                    position: "right",
-                                    stopOnFocus: true,
-                                    style: {
-                                        background:
-                                            "linear-gradient(to right, #00b09b, #00b09b)",
-                                    },
-                                    onClick: function () {},
-                                }).showToast();
-
-                                setTimeout(function () {
-                                    window.location.reload();
-                                }, 3000);
-                            }
-                        })
-                        .catch((error) => {
-                            ukiniSpiner();
+                dodajSpiner();
+                fetch(actionUrl, {
+                    method: "POST",
+                    body: formDataObjekat,
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        ukiniSpiner();
+                        if (data.neuspeh) {
                             document.querySelector(
                                 ".ako-ima-greske p",
-                            ).innerHTML = error;
-                        });
-                });
+                            ).innerHTML = error.neuspeh;
+                        }
+                        if (data.errors) {
+                            for (const fieldName in data.errors) {
+                                if (data.errors.hasOwnProperty(fieldName)) {
+                                    const errorMessage =
+                                        data.errors[fieldName][0];
+
+                                    let inputField =
+                                        document.getElementById(fieldName) ||
+                                        document.getElementById(
+                                            fieldName + "Dropdown",
+                                        ) ||
+                                        document.querySelector(
+                                            `[name="${fieldName}"]`,
+                                        ) ||
+                                        document.querySelector(
+                                            `[name="${fieldName}[]"]`,
+                                        ) ||
+                                        document.querySelector(
+                                            `[data-field="${fieldName}"]`,
+                                        );
+
+                                    if (!inputField) continue;
+                                    const formGroup =
+                                        inputField.closest(".form-group") ||
+                                        inputField.parentNode;
+                                    if (!formGroup) continue;
+
+                                    const postojecaGreska =
+                                        formGroup.querySelector(
+                                            ".greska-ispod-polja",
+                                        );
+                                    if (postojecaGreska)
+                                        postojecaGreska.remove();
+
+                                    const errorElement =
+                                        document.createElement("span");
+                                    errorElement.className =
+                                        "text-danger greska-ispod-polja";
+                                    errorElement.innerText = errorMessage;
+                                    formGroup.appendChild(errorElement);
+                                }
+                            }
+                        } else {
+                            closeModal();
+
+                            Toastify({
+                                text: data.uspeh,
+                                duration: 3000,
+                                destination:
+                                    "https://github.com/apvarun/toastify-js",
+                                newWindow: true,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                stopOnFocus: true,
+                                style: {
+                                    background:
+                                        "linear-gradient(to right, #00b09b, #00b09b)",
+                                },
+                                onClick: function () {},
+                            }).showToast();
+
+                            setTimeout(function () {
+                                window.location.reload();
+                            }, 3000);
+                        }
+                    })
+                    .catch((error) => {
+                        ukiniSpiner();
+                        document.querySelector(".ako-ima-greske p").innerHTML =
+                            error;
+                    });
+            });
         })
         .catch((xhr) => {
             ukiniSpiner();
+            console.log(xhr);
             document.querySelector(".ako-ima-greske p").innerHTML = xhr;
         });
 }
@@ -535,42 +542,78 @@ document.addEventListener("click", function (e) {
     trigger.classList.toggle("is-open", !isOpen);
 });
 
-document.addEventListener("change", function (e) {
-    const input = e.target.closest(".custom-dropdown-input");
+// Zatvori ako klik van dropdowna
+document.addEventListener("click", function (e) {
+    if (!e.target.closest(".custom-dropdown-field")) {
+        document
+            .querySelectorAll(".custom-dropdown-panel.is-open")
+            .forEach((p) => {
+                p.classList.remove("is-open");
+                p.closest(".custom-dropdown-field")
+                    ?.querySelector(".custom-dropdown-trigger")
+                    ?.classList.remove("is-open");
+            });
+    }
+});
+
+// Klik na opciju — ručno hendlaj umesto da se oslanjamo na change event
+document.addEventListener("click", function (e) {
+    const opcija = e.target.closest(".custom-dropdown-opcija");
+    if (!opcija) return;
+
+    e.preventDefault();
+
+    const field = opcija.closest(".custom-dropdown-field");
+    const trigger = field.querySelector(".custom-dropdown-trigger");
+    const label = trigger.querySelector(".custom-dropdown-trigger__text");
+    const input = opcija.querySelector("input");
+
     if (!input) return;
 
-    const field = input.closest(".custom-dropdown-field");
-    const trigger = field.querySelector(".custom-dropdown-trigger");
-    const label = field.querySelector(".custom-dropdown-trigger__text");
-    const opcija = input.closest(".custom-dropdown-opcija");
+    const inputType = input.type; // 'radio', 'checkbox', ili 'text'
+    const vecCekiran = opcija.classList.contains("is-checked");
 
-    if (input.type === "radio") {
-        // Ukloni is-checked sa svih
-        field
-            .querySelectorAll(".custom-dropdown-opcija")
-            .forEach((o) => o.classList.remove("is-checked"));
-        opcija.classList.add("is-checked");
+    if (inputType === "radio" || inputType === "text") {
+        // Odčekiraj sve
+        field.querySelectorAll(".custom-dropdown-opcija").forEach((o) => {
+            o.classList.remove("is-checked");
+            const inp = o.querySelector("input");
+            if (!inp) return;
+            if (inp.type === "checkbox" || inp.type === "radio") {
+                inp.checked = false;
+            }
+        });
 
-        // Ažuriraj label dugmeta
-        label.textContent = opcija.dataset.label;
-        label.classList.add("has-value");
+        if (!vecCekiran) {
+            // Čekiraj kliknuto
+            opcija.classList.add("is-checked");
+            if (input.type === "radio") input.checked = true;
 
-        // Zatvori panel
-        field
-            .querySelector(".custom-dropdown-panel")
-            .classList.remove("is-open");
-        trigger.classList.remove("is-open");
-    } else if (input.type === "checkbox") {
-        opcija.classList.toggle("is-checked", input.checked);
+            label.textContent = opcija.dataset.label;
+            label.classList.add("has-value");
 
-        // Ažuriraj label
+            // Zatvori panel samo za radio, ne za text
+            if (inputType === "radio") {
+                field
+                    .querySelector(".custom-dropdown-panel")
+                    .classList.remove("is-open");
+                trigger.classList.remove("is-open");
+            }
+        } else {
+            // Bio čekiran — odčekiraj (toggle)
+            label.textContent = trigger.__defaultLabel || "";
+            label.classList.remove("has-value");
+        }
+    } else if (inputType === "checkbox") {
+        const novoStanje = !input.checked;
+        input.checked = novoStanje;
+        opcija.classList.toggle("is-checked", novoStanje);
+
         const checked = field.querySelectorAll(
             ".custom-dropdown-opcija.is-checked",
         );
         if (checked.length === 0) {
-            label.textContent =
-                field.querySelector(".custom-dropdown-trigger")
-                    .__defaultLabel || label.textContent;
+            label.textContent = trigger.__defaultLabel || "";
             label.classList.remove("has-value");
         } else {
             label.textContent = Array.from(checked)
@@ -581,6 +624,58 @@ document.addEventListener("change", function (e) {
     }
 });
 
+// document.addEventListener("change", function (e) {
+//     const input = e.target.closest(".custom-dropdown-input");
+//     if (!input) return;
+
+//     const field = input.closest(".custom-dropdown-field");
+//     const trigger = field.querySelector(".custom-dropdown-trigger");
+//     const label = field.querySelector(".custom-dropdown-trigger__text");
+//     const opcija = input.closest(".custom-dropdown-opcija");
+
+//     if (input.type === "radio") {
+//         // Ukloni is-checked sa svih
+//         field
+//             .querySelectorAll(".custom-dropdown-opcija")
+//             .forEach((o) => o.classList.remove("is-checked"));
+//         opcija.classList.add("is-checked");
+
+//         // Ažuriraj label dugmeta
+//         label.textContent = opcija.dataset.label;
+//         label.classList.add("has-value");
+
+//         // Zatvori panel
+//         field
+//             .querySelector(".custom-dropdown-panel")
+//             .classList.remove("is-open");
+//         trigger.classList.remove("is-open");
+//     } else if (input.type === "checkbox") {
+//         opcija.classList.toggle("is-checked", input.checked);
+
+//         // Ažuriraj label
+//         const checked = field.querySelectorAll(
+//             ".custom-dropdown-opcija.is-checked",
+//         );
+//         if (checked.length === 0) {
+//             label.textContent =
+//                 field.querySelector(".custom-dropdown-trigger")
+//                     .__defaultLabel || label.textContent;
+//             label.classList.remove("has-value");
+//         } else {
+//             label.textContent = Array.from(checked)
+//                 .map((o) => o.dataset.label)
+//                 .join(", ");
+//             label.classList.add("has-value");
+//         }
+//     }
+// });
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".custom-dropdown-trigger").forEach((t) => {
+        t.__defaultLabel = t
+            .querySelector(".custom-dropdown-trigger__text")
+            ?.textContent?.trim();
+    });
+});
 document.querySelectorAll(".custom-dropdown-trigger").forEach((t) => {
     t.__defaultLabel = t
         .querySelector(".custom-dropdown-trigger__text")
