@@ -9,26 +9,54 @@ class NekretnineAtributiVrednostFormServices extends BaseFormServices
 
     public function __construct()
     {
-        $this->tip="nekretnineatributivrednost";
+        $this->tip = "nekretnineatributivrednost";
     }
 
     protected $fields = [
         [
             'name' => 'tipnekretnine',
-            'label' => 'Svi tipovi nekretnina',
+            'label' => 'Tipovi nekretnina',
             'type' => 'dropdown',
-            'tipDropdown'=>'radio',
+            'tipDropdown' => 'radio',
         ],
         [
             'name' => 'id_tip_nekretnine_atribut',
-            'label' => 'Vrednosti za atribute',
+            'label' => 'Atributi',
             'type' => 'dropdown',
-            'tipDropdown'=>'text',
+            'tipDropdown' => 'text',
         ]
     ];
-
+    protected function prepareModelDataForInsert($podaci)
+    {
+        return [
+            'dropdowns' => [
+                'tipnekretnine' => new SimpleDropdownField(
+                    values: collect($podaci['tipovi']),
+                    checkedValues: null
+                ),
+                'id_tip_nekretnine_atribut' => new SimpleDropdownField(
+                    values: collect($podaci['atributi']),
+                    checkedValues: null
+                ),
+            ]
+        ];
+    }
     protected function prepareModelData($model)
     {
-        return new NekretnineAtributiDTO($model->get("id"),[$model['tipovi'],$model['atributi']],[$model['cekiranTip'],$model['atributiVrednosti']],['tipnekretnine','id_tip_nekretnine_atribut_vrednost']);
+        return (object) [
+            'id'       => $model->get('id'),
+            'dropdowns' => [
+                'tipnekretnine' => new SimpleDropdownField(
+                    values: collect($model->get('tipovi')),
+                    checkedValues: $model->get('cekiranTip')?->id
+                ),
+                'id_tip_nekretnine_atribut' => new SimpleDropdownField(
+                    values: collect($model->get('atributi')),
+                    checkedValues: collect($model->get('atributiVrednosti'))
+                        ->pluck('vrednost', 'id')
+                        ->toArray()
+                ),
+            ]
+        ];
     }
 }

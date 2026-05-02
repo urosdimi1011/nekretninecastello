@@ -5,13 +5,16 @@ namespace App\DTO;
 class TipNekretnineAtributiDTO extends DropDownDTO
 {
 
-    public $id;
+    public int $id;
+    public array $dropdowns;
 
-    public function __construct($sviPodaciZaListu, $cekiraniZaTuListu,$id)
-    {
-            $this->id = $id;
-            parent::__construct($sviPodaciZaListu,$cekiraniZaTuListu);
+    public function __construct(
+        \App\Services\Form\SimpleDropdownField $atributi,
+        int $id
+    ) {
+        $this->id = $id;
+        $this->dropdowns = [
+            'atributi' => $atributi,
+        ];
     }
-
-
 }

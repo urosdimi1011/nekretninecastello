@@ -46,36 +46,37 @@
 
             @elseif ($f['type'] === 'dropdown')
             @php
-            $dropdownValues = collect();
-            $checkedValue = null;
+            $dd = isset($podaci) ? ($podaci->dropdowns[$f['name']] ?? null) : null;
+            //Znaci ne ovako, morao bih konstantno da sirim ovaj deo ukoliko mi dodje nesto novo! (Ovo dole je za arhivu!)
+            // dd($podaci->sviPodaciZaListu,$podaci->cekiraniTip->id,is_object($podaci->sviPodaciZaListu),$f);
+            // if (
+            // isset($podaci->sviPodaciZaListu) &&
+            // is_object($podaci->sviPodaciZaListu) &&
+            // array_key_exists($is, $podaci->sviPodaciZaListu)
+            // ) {
+            // $dropdownValues = $podaci->sviPodaciZaListu[$is];
+            // $source = $podaci->cekiraniTip[$is] ?? null;
 
-            if (
-            isset($podaci->sviPodaciZaListu) &&
-            is_array($podaci->sviPodaciZaListu) &&
-            array_key_exists($is, $podaci->sviPodaciZaListu)
-            ) {
-            $dropdownValues = $podaci->sviPodaciZaListu[$is];
-            $source = $podaci->cekiraniTip[$is] ?? null;
-
-            if ($source instanceof \Illuminate\Support\Collection) {
-            $checkedValue = $source->pluck('id')->toArray();
-            } elseif (is_array($source)) {
-            $checkedValue = collect($source)->pluck('id')->filter()->toArray();
-            } elseif (is_object($source) && isset($source->id)) {
-            $checkedValue = $source->id;
-            } else {
-            $checkedValue = $source;
-            }
-            } elseif ($f['name'] === 'id_tip_nekretnine' && isset($podaci->tipovi)) {
-            $dropdownValues = $podaci->tipovi;
-            }
+            // if ($source instanceof \Illuminate\Support\Collection) {
+            // $checkedValue = $source->pluck('id')->toArray();
+            // } elseif (is_array($source)) {
+            // $checkedValue = collect($source)->pluck('id')->filter()->toArray();
+            // } elseif (is_object($source) && isset($source->id)) {
+            // $checkedValue = $source->id;
+            // } else {
+            // $checkedValue = $source;
+            // }
+            // } elseif ($f['name'] === 'id_tip_nekretnine' && isset($podaci->tipovi)) {
+            // $dropdownValues = $podaci->tipovi;
+            // }
             @endphp
 
-            <x-forms.dropdown
-                :field="$f"
-                :values="$dropdownValues"
-                :checkedValues="$checkedValue"
-                :type="$f['tipDropdown']" />
+
+        <x-forms.dropdown
+            :field="$f"
+            :values="$dd ? $dd->getValues() : collect()"
+            :checkedValues="$dd ? $dd->getCheckedValues() : null"
+            :type="$f['tipDropdown']" />
 
             @elseif ($f['type'] === 'radio')
             @php
@@ -196,18 +197,20 @@
         @endif
         {!! Form::close() !!}
     </div>
-
     <script>
         (function() {
             const dropZone = document.getElementById('videoDropZone');
-            const fileInput = document.getElementById('video_fajl');
             const previewBox = document.getElementById('videoPreviewBox');
             const videoEl = document.getElementById('videoPreview');
             const fileName = document.getElementById('videoFileName');
             const fileSize = document.getElementById('videoFileSize');
             const removeBtn = document.getElementById('videoRemoveBtn');
 
-            if (!dropZone || !fileInput) return;
+            if (!dropZone || !previewBox) return;
+
+            // Nađi input unutar drop zone, ne po ID-u
+            const fileInput = dropZone.querySelector('input[type="file"]');
+            if (!fileInput) return;
 
             function showPreview(file) {
                 const url = URL.createObjectURL(file);
@@ -216,6 +219,13 @@
                 fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
                 dropZone.style.display = 'none';
                 previewBox.style.display = 'block';
+
+                const badge = document.getElementById('videoStatusBadge');
+                const tekst = document.getElementById('videoStatusTekst');
+                if (badge && tekst) {
+                    badge.className = 'video-status-badge';
+                    tekst.textContent = 'Odabran – čeka slanje';
+                }
             }
 
             fileInput.addEventListener('change', function() {
@@ -243,11 +253,20 @@
                 }
             });
 
-            removeBtn.addEventListener('click', function() {
-                videoEl.src = '';
-                fileInput.value = '';
-                previewBox.style.display = 'none';
-                dropZone.style.display = 'flex';
-            });
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function() {
+                    videoEl.src = '';
+                    fileInput.value = '';
+                    previewBox.style.display = 'none';
+                    dropZone.style.display = 'flex';
+
+                    const badge = document.getElementById('videoStatusBadge');
+                    const tekst = document.getElementById('videoStatusTekst');
+                    if (badge && tekst) {
+                        badge.className = 'video-status-badge';
+                        tekst.textContent = 'Spreman za upload';
+                    }
+                });
+            }
         })();
     </script>
