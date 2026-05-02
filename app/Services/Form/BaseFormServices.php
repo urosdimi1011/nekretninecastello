@@ -28,10 +28,9 @@ abstract class BaseFormServices
     public function formForInsert($podaci = null)
     {
         $modelData = $podaci ? $this->prepareModelDataForInsert($podaci) : null;
-
         if ($podaci != null) {
             return view("formGeneration", ["fields" => $this->fields, "podaci" => $modelData, "insert" => true, "tip" => $this->tip]);
         }
-        return view("formGeneration", ["fields" => $this->fields, "insert" => true, "tip" => $this->tip]);
+        return view("formGeneration", ["fields" => $this->fields, "podaci" => $modelData, "insert" => true, "tip" => $this->tip]);
     }
 }

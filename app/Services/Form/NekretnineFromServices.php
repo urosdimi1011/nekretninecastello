@@ -3,7 +3,7 @@
 namespace App\Services\Form;
 
 use App\DTO\NekretnineDTO;
-use App\Services\Form\SimpleDropdown\SimpleDropdown;
+use App\Services\Form\SimpleDropdownField;
 
 class NekretnineFromServices extends BaseFormServices
 {
@@ -91,7 +91,7 @@ class NekretnineFromServices extends BaseFormServices
 
     protected function prepareModelData($model)
     {
-        $nekretnina = collect($model)->get('nekretnine');
+        $nekretnina = collect($model)->get('nekretnina');
         $tipovi     = collect($model)->get('tipovi');
         $mesta      = collect($model)->get('mesta');
 
@@ -108,9 +108,10 @@ class NekretnineFromServices extends BaseFormServices
             sifra_nekretnine: $nekretnina->sifra_nekretnine,
             istaknuta: $nekretnina->istaknuta,
             slug: $nekretnina->slug,
+            mesto_id: $nekretnina?->mesto_id,
             mesta: $mesta,
             dropdowns: [
-                'id_tip_nekretnine' => new SimpleDropdown(
+                'id_tip_nekretnine' => new SimpleDropdownField(
                     values: collect($tipovi),
                     checkedValues: $nekretnina->tip?->id
                 ),
@@ -121,11 +122,10 @@ class NekretnineFromServices extends BaseFormServices
     {
         $tipovi = collect($podaci)->get('tipovi');
         $mesta  = collect($podaci)->get('mesta');
-
-        return [
+        return (object)[
             'mesta' => $mesta,
             'dropdowns' => [
-                'id_tip_nekretnine' => new SimpleDropdown(
+                'id_tip_nekretnine' => new SimpleDropdownField(
                     values: collect($tipovi),
                     checkedValues: null
                 ),

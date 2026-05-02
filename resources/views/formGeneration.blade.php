@@ -46,7 +46,7 @@
 
             @elseif ($f['type'] === 'dropdown')
             @php
-            $dd = $podaci->dropdowns[$f['name']] ?? collect();
+            $dd = isset($podaci) ? ($podaci->dropdowns[$f['name']] ?? null) : null;
             //Znaci ne ovako, morao bih konstantno da sirim ovaj deo ukoliko mi dodje nesto novo! (Ovo dole je za arhivu!)
             // dd($podaci->sviPodaciZaListu,$podaci->cekiraniTip->id,is_object($podaci->sviPodaciZaListu),$f);
             // if (
@@ -71,10 +71,11 @@
             // }
             @endphp
 
-            <x-forms.dropdown
+
+        <x-forms.dropdown
             :field="$f"
-            :values="$dd->values"
-            :checkedValues="$dd->checkedValues"
+            :values="$dd ? $dd->getValues() : collect()"
+            :checkedValues="$dd ? $dd->getCheckedValues() : null"
             :type="$f['tipDropdown']" />
 
             @elseif ($f['type'] === 'radio')

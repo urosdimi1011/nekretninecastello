@@ -291,13 +291,13 @@ class NekeretnineController extends Controller
 
     public function edit($id)
     {
-        $nekretnina = Nekretnine::withTrashed()->where("id", $id)->with(["slika", "slike", "tip", "video", "mesto"])->first();
+        $nekretnina = Nekretnine::withTrashed()->where("id", $id)->with(["slika", "slike", "tip", "video"])->first();
         $tipovi = TipNekretnine::all();
         $mesta = Mesto::query()
             ->select('id', 'naziv')
             ->orderBy('naziv')
             ->get();
-        $svi = array_merge(["nekretnine" => $nekretnina], ["tipovi" => $tipovi], ["mesta" => $mesta]);
+        $svi = compact('nekretnina', 'tipovi', 'mesta');
         return $this->nekretnineFromServices->initializeForm($svi);
     }
 

@@ -252,6 +252,7 @@ function openModal(target, data = null) {
                             error;
                     });
             });
+            initVideoUpload();
         })
         .catch((xhr) => {
             ukiniSpiner();
@@ -283,29 +284,7 @@ function closeModal() {
     localStorage.removeItem("modalOpen");
     localStorage.removeItem("modalContent");
 }
-function showPreview(file) {
-    const url = URL.createObjectURL(file);
-    videoEl.src = url;
-    fileName.textContent = file.name;
-    fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + " MB";
-    dropZone.style.display = "none";
-    previewBox.style.display = "block";
 
-    // Postavi status na "čeka upload"
-    const badge = document.getElementById("videoStatusBadge");
-    const tekst = document.getElementById("videoStatusTekst");
-    if (badge && tekst) {
-        badge.className = "video-status-badge";
-        tekst.textContent = "Odabran – čeka slanje";
-    }
-}
-
-const badge = document.getElementById("videoStatusBadge");
-const tekst = document.getElementById("videoStatusTekst");
-if (badge && tekst) {
-    badge.classList.add("status-poslan");
-    tekst.textContent = "Video uspešno poslan";
-}
 document.addEventListener("click", function (event) {
     if (event.target.classList.contains("close-alert")) {
         event.target.parentNode.remove();
@@ -319,7 +298,76 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 4000);
     }
 });
+function initVideoUpload() {
+    const dropZone = document.getElementById("videoDropZone");
+    const previewBox = document.getElementById("videoPreviewBox");
+    const videoEl = document.getElementById("videoPreview");
+    const fileName = document.getElementById("videoFileName");
+    const fileSize = document.getElementById("videoFileSize");
+    const removeBtn = document.getElementById("videoRemoveBtn");
 
+    if (!dropZone || !previewBox) return;
+
+    const fileInput = dropZone.querySelector('input[type="file"]');
+    if (!fileInput) return;
+
+    function showPreview(file) {
+        const url = URL.createObjectURL(file);
+        videoEl.src = url;
+        fileName.textContent = file.name;
+        fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+        dropZone.style.display = "none";
+        previewBox.style.display = "block";
+
+        const badge = document.getElementById("videoStatusBadge");
+        const tekst = document.getElementById("videoStatusTekst");
+        if (badge && tekst) {
+            badge.className = "video-status-badge";
+            tekst.textContent = "Odabran – čeka slanje";
+        }
+    }
+
+    fileInput.addEventListener("change", function () {
+        if (this.files && this.files[0]) showPreview(this.files[0]);
+    });
+
+    dropZone.addEventListener("dragover", function (e) {
+        e.preventDefault();
+        this.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", function () {
+        this.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", function (e) {
+        e.preventDefault();
+        this.classList.remove("dragover");
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("video/")) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+            showPreview(file);
+        }
+    });
+
+    if (removeBtn) {
+        removeBtn.addEventListener("click", function () {
+            videoEl.src = "";
+            fileInput.value = "";
+            previewBox.style.display = "none";
+            dropZone.style.display = "flex";
+
+            const badge = document.getElementById("videoStatusBadge");
+            const tekst = document.getElementById("videoStatusTekst");
+            if (badge && tekst) {
+                badge.className = "video-status-badge";
+                tekst.textContent = "Spreman za upload";
+            }
+        });
+    }
+}
 function addEventListenerOnce(event, element, onEvent, listenerMark = "") {
     let listenerMarker = event + listenerMark;
     console.log(listenerMarker);

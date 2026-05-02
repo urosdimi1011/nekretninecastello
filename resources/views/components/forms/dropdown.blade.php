@@ -2,14 +2,54 @@
 @php
 $stavi = '';
 if (is_array($checkedValues)) {
-$stavi = '[]';
+    $stavi = '[]';
+}
+
+$triggerLabel = $field['label'];
+
+if ($type === 'radio') {
+    $found = collect($values)->firstWhere('id', $checkedValues);
+    if ($found) {
+        $triggerLabel = $found->naziv ?? $found->tip ?? $field['label'];
+    }
+
+} elseif ($type === 'checkbox') {
+    if (is_array($checkedValues) && count($checkedValues) > 0) {
+        $checkedIds = collect($checkedValues)->pluck('id')->filter()->flip(); // O(1) lookup
+        $count = collect($values)->filter(fn($v) => isset($checkedIds[$v->id]))->count();
+        if ($count > 0) {
+            $triggerLabel = $count . ' ' . ($count === 1 ? 'stavka izabrana' : 'stavke izabrane');
+        }
+    }
+
+} elseif ($type === 'text') {
+    if (is_array($checkedValues)) {
+        // Indexed po id-u - O(1) lookup u foreach dole
+        $checkedMap = collect($checkedValues)
+            ->filter(fn($i) => isset($i->id))
+            ->keyBy('id');
+
+        $popunjenih = $checkedMap->filter(
+            fn($i) => isset($i->vrednost) && $i->vrednost && $i->vrednost !== 'ne'
+        )->count();
+
+        if ($popunjenih > 0) {
+            $triggerLabel = $popunjenih . ' ' . ($popunjenih === 1 ? 'atribut popunjen' : 'atributa popunjeno');
+        }
+    }
+}
+
+$hasValue = $triggerLabel !== $field['label'];
+
+if ($type === 'checkbox' && is_array($checkedValues)) {
+    $checkedIds = collect($checkedValues)->pluck('id')->filter()->flip();
 }
 @endphp
 
 <div class="custom-dropdown-field" id="{{ $field['name'] }}Dropdown" data-type="{{ $type }}">
     <button class="custom-dropdown-trigger" type="button" data-dropdown="{{ $field['name'] }}">
         <span class="custom-dropdown-trigger__text" id="{{ $field['name'] }}_label">
-            {{ $field['label'] }}
+            {{ $triggerLabel }}        
         </span>
         <svg class="custom-dropdown-trigger__arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="6 9 12 15 18 9" />
@@ -23,15 +63,13 @@ $stavi = '[]';
             @foreach($values as $value => $label)
             @php
             $foundValue = '';
-            if (is_array($checkedValues)) {
-            $foundItem = array_reduce($checkedValues, function ($carry, $item) use ($label) {
-            if (isset($item->id) && $item->id == $label->id) return $item;
-            return $carry;
-            }, null);
-            if ($foundItem) {
-            $foundValue = $foundItem->vrednost ?? '';
-            if ($foundValue === 'ne') $foundValue = '';
-            }
+            if (isset($checkedMap)) {
+                // O(1) lookup po id-u umesto array_reduce
+                $foundItem = $checkedMap->get($label->id);
+                if ($foundItem) {
+                    $foundValue = $foundItem->vrednost ?? '';
+                    if ($foundValue === 'ne') $foundValue = '';
+                }
             }
             $displayLabel = $label->naziv ?? $label->tip ?? '';
             @endphp
@@ -51,24 +89,18 @@ $stavi = '[]';
             @endforeach
 
             @else
-            {{-- RADIO / CHECKBOX tip --}}
             @foreach($values as $value => $label)
             @php
             $inputValue = $label->id;
-
             $isChecked = false;
             if (is_array($checkedValues)) {
-            $plucked = collect($checkedValues)->pluck('id')->toArray();
-            $isChecked = in_array(null, $plucked)
-            ? in_array($label->id, $checkedValues)
-            : in_array($label->id, $plucked);
+                // O(1) lookup umesto in_array po celom array-u
+                $isChecked = isset($checkedIds[$label->id]);
             } elseif ($label->id == $checkedValues) {
-            $isChecked = true;
+                $isChecked = true;
             }
-
             $displayLabel = $label->naziv ?? $label->tip ?? '';
             @endphp
-
             <label class="custom-dropdown-opcija {{ $isChecked ? 'is-checked' : '' }}"
                 data-label="{{ $displayLabel }}">
                 <input

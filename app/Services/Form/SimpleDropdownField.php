@@ -1,14 +1,8 @@
 <?php
 
-namespace App\Services\Form\SimpleDropdown;
+namespace App\Services\Form;
 
-interface DropdownFieldInterface
-{
-    public function getValues(): \Illuminate\Support\Collection;
-    public function getCheckedValues(): mixed;
-}
-
-class SimpleDropdown implements DropdownFieldInterface
+class SimpleDropdownField implements DropdownFieldInterface
 {
     public function __construct(
         private \Illuminate\Support\Collection $values,

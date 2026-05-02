@@ -17,6 +17,7 @@ class NekretnineDTO
     public $sifra_nekretnine;
     public $istaknuta;
     public $slug;
+    public $mesto_id;
     public $mesta;
     public array $dropdowns;
 
@@ -34,6 +35,7 @@ class NekretnineDTO
         $sifra_nekretnine,
         $istaknuta,
         $slug,
+        $mesto_id,
         $mesta,
         array $dropdowns = []
     ) {
@@ -49,6 +51,7 @@ class NekretnineDTO
         $this->sifra_nekretnine = $sifra_nekretnine;
         $this->istaknuta = $istaknuta;
         $this->slug = $slug;
+        $this->mesto_id = $mesto_id;
         $this->mesta = $mesta;
         $this->dropdowns = $dropdowns;
     }
