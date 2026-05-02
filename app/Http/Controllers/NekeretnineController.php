@@ -20,12 +20,18 @@ class NekeretnineController extends Controller
     protected $nekretnineServices;
     protected $tableService;
     protected $nekretnineFromServices;
-
+    protected $servisZaSliku;
     protected $nekretnineAtributiVrednostServices;
-
     protected $tipNekretnineServices;
-    public function __construct(NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices, NekretnineServices $nekretnineServices, SlikaServices $servisZaSliku, NekretnineTableService $tableService, NekretnineFromServices $nekretnineFromServices, TipNekretnineServices $tipNekretnineServices)
-    {
+
+    public function __construct(
+        NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices,
+        NekretnineServices $nekretnineServices,
+        SlikaServices $servisZaSliku,
+        NekretnineTableService $tableService,
+        NekretnineFromServices $nekretnineFromServices,
+        TipNekretnineServices $tipNekretnineServices
+    ) {
         $this->nekretnineAtributiVrednostServices = $nekretnineAtributiVrednostServices;
         $this->nekretnineServices = $nekretnineServices;
         $this->tableService = $tableService;
@@ -33,7 +39,6 @@ class NekeretnineController extends Controller
         $this->nekretnineFromServices = $nekretnineFromServices;
         $this->tipNekretnineServices = $tipNekretnineServices;
     }
-
 
     public function index(Request $request, $tip = null)
     {
@@ -158,8 +163,6 @@ class NekeretnineController extends Controller
 
     public function prikazTabelarniNekretnine(Request $search)
     {
-        //        dd($search->all());
-
         $filters = [
             "naziv" => $search->keywords,
             "sifra_nekretnine" => $search->keywords,
@@ -288,9 +291,13 @@ class NekeretnineController extends Controller
 
     public function edit($id)
     {
-        $nekretnina = Nekretnine::withTrashed()->where("id", $id)->with(["slika", "slike", "tip"])->first();
+        $nekretnina = Nekretnine::withTrashed()->where("id", $id)->with(["slika", "slike", "tip", "video"])->first();
         $tipovi = TipNekretnine::all();
-        $svi = array_merge(["nekretnine" => $nekretnina], ["tipovi" => $tipovi]);
+        $mesta = Mesto::query()
+            ->select('id', 'naziv')
+            ->orderBy('naziv')
+            ->get();
+        $svi = compact('nekretnina', 'tipovi', 'mesta');
         return $this->nekretnineFromServices->initializeForm($svi);
     }
 

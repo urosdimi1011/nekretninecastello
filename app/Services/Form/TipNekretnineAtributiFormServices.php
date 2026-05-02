@@ -9,7 +9,7 @@ class TipNekretnineAtributiFormServices extends BaseFormServices
 
     public function __construct()
     {
-        $this->tip="tipnekretnineatributi";
+        $this->tip = "tipnekretnineatributi";
     }
 
     protected $fields = [
@@ -17,13 +17,31 @@ class TipNekretnineAtributiFormServices extends BaseFormServices
             'name' => 'atributi',
             'label' => 'Svi atributi',
             'type' => 'dropdown',
-            'tipDropdown'=>'checkbox'
+            'tipDropdown' => 'checkbox'
         ]
     ];
+
+    protected function prepareModelDataForInsert($podaci)
+    {
+        $atributi = collect($podaci)->get('atributi');
+
+        return (object)[
+            'dropdowns' => [
+                'atributi' => new SimpleDropdownField(
+                    values: collect($atributi),
+                    checkedValues: null
+                ),
+            ]
+        ];
+    }
     protected function prepareModelData($model)
     {
-        return new TipNekretnineAtributiDTO($model->atributi,$model->cekirani,$model->id);
-
-//        return TipNekretnineAtributiDTO::class
+        return new TipNekretnineAtributiDTO(
+            atributi: new SimpleDropdownField(
+                values: collect($model->atributi),
+                checkedValues: collect($model->cekirani)->pluck('id')->toArray()
+            ),
+            id: $model->id
+        );
     }
 }
