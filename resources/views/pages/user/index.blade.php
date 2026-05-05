@@ -1,25 +1,26 @@
 @extends('layouts.user')
 
-@section('title', 'Castello Nekretnine Vršac | Kuće, Stanovi, Placevi i Zemljišta')
-@section('description', 'Nekretnine Vršac – Castello nekretnine nude prodaju kuća, stanova, lokala, placeva i poljoprivrednih zemljišta. Pravna pomoć i savetovanje. Pozovite: 065 823 4501')
-@section('keywords', 'nekretnine vrsac, vrsac nekretnine, prodaja nekretnina vrsac, kuce vrsac, stanovi vrsac, lokali vrsac, placevi vrsac, poljoprivredno zemljiste vrsac, castello nekretnine, agencija za nekretnine vrsac')
+@section('title', __('home.title'))
+@section('description', __('home.description'))
+@section('keywords', __('home.keywords'))
+
 @section('content')
 
-<section class="splide index-strana" aria-label="Nekretnine Vršac – Castello Nekretnine slider">
+<section class="splide index-strana" aria-label="{{ __('home.istaknute_aria') }}">
     <div class="splide__track">
         <ul class="splide__list">
             <li class="splide__slide">
                 <div class="slide-content">
-                    <img class="stil-za-sliku" width="2200" height="800" src="{{asset("assets/img/wallpapers/modern-residential-district-with-green-roof-balcony-generated-by-ai.jpg")}}" alt="Nekretnine Vršac - Castello nekretnine">
+                    <img class="stil-za-sliku" width="2200" height="800"
+                        src="{{ asset('assets/img/wallpapers/modern-residential-district-with-green-roof-balcony-generated-by-ai.jpg') }}"
+                        alt="{{ __('home.slider_1_alt') }}">
                     <div class="text-overlay left">
-                        <h1 class="animated-text-left">
-                            Nekretnine Vršac – pronađite vaš novi dom
-                        </h1>
+                        <h1 class="animated-text-left">{{ __('home.slider_1_naslov') }}</h1>
                         <div class="moje-dugme-index-strana-slider">
                             <div class="bt_bb_service_content d-flex mojee">
-                                <img src="{{asset("assets/img/icon/phone icon.png")}}" alt="Pozovite Castello nekretnine">
+                                <img src="{{ asset('assets/img/icon/phone icon.png') }}" alt="{{ __('home.telefon_alt') }}">
                                 <div class="container-content">
-                                    <div class="bt_bb_service_content_supertitle">POZOVITE ODMAH</div>
+                                    <div class="bt_bb_service_content_supertitle">{{ __('home.pozovite') }}</div>
                                     <div class="bt_bb_service_content_title">+381 65 823 4501</div>
                                 </div>
                             </div>
@@ -27,19 +28,18 @@
                     </div>
                 </div>
             </li>
-
             <li class="splide__slide">
                 <div class="slide-content">
-                    <img class="stil-za-sliku" width="2200" height="800" loading="lazy" src="{{asset("assets/img/wallpapers/inner_slider_03.jpg")}}" alt="Prodaja kuća i stanova u Vršcu">
+                    <img class="stil-za-sliku" width="2200" height="800" loading="lazy"
+                        src="{{ asset('assets/img/wallpapers/inner_slider_03.jpg') }}"
+                        alt="{{ __('home.slider_2_alt') }}">
                     <div class="text-overlay right">
-                        <h2 class="animated-text-right">
-                            Prodaja kuća, stanova i placeva u Vršcu
-                        </h2>
+                        <h2 class="animated-text-right">{{ __('home.slider_2_naslov') }}</h2>
                         <div class="moje-dugme-index-strana-slider">
                             <div class="bt_bb_service_content d-flex mojee">
-                                <img src="{{asset("assets/img/icon/phone icon.png")}}" alt="Pozovite Castello nekretnine">
+                                <img src="{{ asset('assets/img/icon/phone icon.png') }}" alt="{{ __('home.telefon_alt') }}">
                                 <div class="container-content">
-                                    <div class="bt_bb_service_content_supertitle">POZOVITE ODMAH</div>
+                                    <div class="bt_bb_service_content_supertitle">{{ __('home.pozovite') }}</div>
                                     <div class="bt_bb_service_content_title">+381 65 823 4501</div>
                                 </div>
                             </div>
@@ -58,12 +58,12 @@
     <div class="row align-items-center">
         <div class="col-12 col-md-7">
             <div class="block-tekst">
-                <span class="naslov-nekretnine">Agencija za nekretnine Vršac</span>
-                <h2 class="mb-3 mt-2">Pronađite <span>nekretninu u Vršcu</span> kakvu želite</h2>
-                <p><strong>Kupovina ili prodaja nekretnina</strong> donosi veliko uzbuđenje, ali sa sobom nosi i veliki stres. <strong>Castello nekretnine čini tim stručnih ljudi</strong> koji su svojim znanjem i iskustvom spremni da vam sve to olakšaju.</p>
-                <p class="mt-3"><strong>Želeli smo da na jednom mestu dobijete sve</strong> – od kvalitetne ponude kuća, stanova, lokala i placeva, preko pravne pomoći i savetovanja, sve do <strong>useljenja u vaš novi dom.</strong></p>
+                <span class="naslov-nekretnine">{{ __('home.agencija_naslov') }}</span>
+                <h2 class="mb-3 mt-2">{!! __('home.agencija_h2') !!}</h2>
+                <p>{!! __('home.agencija_p1') !!}</p>
+                <p class="mt-3">{!! __('home.agencija_p2') !!}</p>
                 <a href="{{ route('nekretnineSve') }}" class="moje-dugme-index-strana-slider d-inline-block px-4 py-3 mt-4">
-                    Pogledajte sve nekretnine
+                    {{ __('home.agencija_btn') }}
                 </a>
             </div>
         </div>
@@ -72,29 +72,29 @@
                 <div class="index-usluga">
                     <i class="ph ph-house"></i>
                     <div>
-                        <h3>Stanovi i kuće</h3>
-                        <p>Široka ponuda stambenih nekretnina</p>
+                        <h3>{{ __('home.usluga_1_naslov') }}</h3>
+                        <p>{{ __('home.usluga_1_opis') }}</p>
                     </div>
                 </div>
                 <div class="index-usluga">
                     <i class="ph ph-buildings"></i>
                     <div>
-                        <h3>Poslovni prostori</h3>
-                        <p>Lokali i poslovni prostori za vaš biznis</p>
+                        <h3>{{ __('home.usluga_2_naslov') }}</h3>
+                        <p>{{ __('home.usluga_2_opis') }}</p>
                     </div>
                 </div>
                 <div class="index-usluga">
                     <i class="ph ph-map-trifold"></i>
                     <div>
-                        <h3>Placevi i zemljišta</h3>
-                        <p>Građevinski i poljoprivredni placevi</p>
+                        <h3>{{ __('home.usluga_3_naslov') }}</h3>
+                        <p>{{ __('home.usluga_3_opis') }}</p>
                     </div>
                 </div>
                 <div class="index-usluga">
                     <i class="ph ph-scales"></i>
                     <div>
-                        <h3>Pravna pomoć</h3>
-                        <p>Kompletna podrška u dokumentaciji</p>
+                        <h3>{{ __('home.usluga_4_naslov') }}</h3>
+                        <p>{{ __('home.usluga_4_opis') }}</p>
                     </div>
                 </div>
             </div>
@@ -102,106 +102,91 @@
     </div>
 </section>
 
-
 <section class="container moja-margina">
-
     <div class="istaktnut-naslov">
-        <h2 class="text-center mb-5 mt-4 istaktnut-naslov">Istaknute nekretnine u <span>Vršcu</span></h2>
+        <h2 class="text-center mb-5 mt-4">{!! __('home.istaknute_naslov') !!}</h2>
     </div>
-    <div class="splide splide2" role="group" aria-label="Istaknute nekretnine u Vršcu">
+    <div class="splide splide2" role="group" aria-label="{{ __('home.istaknute_aria') }}">
         <div class="splide__track">
             <ul class="splide__list">
                 @forelse($istaknuti as $i)
-
                 <li class="splide__slide">
                     <x-nekretnina :nekretnina="$i" />
                 </li>
                 @empty
-                <h4 class="ako-nema">Trenutno nema istaknutih nekretnina</h4>
+                <h4 class="ako-nema">{{ __('home.istaknute_prazno') }}</h4>
                 @endforelse
-
             </ul>
         </div>
     </div>
-
 </section>
 
-
-
 <section class="tipovi-nekretnina">
-
     <div class="container-fluid m-0 p-0 d-flex tipNekretnina-block">
-
         @foreach($tipoviNekretnina as $a)
         <div class="block">
             <div class="box-shadow-efekat-tip-nekretnine"></div>
             <h2 class="text-block-tip-nekretnine text-uppercase">
-                <?php
-                $tipSaDonjomCrtom = strtolower(str_replace(' ', '_', $a->tip));
-                ?>
-                <a href="{{ route('nekretnineSvePoTipu', ['tip' => strpos($tipSaDonjomCrtom, 'ku') === 0 ? str_replace("c","ć",strtolower($tipSaDonjomCrtom)) : strtolower($tipSaDonjomCrtom)]) }}">{{ $a->tip }}</a>
-
+                @php
+                    $tipSaDonjomCrtom = strtolower(str_replace(' ', '_', $a->tip));
+                @endphp
+                <a href="{{ route('nekretnineSvePoTipu', ['tip' => strpos($tipSaDonjomCrtom, 'ku') === 0 ? str_replace('c','ć', strtolower($tipSaDonjomCrtom)) : strtolower($tipSaDonjomCrtom)]) }}">
+                    {{ $a->tip }}
+                </a>
             </h2>
             @php
-            $slika = $a->slika;
-            list($width, $height) = getimagesize(public_path('assets/img/' . $slika->putanja));
+                $slika = $a->slika;
+                list($width, $height) = getimagesize(public_path('assets/img/' . $slika->putanja));
             @endphp
-            <img class="full-width-image" src="{{ asset('assets/img/' . $slika->putanja) }}" alt="{{ $slika->alt }}" width="{{ $width }}" height="{{ $height }}" />
+            <img class="full-width-image"
+                src="{{ asset('assets/img/' . $slika->putanja) }}"
+                alt="{{ $slika->alt }}"
+                width="{{ $width }}"
+                height="{{ $height }}" />
         </div>
         @endforeach
         <div class="block">
             <div class="box-shadow-efekat-tip-nekretnine"></div>
-            <h2 class="text-block-tip-nekretnine text-uppercase"><a href="https://www.castellonekretnine.rs/">Beograd</a></h2>
-            <img width="705" height="705" class="full-width-image" src="{{asset("assets/img/wallpapers/beograd-nekretnine-banner.jpg")}}" alt="Beograd nekretnine" />
+            <h2 class="text-block-tip-nekretnine text-uppercase">
+                <a href="https://www.castellonekretnine.rs/">Beograd</a>
+            </h2>
+            <img width="705" height="705" class="full-width-image"
+                src="{{ asset('assets/img/wallpapers/beograd-nekretnine-banner.jpg') }}"
+                alt="Beograd nekretnine" />
         </div>
     </div>
-
-
 </section>
+
 @endsection
+
 @push('scripts')
 <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "@id": "{{ url('/') }}#website",
-        "url": "{{ url('/') }}",
-        "name": "Castello Nekretnine Vršac",
-        "description": "Agencija za nekretnine u Vršcu – prodaja kuća, stanova, lokala i placeva",
-        "publisher": {
-            "@id": "{{ url('/') }}#agency"
-        }
-    }
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "{{ url('/') }}#website",
+    "url": "{{ url('/') }}",
+    "name": "{{ __('home.schema_naziv') }}",
+    "description": "{{ __('home.schema_opis') }}",
+    "publisher": { "@id": "{{ url('/') }}#agency" }
+}
 </script>
 <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "ItemList",
-        "name": "Istaknute nekretnine u Vršcu – Castello Nekretnine",
-        "numberOfItems": {
-            {
-                count($istaknuti)
-            }
-        },
-        "itemListElement": [
-            @foreach($istaknuti as $index => $i) {
-                "@type": "ListItem",
-                "position": {
-                    {
-                        $index + 1
-                    }
-                },
-                "url": "{{ route('prikaziNekretninu', $i->id) }}",
-                "name": {
-                    !!json_encode($i - > naziv) !!
-                }
-            } {
-                {
-                    !$loop - > last ? ',' : ''
-                }
-            }
-            @endforeach
-        ]
-    }
+{
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "{{ __('home.schema_lista') }}",
+    "numberOfItems": {{ count($istaknuti) }},
+    "itemListElement": [
+        @foreach($istaknuti as $index => $i)
+        {
+            "@type": "ListItem",
+            "position": {{ $index + 1 }},
+            "url": "{{ route('prikaziNekretninu', $i->id) }}",
+            "name": {!! json_encode($i->naziv) !!}
+        }{{ !$loop->last ? ',' : '' }}
+        @endforeach
+    ]
+}
 </script>
 @endpush

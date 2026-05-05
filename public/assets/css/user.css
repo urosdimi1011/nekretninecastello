@@ -6,7 +6,151 @@
 body {
     font-family: Roboto, Arial, Helvetica, sans-serif;
 }
+/* ── Language Switcher ─────────────────────────── */
+.lang-switcher-wrap {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    padding-left: 16px;
+    border-left: 1px solid rgba(0,0,0,0.1);
+}
 
+.lang-switcher {
+    position: relative;
+    display: inline-block;
+}
+
+.lang-switcher__btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.2);
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    height: 28px;
+    white-space: nowrap;
+}
+
+.lang-switcher__btn:hover {
+    background: #004274;
+    border-color: #004274;
+    color: #fff;
+}
+
+.lang-switcher__arrow {
+    font-size: 8px;
+    transition: transform 0.2s;
+}
+
+.lang-switcher:hover .lang-switcher__arrow {
+    transform: rotate(180deg);
+}
+
+/* Most koji popunjava gap između dugmeta i panela */
+.lang-switcher__bridge {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 10px; /* isto koliko je top offset na dropdownu */
+    z-index: 99998;
+}
+
+.lang-switcher:hover .lang-switcher__bridge {
+    display: block;
+}
+
+/* Dropdown */
+.lang-switcher__dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px); /* 10px gap */
+    right: 0;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    list-style: none;
+    padding: 5px;
+    margin: 0;
+    min-width: 110px;
+    z-index: 99999;
+    border: 1px solid #e8eaf0;
+}
+
+/* Strelica dekorativna */
+.lang-switcher__dropdown::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 14px;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-left: 1px solid #e8eaf0;
+    border-top: 1px solid #e8eaf0;
+    transform: rotate(45deg);
+}
+
+.lang-switcher:hover .lang-switcher__dropdown {
+    display: block;
+    animation: langDrop 0.15s ease;
+}
+
+@keyframes langDrop {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.lang-switcher__dropdown li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a2035;
+    border-radius: 4px;
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: background 0.12s;
+}
+
+.lang-switcher__dropdown li a:hover {
+    background: #f0f6fc;
+    color: #004274;
+}
+
+.lang-switcher__dropdown li a.active {
+    background: #fff8ee;
+    color: #fec059;
+}
+
+.lang-switcher__dropdown li + li {
+    border-top: 1px solid #f0f2f8;
+}
+
+/* Flag icons veličina */
+.lang-switcher__btn .fi,
+.lang-switcher__dropdown .fi {
+    width: 20px;
+    height: 15px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.lang-name {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
 
 .video-sekcija {
     margin: 0 20px;
@@ -1659,7 +1803,6 @@ footer {
     background-repeat: no-repeat;
     background-size: cover;
     color: #fff;
-    /*background-image: url("../img/wallpapers/footer_background.jpg");*/
 }
 .moje-dugme-index-strana-slider img {
     width: 40px;
@@ -1667,7 +1810,7 @@ footer {
 main {
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-        url("../img/wallpapers/analog-landscape-city-with-buildings.jpg");
+        url("../img/wallpapers/analog-landscape-city-with-buildings.webp");
     background-size: 100% 100%;
 }
 .block-tekst {
@@ -2318,15 +2461,6 @@ header {
     }
 }
 @media screen and (max-width: 995px) {
-    .slika-pozadina {
-        background-image:
-            linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-            url("../img/wallpapers/vertical-response-wallpaper.jpg") !important ;
-        background-size: 99% 27% !important;
-        background-position: center top;
-        background-attachment: scroll;
-        background-repeat: repeat;
-    }
     .filter.text-right {
         text-align: left !important;
         margin-top: 25px !important;
@@ -2603,9 +2737,6 @@ header {
     }
     .index-stats__item:nth-child(2) { border-right: none; }
     .index-stats__item:nth-child(3) { border-right: 1px solid rgba(255,255,255,0.1); }
-    .slika-pozadina{
-        background-size: 99% 15% !important;
-    }
 }
 
 /*Spinner stil*/
@@ -2692,12 +2823,7 @@ header {
 .nekretnine-sve .blok-za-nekretninu-istaknutu {
     background-color: #f3f3f3;
 }
-.slika-pozadina {
-    background-image:
-        linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
-        url("../img/wallpapers/analog-landscape-city-with-buildings.jpg");
-    background-size: 100% 100%;
-}
+
 .p-200 {
     padding-top: 200px;
 }
@@ -2938,4 +3064,144 @@ header {
 .filter-sidebar__group + .filter-sidebar__group {
     padding-top: 20px;
     border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+/* ── Gornja traka redesign ─────────────────────── */
+.page__header__top {
+    background: #004274;
+    color: rgba(255,255,255,0.85);
+    font-size: 11px;
+    padding: 0;
+}
+
+.page__header__top a {
+    color: rgba(255,255,255,0.75);
+    font-size: 11px;
+    transition: color 0.15s;
+}
+
+.page__header__top a:hover {
+    color: #fec059;
+}
+
+.page__header__top__inner {
+    border-bottom: none;
+}
+
+.region-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    height: 38px;
+}
+
+/* Leva strana — kontakt info */
+.region-top nav:first-child {
+    display: flex;
+    align-items: center;
+}
+
+.region-top nav:first-child .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 100%;
+}
+
+.region-top nav:first-child .nav-item {
+    width: auto !important;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.region-top nav:first-child .nav-item:first-child {
+    border-left: none;
+}
+
+.region-top nav:first-child .nav-item a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 100%;
+    color: rgba(255,255,255,0.75);
+    font-size: 11px;
+    white-space: nowrap;
+    transition: all 0.15s;
+}
+
+.region-top nav:first-child .nav-item a:hover {
+    background: rgba(255,255,255,0.07);
+    color: #fec059;
+}
+
+.region-top nav:first-child .nav-item a i {
+    color: #fec059;
+    font-size: 12px;
+}
+
+/* Desna strana — social + lang */
+.region-top nav:last-child {
+    display: flex;
+    align-items: center;
+}
+
+.region-top nav:last-child .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 100%;
+}
+
+.region-top nav:last-child .nav-item {
+    width: auto !important;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+.region-top nav:last-child .nav-item a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    height: 100%;
+    color: rgba(255,255,255,0.75);
+    font-size: 11px;
+    white-space: nowrap;
+    transition: all 0.15s;
+}
+
+.region-top nav:last-child .nav-item a:hover {
+    background: rgba(255,255,255,0.07);
+    color: #fec059;
+}
+
+.region-top nav:last-child .nav-item a i {
+    font-size: 13px;
+}
+
+.region-top nav:last-child .nav-item a i.fa-facebook { color: #90b0ff; }
+.region-top nav:last-child .nav-item a i.fa-instagram { color: #f0a0c0; }
+.region-top nav:last-child .nav-item a i.fa-youtube { color: #ff8080; }
+
+
+
+.lang-switcher__arrow {
+    color: rgba(255,255,255,0.5) !important;
+}
+
+/* Responsive — sakrij tekst social linkova na manjim ekranima */
+@media (max-width: 1200px) {
+    .region-top nav:last-child .nav-item a span:not(.lang-switcher__current) {
+        display: none;
+    }
+    .region-top nav:first-child .nav-item a .label {
+        display: none;
+    }
+    .region-top nav:first-child .nav-item a i {
+        margin: 0;
+    }
 }

@@ -516,41 +516,52 @@ function ispisUploadovaneSlikeIMenjanjeRedosleda() {
     );
     const inputSlika = document.getElementById("podSlike");
 
+    if (!grafickiPrikazSlika || !inputSlika) return;
+
+    function azurirajBrojeve() {
+        grafickiPrikazSlika
+            .querySelectorAll(".slika-stavka")
+            .forEach((el, i) => {
+                el.setAttribute("data-order", i + 1);
+            });
+    }
+
     new Sortable(grafickiPrikazSlika, {
         animation: 150,
-        onEnd: function (event) {
+        onEnd: function () {
             promenjenRedosled = Array.from(
                 grafickiPrikazSlika.querySelectorAll("img"),
-            ).map((element) => parseInt(element.dataset.indeks));
+            ).map((el) => parseInt(el.dataset.indeks));
+            azurirajBrojeve();
         },
     });
 
     inputSlika.addEventListener("change", function () {
-        grafickiPrikazSlika.innerHTML = ""; // Obrišite prethodni prikaz
+        grafickiPrikazSlika.innerHTML = "";
 
         promenjenRedosled = Array.from(
             { length: inputSlika.files.length },
-            (_, indeks) => indeks,
+            (_, i) => i,
         );
 
         for (let i = 0; i < inputSlika.files.length; i++) {
             const slika = inputSlika.files[i];
-            const slikaStavka = document.createElement("div");
-            slikaStavka.className = "slika-stavka";
+            const stavka = document.createElement("div");
+            stavka.className = "slika-stavka";
+            stavka.setAttribute("data-order", i + 1);
 
             const img = document.createElement("img");
             img.src = URL.createObjectURL(slika);
             img.setAttribute("data-indeks", i);
             img.alt = slika.name;
 
-            const nazivSlike = document.createElement("div");
-            nazivSlike.className = "naziv-slike";
-            nazivSlike.innerText = slika.name;
+            const naziv = document.createElement("div");
+            naziv.className = "naziv-slike";
+            naziv.innerText = slika.name;
 
-            slikaStavka.appendChild(img);
-            slikaStavka.appendChild(nazivSlike);
-
-            grafickiPrikazSlika.appendChild(slikaStavka);
+            stavka.appendChild(img);
+            stavka.appendChild(naziv);
+            grafickiPrikazSlika.appendChild(stavka);
         }
     });
 }
@@ -576,7 +587,6 @@ document.addEventListener("click", function (e) {
     const panel = field.querySelector(".custom-dropdown-panel");
     const isOpen = panel.classList.contains("is-open");
 
-    // Zatvori sve ostale
     document.querySelectorAll(".custom-dropdown-panel.is-open").forEach((p) => {
         if (p !== panel) {
             p.classList.remove("is-open");
@@ -588,6 +598,23 @@ document.addEventListener("click", function (e) {
 
     panel.classList.toggle("is-open", !isOpen);
     trigger.classList.toggle("is-open", !isOpen);
+
+    if (!isOpen) {
+        const rect = trigger.getBoundingClientRect();
+        const panelHeight = 260;
+        const prostorIspod = window.innerHeight - rect.bottom;
+
+        panel.style.width = rect.width + "px";
+        panel.style.left = rect.left + "px";
+
+        if (prostorIspod >= panelHeight || prostorIspod >= 150) {
+            panel.style.top = rect.bottom + 4 + "px";
+            panel.style.bottom = "auto";
+        } else {
+            panel.style.bottom = window.innerHeight - rect.top + 4 + "px";
+            panel.style.top = "auto";
+        }
+    }
 });
 
 // Zatvori ako klik van dropdowna

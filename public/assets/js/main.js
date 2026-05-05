@@ -1,6 +1,13 @@
 let sortingData = null;
 let trenutniTipNekretnine = null;
-
+const pathname = window.location.pathname;
+const baseUrl = window.AppConfig.baseUrl;
+const locale = window.AppConfig.locale;
+function jeStranica(naziv) {
+    const path = pathname.replace(/^\/(en|ro|sr)/, "");
+    if (naziv === "home") return path === "/" || path === "";
+    return path.includes(naziv);
+}
 const TIP_FILTERA = Object.freeze({
     RASPON: "raspon",
     KATEGORIJA: "kategorija",
@@ -25,7 +32,7 @@ document
         });
     });
 document.addEventListener("DOMContentLoaded", function () {
-    if (window.location.pathname === "/") {
+    if (jeStranica("home")) {
         var splide1 = new Splide(".splide", {
             type: "loop",
             autoplay: true,
@@ -68,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         splide1.mount();
         splide2.mount();
-    } else if (window.location.pathname.includes("nekretnine")) {
+    } else if (jeStranica("nekretnine")) {
         var elementiZaSlider =
             document.getElementsByClassName("nekretnina-slider");
 
@@ -178,7 +185,7 @@ document.querySelector(".black-wall").addEventListener("click", function () {
 const formaDugme = document.querySelector(".dugme-forme-kontakt");
 //Kontakt forma
 
-if (window.location.pathname.includes("kontakt")) {
+if (jeStranica("kontakt")) {
     formaDugme.addEventListener("click", regulisiFormu);
 }
 
@@ -229,7 +236,7 @@ function regulisiFormu(e) {
         const csrfToken = document
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content");
-        fetch("/send-mail", {
+        fetch(window.AppConfig.routes.sendMail, {
             method: "POST",
             body: JSON.stringify({
                 imeIPrezime: imeIPrezime.value,
@@ -466,7 +473,8 @@ document.querySelectorAll(".custom-option").forEach(function (option) {
             sortingData = select.value;
         }
 
-        url = `/nekretnine?`;
+        // url = `/nekretnine?`;
+        url = window.AppConfig.routes.nekretnine + "?";
 
         if (trenutniTipNekretnine !== "") {
             url += `&tip=${trenutniTipNekretnine}`;
@@ -734,7 +742,7 @@ function ucitajFilteriZaTip(tipId) {
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
 
-    fetch(`/api/filteri/${tipId}`, {
+    fetch(`${window.AppConfig.routes.filteri}/${tipId}`, {
         headers: {
             "X-CSRF-TOKEN": csrf,
             Accept: "application/json",
@@ -1050,7 +1058,7 @@ async function handleSubmit() {
     setSubmitLoading(true);
 
     try {
-        const r = await fetch("/pretplatnici", {
+        const r = await fetch(window.AppConfig.routes.pretplatnici, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

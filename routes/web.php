@@ -3,48 +3,31 @@
 use App\Http\Controllers\NekeretnineController;
 use App\Http\Controllers\PretplatnikController;
 use Illuminate\Support\Facades\Route;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 Route::get('/login', [\App\Http\Controllers\AuthenticateUser::class, 'prikaz'])->name("login");
-Route::get('/onama', [\App\Http\Controllers\OwnController::class, 'index'])->name("onama");
-Route::get('/kontakt', [\App\Http\Controllers\KontaktController::class, 'index'])->name("kontakt");
-
 Route::post('/login', [\App\Http\Controllers\AuthenticateUser::class, 'doLogin'])->name("doLogin");
 Route::get('/register', [\App\Http\Controllers\AuthenticateUser::class, 'registracija'])->name("register");
 Route::post('/register', [\App\Http\Controllers\AuthenticateUser::class, 'registracijaKorisnika'])->name("registracijaKorisnika");
-
 Route::get('/logout', [\App\Http\Controllers\AuthenticateUser::class, 'doLogout'])->name('doLogout');
 
-Route::get('/nekretnine/{identifier}', [NekeretnineController::class, 'show'])
-    ->name('prikaziNekretninu');
-
-Route::get('/admin/nekretnine/vrati/{id}', [\App\Http\Controllers\NekeretnineController::class, 'vratiNekretninu'])->name("vratiNekretninu");
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+});
 
 Route::get('/api/tip-atributi/{id}', [\App\Http\Controllers\PretplatnikController::class, 'getAtributi']);
-
 Route::get('/api/filteri/{tipId}', [PretplatnikController::class, 'getFilteri']);
-
+Route::get('/api/mesta', [\App\Http\Controllers\PretplatnikController::class, 'getMesta']);
 
 Route::post('/pretplatnici', [\App\Http\Controllers\PretplatnikController::class, 'store'])
     ->middleware('throttle:3,10')
     ->name('pretplatnici.store');
+Route::get('/pretplatnici/verifikuj/{token}', [PretplatnikController::class, 'verifikuj'])->name('pretplatnici.verifikuj');
+Route::get('/pretplatnici/odjava/{token}', [PretplatnikController::class, 'odjava'])->name('pretplatnici.odjava');
 
-
-Route::get('/pretplatnici/verifikuj/{token}', [PretplatnikController::class, 'verifikuj'])
-    ->name('pretplatnici.verifikuj');
-
-Route::get('/pretplatnici/odjava/{token}', [PretplatnikController::class, 'odjava'])
-    ->name('pretplatnici.odjava');
-
-
-
-Route::get('/nekretnine/{tip?}/{page?}', [\App\Http\Controllers\NekeretnineController::class, 'index'])->name("nekretnineSve");
-
-Route::get('/api/mesta', [\App\Http\Controllers\PretplatnikController::class, 'getMesta']);
-
-
-Route::get('/{tip}', [\App\Http\Controllers\NekeretnineController::class, 'index'])
-    ->where('tip', "kuće|kuce|stanovi|lokali|poljoprivredno_zemljište|poljoprivredno_zamljiste|poljoprivredno_zemlji%C5%A1te|placevi")
-    ->name("nekretnineSvePoTipu");
+Route::get('/phpinfo', function () {
+    phpinfo();
+});
 
 
 Route::prefix('admin')->group(function () {
@@ -53,10 +36,7 @@ Route::prefix('admin')->group(function () {
     Route::resource('/tipnekretnineatributi', \App\Http\Controllers\TipNekretnineAtributiController::class);
     Route::resource('/nekretnine', \App\Http\Controllers\NekeretnineController::class);
     Route::resource('/nekretnineatributivrednost', \App\Http\Controllers\NekretnineAtributiVrednostController::class);
-
-
-
-    //    Prikaz na admin delu
+    Route::get('/nekretnine/vrati/{id}', [\App\Http\Controllers\NekeretnineController::class, 'vratiNekretninu'])->name("vratiNekretninu");
 
     Route::middleware(['auth.user'])->group(function () {
         Route::get('/nekretnine', [\App\Http\Controllers\NekeretnineController::class, 'prikazTabelarniNekretnine'])->name("tabelarniPrikazNekretnina");
@@ -68,25 +48,36 @@ Route::prefix('admin')->group(function () {
 });
 
 
-Route::get('/csrf-token', function () {
-    return response()->json(['token' => csrf_token()]);
+Route::group([
+    'prefix'     => LaravelLocalization::setLocale(),
+    'middleware' => ['localize', 'localizationRedirect'],
+], function () {
+
+    Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name("home");
+
+    Route::get('/onama', [\App\Http\Controllers\OwnController::class, 'index'])->name("onama");
+    Route::get('/kontakt', [\App\Http\Controllers\KontaktController::class, 'index'])->name("kontakt");
+    Route::post('/send-mail', [\App\Http\Controllers\KontaktController::class, 'posaljiMail'])->name("forma");
+
+    Route::get('/uslovi-koriscenja', function () {
+        return view("pages.user.usloviKoriscenja");
+    })->name("uslovi");
+
+    Route::get('/kolacici', function () {
+        return view("pages.user.kolacici");
+    })->name("kolacici");
+
+    Route::get('/nekretnine/{identifier}', [NekeretnineController::class, 'show'])
+        ->name('prikaziNekretninu');
+
+    Route::get('/nekretnine/{tip?}/{page?}', [NekeretnineController::class, 'index'])
+        ->name("nekretnineSve");
+
+    Route::get('/{tip}', [NekeretnineController::class, 'index'])
+        ->where('tip', "kuće|kuce|stanovi|lokali|poljoprivredno_zemljište|poljoprivredno_zamljiste|poljoprivredno_zemlji%C5%A1te|placevi")
+        ->name("nekretnineSvePoTipu");
 });
-Route::post('/send-mail', [\App\Http\Controllers\KontaktController::class, 'posaljiMail'])->name("forma");
-Route::get('/', [\App\Http\Controllers\HomeController::class, 'index'])->name("home");
 
-
-Route::get('/uslovi-koriscenja', function () {
-    return view("pages.user.usloviKoriscenja");
-})->name("uslovi");
-
-
-Route::get('/phpinfo', function () {
-    phpinfo();
-});
-
-Route::get('/kolacici', function () {
-    return view("pages.user.kolacici");
-})->name("kolacici");
 
 Route::fallback(function () {
     abort(404);
