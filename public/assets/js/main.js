@@ -472,7 +472,6 @@ document.querySelectorAll(".custom-option").forEach(function (option) {
             sortingData = select.value;
         }
 
-        // url = `/nekretnine?`;
         url = window.AppConfig.routes.nekretnine + "?";
 
         if (trenutniTipNekretnine !== "") {

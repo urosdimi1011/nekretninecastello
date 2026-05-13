@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MestaController;
 use App\Http\Controllers\NekeretnineController;
 use App\Http\Controllers\PretplatnikController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,9 @@ Route::get('/phpinfo', function () {
 
 
 Route::prefix('admin')->group(function () {
+
+
+
     Route::resource('/atributi', \App\Http\Controllers\AtributiController::class);
     Route::resource('/tipNekretnine', \App\Http\Controllers\TipNekretnineController::class);
     Route::resource('/tipnekretnineatributi', \App\Http\Controllers\TipNekretnineAtributiController::class);
@@ -39,6 +43,23 @@ Route::prefix('admin')->group(function () {
     Route::get('/nekretnine/vrati/{id}', [\App\Http\Controllers\NekeretnineController::class, 'vratiNekretninu'])->name("vratiNekretninu");
 
     Route::middleware(['auth.user'])->group(function () {
+        Route::patch('/mesta/{id}', [MestaController::class, 'update'])
+            ->name('mesta.update');
+        Route::get('/mesta', [MestaController::class, 'index'])
+            ->name('tabelarniPrikazMesta');
+        Route::get('/mesta/create', [MestaController::class, 'create'])
+            ->name('formaZaDodavanjeMesta');
+        Route::post('/mesta', [MestaController::class, 'store'])
+            ->name('mesta.store');
+        Route::get('/mesta/{id}/edit', [MestaController::class, 'edit'])
+            ->name('formaZaIzmenuMesta');
+        Route::delete('/mesta/{id}', [MestaController::class, 'destroy'])
+            ->name('mesta.delete');
+        Route::get('/pretplatnici', [PretplatnikController::class, 'index'])
+            ->name('tabelarniPrikazPretplatnika');
+        Route::delete('/pretplatnici/{id}', [PretplatnikController::class, 'destroy'])
+            ->name('obrisiPretplatnika');
+
         Route::get('/nekretnine', [\App\Http\Controllers\NekeretnineController::class, 'prikazTabelarniNekretnine'])->name("tabelarniPrikazNekretnina");
         Route::get('/atributi', [\App\Http\Controllers\AtributiController::class, 'prikazTabelarniAtributi'])->name("tabelarniPrikazAtrbuti");
         Route::get('/tipNekretnine', [\App\Http\Controllers\TipNekretnineController::class, 'prikazTabelarniTipNekretnine'])->name("tabelarniPrikazTipNekretnine");
