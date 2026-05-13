@@ -44,9 +44,11 @@ class NekretnineServices extends OwnServices
             $path = $file->store('videa', 'r2');
 
             $videoUrl = $disk->url($path);
-        } elseif ($request->filled('link_ka_videu')) {
-            $videoUrl = $request->input('link_ka_videu');
         }
+
+        // elseif ($request->filled('link_ka_videu')) {
+        //     $videoUrl = $request->input('link_ka_videu');
+        // }
 
         if ($videoUrl) {
             return $nekretnina->video()->create([

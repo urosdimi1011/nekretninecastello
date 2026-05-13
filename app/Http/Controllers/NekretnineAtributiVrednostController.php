@@ -13,7 +13,6 @@ use App\Services\NekretnineAtributiVrednostServices;
 use App\Services\NekretnineServices;
 use App\Services\Table\NekretnineTipVrednostiTableServices;
 use Illuminate\Http\Request;
-use PhpParser\Lexer\TokenEmulator\ReadonlyTokenEmulator;
 
 class NekretnineAtributiVrednostController extends Controller
 {
@@ -24,7 +23,8 @@ class NekretnineAtributiVrednostController extends Controller
     protected $nekretnineServices;
 
     protected $nekretnineAtributiVrednostFormServices;
-    public function __construct(NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices,NekretnineTipVrednostiTableServices $nekretnineTipVrednostiTableServices,NekretnineServices $nekretnineServices,NekretnineAtributiVrednostFormServices $nekretnineAtributiVrednostFormServices)
+
+    public function __construct(NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices, NekretnineTipVrednostiTableServices $nekretnineTipVrednostiTableServices, NekretnineServices $nekretnineServices, NekretnineAtributiVrednostFormServices $nekretnineAtributiVrednostFormServices)
     {
         $this->nekretnineAtributiVrednostServices = $nekretnineAtributiVrednostServices;
         $this->nekretnineTipVrednostiTableServices = $nekretnineTipVrednostiTableServices;
@@ -36,29 +36,21 @@ class NekretnineAtributiVrednostController extends Controller
         return $this->nekretnineAtributiVrednostServices->getAll();
     }
 
-    public function create()
+    public function prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima()
     {
-        //
-    }
-
-    public function prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima(){
         $svi = $this->nekretnineServices->getAllWithPaginate("slika");
-        return view("tableView",["column"=>$this->nekretnineTipVrednostiTableServices->getColumn(),"data"=>$svi,"tip"=>"nekretnineatributivrednost","insertNovog"=>true]);
+        return view("tableView", ["column" => $this->nekretnineTipVrednostiTableServices->getColumn(), "data" => $svi, "tip" => "nekretnineatributivrednost", "insertNovog" => true]);
     }
 
+    function update(NekretnineAtributiVrednostRequest $request, $id)
+    {
+        $this->nekretnineAtributiVrednostServices->generisanjeObjektaZaUpis($id, $request->atributi);
+        return to_route("prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima")->with('success', 'Nekretnini su uspesno izmenjeni atributi.');
+    }
 
     public function store(NekretnineAtributiVrednostRequest $request)
     {
-//        return $request;
-        //Ovakav objekat moram da prosledim
-//        {
-//            "nekretnina_id": 13,
-            //  "atributi": [
-            //    { "id_tip_nekretnine_atributi": 4, "vrednost": "4" },
-            //    { "id_tip_nekretnine_atributi": 7, "vrednost": "22" }
-            //  ]
-//}
-        $this->nekretnineAtributiVrednostServices->generisanjeObjektaZaUpis($request->nekretnina_id,$request->atributi);
+        $this->nekretnineAtributiVrednostServices->generisanjeObjektaZaUpis($request->nekretnina_id, $request->atributi);
         return to_route("prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima")->with('success', 'Nekretnini su uspesno pridodati atributi.');
     }
 
@@ -66,62 +58,52 @@ class NekretnineAtributiVrednostController extends Controller
     public function show($id)
     {
         //OVO PREMESTITI NA DRUGO MESTO
-        $atributi = NekretnineAtributiVrednost::with(['nestoMoje.ucitajAtribut'])->where("id_nekretnine",$id)->get()->toArray();
+        $atributi = NekretnineAtributiVrednost::with(['nestoMoje.ucitajAtribut'])->where("id_nekretnine", $id)->get()->toArray();
         dd($atributi);
-        if(count($atributi) > 0){
+        if (count($atributi) > 0) {
 
             $sviTipovi = TipNekretnine::all()->toArray();
 
             //Ovo su svi atributi za konkretan tip nekretnine;
 
-            $sviAtributi = TipNekretnine::with('atributi')->where("id",$atributi[0]['nesto_moje']['id_tip_nekretnine'])->first();
+            $sviAtributi = TipNekretnine::with('atributi')->where("id", $atributi[0]['nesto_moje']['id_tip_nekretnine'])->first();
 
             dd($sviAtributi);
 
             $svi = collect(["atributi" => $sviAtributi->atributi])->merge(['atributiVrednosti' => $atributi])->merge(["tipovi" => $sviTipovi])->merge(["cekiranTip" => array($atributi[0]['nesto_moje']['id_tip_nekretnine'])]);
-//            $svi = array_merge(["atributi"=>$sviAtributi->atributi],['atributiVrednosti'=>$atributi],["tipovi"=>$sviTipovi],["cekiranTip"=>$atributi[0]['nesto_moje']['id_tip_nekretnine']]);
+            //            $svi = array_merge(["atributi"=>$sviAtributi->atributi],['atributiVrednosti'=>$atributi],["tipovi"=>$sviTipovi],["cekiranTip"=>$atributi[0]['nesto_moje']['id_tip_nekretnine']]);
 
             return $svi;
 
-        $objekatKojiSeVracaKorisniku = [];
-            foreach ($atributi as $a){
-                    $objekatKojiSeVracaKorisniku[] = new AtributiVrednostDTO(
-                        $a->id,
-                        $a->id_tip_nekretnine_atributi,
-                        $a->vrednost,
-                        $a->nestoMoje->ucitajAtribut->naziv,
-                        $a->nestoMoje->ucitajAtribut->ikonica_klasa
-                    );
+            $objekatKojiSeVracaKorisniku = [];
+            foreach ($atributi as $a) {
+                $objekatKojiSeVracaKorisniku[] = new AtributiVrednostDTO(
+                    $a->id,
+                    $a->id_tip_nekretnine_atributi,
+                    $a->vrednost,
+                    $a->nestoMoje->ucitajAtribut->naziv,
+                    $a->nestoMoje->ucitajAtribut->ikonica_klasa
+                );
             }
-
         }
-            return response()->json($objekatKojiSeVracaKorisniku);
+        return response()->json($objekatKojiSeVracaKorisniku);
     }
 
     public function edit($id)
     {
-
-
-        $nekretnina = Nekretnine::where("id",$id)->with(["slika","slike","tip"])->first();
-
+        $nekretnina = Nekretnine::where("id", $id)->with(["slika", "slike", "tip"])->first();
         $tip = $nekretnina->tip;
-
         $sviTipovi = TipNekretnine::all();
+        $sviAtributiCenkirani = Nekretnine_Atributi::with(['ucitajAtribut', 'ucitajTip'])
+            ->whereHas('ucitajTip', function ($query) use ($tip) {
+                $query->where('id_tip_nekretnine', $tip->id);
+            })->get();
 
-
-//            $atributiNekretnine = collect($atributi)->pluck('nestoMoje')->pluck("id")->toArray();
-
-
-            $sviAtributiCenkirani = Nekretnine_Atributi::with(['ucitajAtribut','ucitajTip'])
-                ->whereHas('ucitajTip', function ($query) use ($tip) {
-                    $query->where('id_tip_nekretnine', $tip->id);
-                })->get();
-
-        $sviAtributiKojiTrebaDaSePrikazu  =[];
-        foreach ($sviAtributiCenkirani as $l => $s){
-                $sviAtributiKojiTrebaDaSePrikazu[$l] = new \stdClass();
-                $sviAtributiKojiTrebaDaSePrikazu[$l]->id = $s->id;
-                $sviAtributiKojiTrebaDaSePrikazu[$l]->naziv = $s->ucitajAtribut->naziv;
+        $sviAtributiKojiTrebaDaSePrikazu  = [];
+        foreach ($sviAtributiCenkirani as $l => $s) {
+            $sviAtributiKojiTrebaDaSePrikazu[$l] = new \stdClass();
+            $sviAtributiKojiTrebaDaSePrikazu[$l]->id = $s->id;
+            $sviAtributiKojiTrebaDaSePrikazu[$l]->naziv = $s->ucitajAtribut->naziv;
         }
 
         $atributi = NekretnineAtributiVrednost::with(['nestoMoje.ucitajAtribut'])->where("id_nekretnine", $id)
@@ -129,34 +111,21 @@ class NekretnineAtributiVrednostController extends Controller
                 $query->where('id_tip_nekretnine', $tip->id);
             })
             ->get();
-        $atributiKojiImajuVrednost  =[];
-        foreach ($atributi as $l => $s){
+        $atributiKojiImajuVrednost  = [];
+        foreach ($atributi as $l => $s) {
 
             $atributiKojiImajuVrednost[$l] = new \stdClass();
-            $atributiKojiImajuVrednost[$l]->id =$s->id_tip_nekretnine_atributi;
-            $atributiKojiImajuVrednost[$l]->vrednost =$s->vrednost;
+            $atributiKojiImajuVrednost[$l]->id = $s->id_tip_nekretnine_atributi;
+            $atributiKojiImajuVrednost[$l]->vrednost = $s->vrednost;
         }
-        
 
 
-            $svi = collect(["atributi" => $sviAtributiKojiTrebaDaSePrikazu])
-                ->merge(['atributiVrednosti' => $atributiKojiImajuVrednost])
-                ->merge(["tipovi" => $sviTipovi])
-                ->merge(["cekiranTip" => $tip])->put("id", $id);
 
-//        dd($svi);
+        $svi = collect(["atributi" => $sviAtributiKojiTrebaDaSePrikazu])
+            ->merge(['atributiVrednosti' => $atributiKojiImajuVrednost])
+            ->merge(["tipovi" => $sviTipovi])
+            ->merge(["cekiranTip" => $tip])->put("id", $id);
 
-            return $this->nekretnineAtributiVrednostFormServices->initializeForm($svi,"promeni(event)");
-
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    public function destroy($id)
-    {
-        //Kada hocu da obrisam moram da prosleidm id_tip_nekretnirne_atributi
+        return $this->nekretnineAtributiVrednostFormServices->initializeForm($svi, "promeni(event)");
     }
 }

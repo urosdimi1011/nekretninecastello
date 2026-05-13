@@ -19,7 +19,7 @@
     </div>
     <div class="info-block-inner tekst">
         <h2 class="bold-moj tekst-nekretnine">
-            <a href="{{route("prikaziNekretninu",["identifier"=>$nekretnina->slug ?? $nekretnina->id])}}">{{$nekretnina->naziv}}</a>
+            <a href="{{route("prikaziNekretninu",["identifier"=>$nekretnina->slug ?? $nekretnina->id])}}">{{$nekretnina->prevod()->naziv}}</a>
         </h2>
         <div class="info-nekretnine-block">
             @foreach($nekretnina->a as $svojstvo)

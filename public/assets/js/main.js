@@ -165,21 +165,21 @@ document.addEventListener("scroll", function () {
 document
     .querySelector(".response-button")
     .addEventListener("click", function (e) {
-        document
-            .querySelector(".main-nav")
-            .classList.toggle("vrati-navigaciju");
-        document.querySelector(".black-wall").classList.toggle("active");
-        document.querySelector("body").classList.toggle("skloni-scroll");
+        document.querySelector(".main-nav").classList.add("vrati-navigaciju");
+        document.querySelector(".black-wall").classList.add("active");
+        document.querySelector("body").classList.add("skloni-scroll");
     });
+
 document.querySelector(".close-button").addEventListener("click", function (e) {
-    document.querySelector(".main-nav").classList.toggle("vrati-navigaciju");
-    document.querySelector(".black-wall").classList.toggle("active");
-    document.querySelector("body").classList.toggle("skloni-scroll");
+    document.querySelector(".main-nav").classList.remove("vrati-navigaciju");
+    document.querySelector(".black-wall").classList.remove("active");
+    document.querySelector("body").classList.remove("skloni-scroll");
 });
+
 document.querySelector(".black-wall").addEventListener("click", function () {
-    document.querySelector(".main-nav").classList.toggle("vrati-navigaciju");
-    document.querySelector(".black-wall").classList.toggle("active");
-    document.querySelector("body").classList.toggle("skloni-scroll");
+    document.querySelector(".main-nav").classList.remove("vrati-navigaciju");
+    document.querySelector(".black-wall").classList.remove("active");
+    document.querySelector("body").classList.remove("skloni-scroll");
 });
 
 const formaDugme = document.querySelector(".dugme-forme-kontakt");
@@ -257,14 +257,14 @@ function regulisiFormu(e) {
                         destination: "https://github.com/apvarun/toastify-js",
                         newWindow: true,
                         close: true,
-                        gravity: "top", // `top` or `bottom`
-                        position: "right", // `left`, `center` or `right`
-                        stopOnFocus: true, // Prevents dismissing of toast on hover
+                        gravity: "top",
+                        position: "right",
+                        stopOnFocus: true,
                         style: {
                             background:
                                 "linear-gradient(to right, #00b09b, #00b09b)",
                         },
-                        onClick: function () {}, // Callback after click
+                        onClick: function () {},
                     }).showToast();
 
                     document.querySelector("form").reset();
@@ -291,7 +291,6 @@ function resetNotifModalState() {
     if (notifFormBody) notifFormBody.style.display = "";
     if (notifSuccess) notifSuccess.style.display = "none";
 
-    // Resetuj polja
     document.getElementById("notifEmail").value = "";
     document.getElementById("notifCenaMin").value = "";
     document.getElementById("notifCenaMax").value = "";

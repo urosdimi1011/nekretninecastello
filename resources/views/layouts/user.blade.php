@@ -164,18 +164,6 @@
                                 </div>
                             </li>
                         </ul>
-
-                        {{-- <ul class="nav nav-links lang-switcher">
-                            @foreach(LaravelLocalization::getSupportedLocales() as $locale => $props)
-                                @if($locale !== app()->getLocale())
-                                <li class="nav-item">
-                                    <a href="{{ LaravelLocalization::getLocalizedURL($locale) }}" rel="alternate" hreflang="{{ $locale }}" class="btn btn-social link-icon label-only-size-big text-uppercase">
-                                        {{ $locale }}
-                                    </a>
-                                </li>
-                                @endif
-                            @endforeach
-                        </ul> --}}
                     </nav>
                 </div>
             </div>
@@ -203,7 +191,7 @@
                                 <li class="nav-item {{ request()->routeIs('home') ? 'current_page_item' : '' }}">
                                     <a class="nav-link" href="{{ route('home') }}">{{ __('ui.pocetna') }}</a>
                                 </li>
-                                <li class="nav-item dropdown">
+                                <li class="nav-item dropdown menu-item-has-children">
                                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button">
                                         {{ __('ui.ponuda') }}
                                     </a>
@@ -224,7 +212,7 @@
                                         <li>
                                             <a class="dropdown-item d-flex align-items-center" href="{{ route('nekretnineSvePoTipu', ['tip' => $slug]) }}">
                                                 <i class="{{ $icon }} me-2" style="font-size: 1.2rem;"></i>
-                                                {{ $a->tip }}
+                                                {{ $a->prevod()->tip }}
                                             </a>
                                         </li>
                                         @endforeach
@@ -254,6 +242,31 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" rel="noopener nofollow" href="https://www.castellonekretnine.rs/stambeni-kredit-kalkulator/">{{ __('ui.kreditni_kalk') }}</a>
+                                </li>
+                                <li class="nav-item hidden">
+                                      <div class="lang-switcher">
+                                    @php
+                                        $flagCodes = ['sr' => 'rs', 'en' => 'gb', 'ro' => 'ro'];
+                                        $currentLocale = app()->getLocale();
+                                    @endphp
+                                    <button class="lang-switcher__btn">
+                                        <span class="fi fi-{{ $flagCodes[$currentLocale] ?? 'rs' }}"></span>
+                                        <span class="lang-switcher__current">{{ strtoupper($currentLocale) }}</span>
+                                        <i class="fa-solid fa-chevron-down lang-switcher__arrow"></i>
+                                    </button>
+                                    <div class="lang-switcher__bridge"></div>
+                                    <ul class="lang-switcher__dropdown">
+                                        @foreach(LaravelLocalization::getSupportedLocales() as $locale => $props)
+                                        <li>
+                                            <a href="{{ LaravelLocalization::getLocalizedURL($locale) }}"
+                                            class="{{ app()->getLocale() === $locale ? 'active' : '' }}">
+                                                <span class="fi fi-{{ $flagCodes[$locale] ?? 'rs' }}"></span>
+                                                <span class="lang-name">{{ strtoupper($locale) }}</span>
+                                            </a>
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                                 </li>
                             </ul>
 

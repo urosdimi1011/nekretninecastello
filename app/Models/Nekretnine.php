@@ -50,4 +50,22 @@ class Nekretnine extends Model
     {
         return $this->hasOne(Video::class, 'nekretnina_id');
     }
+
+    public function prevodi()
+    {
+        return $this->hasMany(NekretninaPrevod::class, 'nekretnina_id');
+    }
+
+    public function prevod(?string $locale = null): object
+    {
+        $locale = $locale ?? app()->getLocale();
+
+        $prevod = $this->prevodi->firstWhere('locale', $locale)
+            ?? $this->prevodi->firstWhere('locale', 'sr');
+
+        return (object) [
+            'naziv' => $prevod?->naziv ?? $this->naziv,
+            'opis'  => $prevod?->opis  ?? $this->opis,
+        ];
+    }
 }

@@ -18,7 +18,7 @@ class NekretnineRequest extends ownRequest
             "link_ka_videu" => "nullable",
             "link_ka_videu_virtual" => "nullable",
             "cena_metar" => "nullable",
-            "video_fajl" => "nullable|file|mimes:mp4,mov,ogg,qt|max:51200",
+            "video_fajl" => "nullable|file|mimes:mp4,mov,ogg,qt|max:20480",
             "sifra_nekretnine" => "required|string",
             "id_tip_nekretnine" => "required",
             "opis" => "required",
@@ -54,7 +54,7 @@ class NekretnineRequest extends ownRequest
             'glavnaSlika.required' => "Glavna slika je obavezno polje.",
             'podSlike.required' => "Podslike su obavezno polje.",
             'video_fajl.mimes' => "Video mora biti u formatu: mp4, mov, ogg.",
-            'video_fajl.max' => "Video ne sme biti veći od 50MB.",
+            'video_fajl.max' => "Video ne sme biti veći od 20MB.",
         ];
     }
 }

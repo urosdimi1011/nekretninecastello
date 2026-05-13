@@ -1139,13 +1139,12 @@ td button.danger:hover,
 
 /* ===== SPINNER ===== */
 .lds-spinner {
-    display: none;
+    display: none;        
     color: red;
-    position: absolute;
+    position: relative; 
     width: 80px;
     height: 80px;
-    left: 45%;
-    top: 45%;
+    margin: 100px auto;
     z-index: 100000;
 }
 
@@ -1536,8 +1535,54 @@ td button.danger:hover,
     font-weight: 600;
 }
 
-/* Scrollbar u panelu */
 .custom-dropdown-panel::-webkit-scrollbar { width: 5px; }
 .custom-dropdown-panel::-webkit-scrollbar-track { background: #f1f5f9; }
 .custom-dropdown-panel::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 .custom-dropdown-panel::-webkit-scrollbar-thumb:hover { background: #004274; }
+
+.modal-content {
+    position: relative;
+}
+
+.modal-content.loading {
+    pointer-events: none;
+    overflow-y: hidden;
+    max-height: 90vh;
+    min-height: 40vh;
+    height: 400px;
+}
+
+.modal-content .form-container {
+    transition: opacity 0.2s;
+}
+
+.modal-content.loading .form-container {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.modal-content .lds-spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    margin: 0;          
+    z-index: 10;
+    color: red;
+}
+.modal-content.loading .lds-spinner {
+    display: block !important;
+}
+
+.modal-content .form-container {
+    transition: opacity 0.2s;
+}
+
+.modal-content.loading .form-container {
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+}

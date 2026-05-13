@@ -20,8 +20,8 @@
                             <div class="bt_bb_service_content d-flex mojee">
                                 <img src="{{ asset('assets/img/icon/phone icon.png') }}" alt="{{ __('home.telefon_alt') }}">
                                 <div class="container-content">
-                                    <div class="bt_bb_service_content_supertitle">{{ __('home.pozovite') }}</div>
-                                    <div class="bt_bb_service_content_title">+381 65 823 4501</div>
+                                    <div class="bt_bb_service_content_supertitle"><a href="tel:+381658234501">{{ __('home.pozovite') }}</a></div>
+                                    <div class="bt_bb_service_content_title"><a href="tel:+381658234501">+381 65 823 4501</a></div>
                                 </div>
                             </div>
                         </div>
@@ -39,8 +39,8 @@
                             <div class="bt_bb_service_content d-flex mojee">
                                 <img src="{{ asset('assets/img/icon/phone icon.png') }}" alt="{{ __('home.telefon_alt') }}">
                                 <div class="container-content">
-                                    <div class="bt_bb_service_content_supertitle">{{ __('home.pozovite') }}</div>
-                                    <div class="bt_bb_service_content_title">+381 65 823 4501</div>
+                                    <div class="bt_bb_service_content_supertitle"><a href="tel:+381658234501">{{ __('home.pozovite') }}</a></div>
+                                    <div class="bt_bb_service_content_title"><a href="tel:+381658234501">+381 65 823 4501</a></div>
                                 </div>
                             </div>
                         </div>
@@ -131,7 +131,7 @@
                     $tipSaDonjomCrtom = strtolower(str_replace(' ', '_', $a->tip));
                 @endphp
                 <a href="{{ route('nekretnineSvePoTipu', ['tip' => strpos($tipSaDonjomCrtom, 'ku') === 0 ? str_replace('c','ć', strtolower($tipSaDonjomCrtom)) : strtolower($tipSaDonjomCrtom)]) }}">
-                    {{ $a->tip }}
+                    {{ $a->prevod()->tip }}
                 </a>
             </h2>
             @php

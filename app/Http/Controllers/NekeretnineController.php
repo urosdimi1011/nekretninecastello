@@ -9,6 +9,7 @@ use App\Models\TipNekretnine;
 use App\Services\Form\NekretnineFromServices;
 use App\Services\NekretnineAtributiVrednostServices;
 use App\Services\NekretnineServices;
+use App\Services\PrevodService;
 use App\Services\SlikaServices;
 use App\Services\Table\NekretnineTableService;
 use App\Services\TipNekretnineServices;
@@ -239,6 +240,7 @@ class NekeretnineController extends Controller
 
             $this->nekretnineServices->procesuirajISacuvajVideo($request, $dodat);
 
+            app(PrevodService::class)->prevediNekretninu($dodat);
             DB::commit();
             echo json_encode(["uspeh" => "Uspesno ste dodali nekretninu"]);
         } catch (\Exception $e) {
@@ -303,41 +305,51 @@ class NekeretnineController extends Controller
 
     public function update(NekretnineRequest $request, $id)
     {
-        $istaknuto = filter_var($request->input('istaknuta'), FILTER_VALIDATE_BOOLEAN);
+        try {
+            DB::beginTransaction();
 
-        $cenaMetar = filter_var($request->input('cena_metar'), FILTER_VALIDATE_BOOLEAN);
+            $istaknuto = filter_var($request->input('istaknuta'), FILTER_VALIDATE_BOOLEAN);
 
-        $req = array_merge($request->except(["_method", "_token"]), ["istaknuta" => $istaknuto, "cena_metar" => $cenaMetar]);
+            $cenaMetar = filter_var($request->input('cena_metar'), FILTER_VALIDATE_BOOLEAN);
 
-        $nekretnina = $this->nekretnineServices->getById($id);
+            $req = array_merge($request->except(["_method", "_token"]), ["istaknuta" => $istaknuto, "cena_metar" => $cenaMetar]);
 
-        if (!$nekretnina) {
-            throw new \Exception("Nekretnina sa ID {$id} ne postoji.");
-        }
+            $nekretnina = $this->nekretnineServices->getById($id);
 
-        if ($request->hasFile('glavnaSlika')) {
-            $idSlike = $this->servisZaSliku->sacuvajSliku($request->file('glavnaSlika'), "glavnaSlika");
-            $nekretnina->id_slike = $idSlike;
-        }
-
-
-        if ($request->hasFile('podSlike')) {
-
-            $a = $this->nekretnineServices->getAllWithRelation(["slike"])->where("id", "=", $id)->where("id", "=", $id)->first()->slike;
-            $ids =  $a->pluck('id')->toArray();
-
-            if (count($ids)) {
-                $this->servisZaSliku->obrisiSlike($ids);
+            if (!$nekretnina) {
+                throw new \Exception("Nekretnina sa ID {$id} ne postoji.");
             }
-            $idijeviDodatihSlika = $this->servisZaSliku->sacuvajViseSlikaIVratiIDjeve($request->file("podSlike"), "podSlike");
-            $this->nekretnineServices->pridruziSlikeNekretninama($nekretnina, $idijeviDodatihSlika);
 
-            $this->servisZaSliku->obrisiSlikeIzBaze($ids);
+            if ($request->hasFile('glavnaSlika')) {
+                $idSlike = $this->servisZaSliku->sacuvajSliku($request->file('glavnaSlika'), "glavnaSlika");
+                $nekretnina->id_slike = $idSlike;
+            }
+
+
+            if ($request->hasFile('podSlike')) {
+
+                $a = $this->nekretnineServices->getAllWithRelation(["slike"])->where("id", "=", $id)->where("id", "=", $id)->first()->slike;
+                $ids =  $a->pluck('id')->toArray();
+
+                if (count($ids)) {
+                    $this->servisZaSliku->obrisiSlike($ids);
+                }
+                $idijeviDodatihSlika = $this->servisZaSliku->sacuvajViseSlikaIVratiIDjeve($request->file("podSlike"), "podSlike");
+                $this->nekretnineServices->pridruziSlikeNekretninama($nekretnina, $idijeviDodatihSlika);
+
+                $this->servisZaSliku->obrisiSlikeIzBaze($ids);
+            }
+
+            $nekretnina->update($req);
+
+            app(PrevodService::class)->prevediNekretninu($nekretnina);
+            DB::commit();
+
+            echo json_encode(["uspeh" => "Uspesno ste azurirali nekretninu"]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(["neuspeh" => $e->getMessage()], 500);
         }
-
-        $nekretnina->update($req);
-
-        echo json_encode(["uspeh" => "Uspesno ste azurirali nekretninu"]);
     }
 
     public function destroy($id, Request $request)

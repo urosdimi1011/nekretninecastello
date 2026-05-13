@@ -31,4 +31,20 @@ class TipNekretnine extends Model
             'filter_definicija_id'
         );
     }
+    public function prevodi()
+    {
+        return $this->hasMany(TipNekretninePrevod::class, 'tip_nekretnine_id');
+    }
+
+    public function prevod(?string $locale = null): object
+    {
+        $locale = $locale ?? app()->getLocale();
+
+        $prevod = $this->prevodi->firstWhere('locale', $locale)
+            ?? $this->prevodi->firstWhere('locale', 'sr');
+
+        return (object) [
+            'tip' => $prevod?->tip ?? $this->tip,
+        ];
+    }
 }

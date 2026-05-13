@@ -19,4 +19,20 @@ class Mesto extends Model
     {
         return $query->where('aktivan', true);
     }
+    public function prevodi()
+    {
+        return $this->hasMany(MestoPrevod::class, 'mesto_id');
+    }
+
+    public function prevod(?string $locale = null): object
+    {
+        $locale = $locale ?? app()->getLocale();
+
+        $prevod = $this->prevodi->firstWhere('locale', $locale)
+            ?? $this->prevodi->firstWhere('locale', 'sr');
+
+        return (object) [
+            'naziv' => $prevod?->naziv ?? $this->naziv,
+        ];
+    }
 }

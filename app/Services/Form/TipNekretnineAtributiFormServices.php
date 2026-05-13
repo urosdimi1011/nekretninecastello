@@ -39,7 +39,7 @@ class TipNekretnineAtributiFormServices extends BaseFormServices
         return new TipNekretnineAtributiDTO(
             atributi: new SimpleDropdownField(
                 values: collect($model->atributi),
-                checkedValues: collect($model->cekirani)->pluck('id')->toArray()
+                checkedValues: $model->cekirani
             ),
             id: $model->id
         );
