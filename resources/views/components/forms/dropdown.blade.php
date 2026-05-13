@@ -14,7 +14,7 @@ if ($type === 'radio') {
     }
 
 } elseif ($type === 'checkbox') {
-    if (is_array($checkedValues) && count($checkedValues) > 0) {
+    if (is_object($checkedValues) && method_exists($checkedValues, 'pluck')) {
         $checkedIds = collect($checkedValues)->pluck('id')->filter()->flip(); // O(1) lookup
         $count = collect($values)->filter(fn($v) => isset($checkedIds[$v->id]))->count();
         if ($count > 0) {
@@ -24,11 +24,9 @@ if ($type === 'radio') {
 
 } elseif ($type === 'text') {
     if (is_array($checkedValues)) {
-        // Indexed po id-u - O(1) lookup u foreach dole
         $checkedMap = collect($checkedValues)
             ->filter(fn($i) => isset($i->id))
             ->keyBy('id');
-
         $popunjenih = $checkedMap->filter(
             fn($i) => isset($i->vrednost) && $i->vrednost && $i->vrednost !== 'ne'
         )->count();
@@ -93,9 +91,9 @@ if ($type === 'checkbox' && is_array($checkedValues)) {
             @php
             $inputValue = $label->id;
             $isChecked = false;
-            if (is_array($checkedValues)) {
+            if (is_object($checkedValues) && method_exists($checkedValues, 'contains')) {
                 // O(1) lookup umesto in_array po celom array-u
-                $isChecked = isset($checkedIds[$label->id]);
+                $isChecked = $checkedValues->contains($label->id);
             } elseif ($label->id == $checkedValues) {
                 $isChecked = true;
             }
@@ -105,7 +103,7 @@ if ($type === 'checkbox' && is_array($checkedValues)) {
                 data-label="{{ $displayLabel }}">
                 <input
                     type="{{ $type }}"
-                    name="{{ $field['name'] }}{{ $stavi }}"
+                    name="{{ $field['name'] }}{{ $stavi }}{{ $type === 'checkbox' ? '[]' : '' }}"
                     value="{{ $inputValue }}"
                     @if($isChecked) checked @endif
                     class="custom-dropdown-input" />
@@ -119,12 +117,12 @@ if ($type === 'checkbox' && is_array($checkedValues)) {
         </div>
 
         {{-- Dugme zatvori za text tip --}}
-        @if($type === 'text')
+        {{-- @if($type === 'text')
         <div class="custom-dropdown-footer">
             <button type="button" class="custom-dropdown-zatvori" data-dropdown="{{ $field['name'] }}">
                 Potvrdi
             </button>
         </div>
-        @endif
+        @endif --}}
     </div>
 </div>

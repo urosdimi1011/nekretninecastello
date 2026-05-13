@@ -1,6 +1,13 @@
 let sortingData = null;
 let trenutniTipNekretnine = null;
-
+const pathname = window.location.pathname;
+const baseUrl = window.AppConfig.baseUrl;
+const locale = window.AppConfig.locale;
+function jeStranica(naziv) {
+    const path = pathname.replace(/^\/(en|ro|sr)/, "");
+    if (naziv === "home") return path === "/" || path === "";
+    return path.includes(naziv);
+}
 const TIP_FILTERA = Object.freeze({
     RASPON: "raspon",
     KATEGORIJA: "kategorija",
@@ -25,7 +32,7 @@ document
         });
     });
 document.addEventListener("DOMContentLoaded", function () {
-    if (window.location.pathname === "/") {
+    if (jeStranica("home")) {
         var splide1 = new Splide(".splide", {
             type: "loop",
             autoplay: true,
@@ -68,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         splide1.mount();
         splide2.mount();
-    } else if (window.location.pathname.includes("nekretnine")) {
+    } else if (jeStranica("nekretnine")) {
         var elementiZaSlider =
             document.getElementsByClassName("nekretnina-slider");
 
@@ -158,27 +165,27 @@ document.addEventListener("scroll", function () {
 document
     .querySelector(".response-button")
     .addEventListener("click", function (e) {
-        document
-            .querySelector(".main-nav")
-            .classList.toggle("vrati-navigaciju");
-        document.querySelector(".black-wall").classList.toggle("active");
-        document.querySelector("body").classList.toggle("skloni-scroll");
+        document.querySelector(".main-nav").classList.add("vrati-navigaciju");
+        document.querySelector(".black-wall").classList.add("active");
+        document.querySelector("body").classList.add("skloni-scroll");
     });
+
 document.querySelector(".close-button").addEventListener("click", function (e) {
-    document.querySelector(".main-nav").classList.toggle("vrati-navigaciju");
-    document.querySelector(".black-wall").classList.toggle("active");
-    document.querySelector("body").classList.toggle("skloni-scroll");
+    document.querySelector(".main-nav").classList.remove("vrati-navigaciju");
+    document.querySelector(".black-wall").classList.remove("active");
+    document.querySelector("body").classList.remove("skloni-scroll");
 });
+
 document.querySelector(".black-wall").addEventListener("click", function () {
-    document.querySelector(".main-nav").classList.toggle("vrati-navigaciju");
-    document.querySelector(".black-wall").classList.toggle("active");
-    document.querySelector("body").classList.toggle("skloni-scroll");
+    document.querySelector(".main-nav").classList.remove("vrati-navigaciju");
+    document.querySelector(".black-wall").classList.remove("active");
+    document.querySelector("body").classList.remove("skloni-scroll");
 });
 
 const formaDugme = document.querySelector(".dugme-forme-kontakt");
 //Kontakt forma
 
-if (window.location.pathname.includes("kontakt")) {
+if (jeStranica("kontakt")) {
     formaDugme.addEventListener("click", regulisiFormu);
 }
 
@@ -229,7 +236,7 @@ function regulisiFormu(e) {
         const csrfToken = document
             .querySelector('meta[name="csrf-token"]')
             .getAttribute("content");
-        fetch("/send-mail", {
+        fetch(window.AppConfig.routes.sendMail, {
             method: "POST",
             body: JSON.stringify({
                 imeIPrezime: imeIPrezime.value,
@@ -250,14 +257,14 @@ function regulisiFormu(e) {
                         destination: "https://github.com/apvarun/toastify-js",
                         newWindow: true,
                         close: true,
-                        gravity: "top", // `top` or `bottom`
-                        position: "right", // `left`, `center` or `right`
-                        stopOnFocus: true, // Prevents dismissing of toast on hover
+                        gravity: "top",
+                        position: "right",
+                        stopOnFocus: true,
                         style: {
                             background:
                                 "linear-gradient(to right, #00b09b, #00b09b)",
                         },
-                        onClick: function () {}, // Callback after click
+                        onClick: function () {},
                     }).showToast();
 
                     document.querySelector("form").reset();
@@ -284,7 +291,6 @@ function resetNotifModalState() {
     if (notifFormBody) notifFormBody.style.display = "";
     if (notifSuccess) notifSuccess.style.display = "none";
 
-    // Resetuj polja
     document.getElementById("notifEmail").value = "";
     document.getElementById("notifCenaMin").value = "";
     document.getElementById("notifCenaMax").value = "";
@@ -466,7 +472,8 @@ document.querySelectorAll(".custom-option").forEach(function (option) {
             sortingData = select.value;
         }
 
-        url = `/nekretnine?`;
+        // url = `/nekretnine?`;
+        url = window.AppConfig.routes.nekretnine + "?";
 
         if (trenutniTipNekretnine !== "") {
             url += `&tip=${trenutniTipNekretnine}`;
@@ -734,7 +741,7 @@ function ucitajFilteriZaTip(tipId) {
         .querySelector('meta[name="csrf-token"]')
         .getAttribute("content");
 
-    fetch(`/api/filteri/${tipId}`, {
+    fetch(`${window.AppConfig.routes.filteri}/${tipId}`, {
         headers: {
             "X-CSRF-TOKEN": csrf,
             Accept: "application/json",
@@ -1050,7 +1057,7 @@ async function handleSubmit() {
     setSubmitLoading(true);
 
     try {
-        const r = await fetch("/pretplatnici", {
+        const r = await fetch(window.AppConfig.routes.pretplatnici, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

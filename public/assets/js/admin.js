@@ -137,6 +137,12 @@ function openModal(target, data = null) {
                 const formElement = document.getElementById("formaGeneric");
                 const actionUrl = formElement.getAttribute("action");
 
+                const validationErrors = validateFormBeforeSubmit();
+                if (validationErrors.length > 0) {
+                    displayValidationErrors(validationErrors);
+                    return;
+                }
+
                 const existingErrorElements = document.querySelectorAll(
                     ".text-danger.greska-ispod-polja",
                 );
@@ -177,7 +183,7 @@ function openModal(target, data = null) {
                         if (data.neuspeh) {
                             document.querySelector(
                                 ".ako-ima-greske p",
-                            ).innerHTML = error.neuspeh;
+                            ).innerHTML = data.neuspeh;
                         }
                         if (data.errors) {
                             for (const fieldName in data.errors) {
@@ -315,15 +321,42 @@ function initVideoUpload() {
         const url = URL.createObjectURL(file);
         videoEl.src = url;
         fileName.textContent = file.name;
-        fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+        const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+        const maxSize = 20;
+        fileSize.textContent = sizeInMB + " MB";
+
+        if (file.size > maxSize * 1024 * 1024) {
+            fileSize.style.color = "red";
+            fileSize.style.fontWeight = "bold";
+            fileSize.innerHTML +=
+                ' <span style="color: red;">⚠️ Preveliko! Maksimum je 20MB</span>';
+
+            showVideoError(
+                `Video fajl je prevelik! ${sizeInMB}MB. Maksimalna dozvoljena veličina je 20MB.`,
+            );
+        } else {
+            fileSize.style.color = "green";
+            const badge = document.getElementById("videoStatusBadge");
+            const tekst = document.getElementById("videoStatusTekst");
+            if (badge && tekst) {
+                badge.className = "video-status-badge";
+                tekst.textContent = "Odabran – čeka slanje";
+            }
+        }
+
         dropZone.style.display = "none";
         previewBox.style.display = "block";
+    }
 
+    function showVideoError(message) {
         const badge = document.getElementById("videoStatusBadge");
         const tekst = document.getElementById("videoStatusTekst");
         if (badge && tekst) {
-            badge.className = "video-status-badge";
-            tekst.textContent = "Odabran – čeka slanje";
+            badge.className = "video-status-badge error";
+            badge.style.backgroundColor = "#dc3545";
+            tekst.textContent = message;
+            tekst.style.color = "white";
         }
     }
 
@@ -379,11 +412,8 @@ function addEventListenerOnce(event, element, onEvent, listenerMark = "") {
 }
 
 $(document).ready(function () {
-    // Kada korisnik klikne na checkbox
     $(".dropdown-checkboxes .form-check-input").on("click", function () {
-        // Proverite da li je kliknut checkbox u dropdown-u
         if ($(this).parents(".dropdown-menu").length > 0) {
-            // Osvežite tekst na dugmetu na osnovu izabranih opcija
             var checkedOptions = $(this)
                 .parents(".dropdown-menu")
                 .find(".form-check-input:checked");
@@ -404,13 +434,6 @@ $(document).ready(function () {
         }
     });
 });
-
-// document.querySelector(".modal").addEventListener("click", function (e) {
-//     // if (e.target === document.querySelector(".modal-content")) {
-//     //     e.preventDefault();
-//     // this.style.display = "none";
-//     // }
-// });
 function promeni(e) {
     e.preventDefault();
 
@@ -496,61 +519,66 @@ document.querySelectorAll(".response-button,.close-button").forEach((x) => {
     });
 });
 function dodajSpiner() {
-    let obj = document.querySelector("#modalContent");
-
-    obj.querySelector(".form-container form").style.opacity = "0";
-
-    document.querySelector(".lds-spinner").style.display = "block";
+    let modal = document.querySelector(".modal-content");
+    modal.classList.add("loading");
 }
+
 function ukiniSpiner() {
-    let obj = document.querySelector("#modalContent");
-
-    obj.querySelector(".form-container form").style.opacity = "1";
-
-    document.querySelector(".lds-spinner").style.display = "none";
+    let modal = document.querySelector(".modal-content");
+    modal.classList.remove("loading");
 }
-
 function ispisUploadovaneSlikeIMenjanjeRedosleda() {
     const grafickiPrikazSlika = document.getElementById(
         "graficki-prikaz-slika",
     );
     const inputSlika = document.getElementById("podSlike");
 
+    if (!grafickiPrikazSlika || !inputSlika) return;
+
+    function azurirajBrojeve() {
+        grafickiPrikazSlika
+            .querySelectorAll(".slika-stavka")
+            .forEach((el, i) => {
+                el.setAttribute("data-order", i + 1);
+            });
+    }
+
     new Sortable(grafickiPrikazSlika, {
         animation: 150,
-        onEnd: function (event) {
+        onEnd: function () {
             promenjenRedosled = Array.from(
                 grafickiPrikazSlika.querySelectorAll("img"),
-            ).map((element) => parseInt(element.dataset.indeks));
+            ).map((el) => parseInt(el.dataset.indeks));
+            azurirajBrojeve();
         },
     });
 
     inputSlika.addEventListener("change", function () {
-        grafickiPrikazSlika.innerHTML = ""; // Obrišite prethodni prikaz
+        grafickiPrikazSlika.innerHTML = "";
 
         promenjenRedosled = Array.from(
             { length: inputSlika.files.length },
-            (_, indeks) => indeks,
+            (_, i) => i,
         );
 
         for (let i = 0; i < inputSlika.files.length; i++) {
             const slika = inputSlika.files[i];
-            const slikaStavka = document.createElement("div");
-            slikaStavka.className = "slika-stavka";
+            const stavka = document.createElement("div");
+            stavka.className = "slika-stavka";
+            stavka.setAttribute("data-order", i + 1);
 
             const img = document.createElement("img");
             img.src = URL.createObjectURL(slika);
             img.setAttribute("data-indeks", i);
             img.alt = slika.name;
 
-            const nazivSlike = document.createElement("div");
-            nazivSlike.className = "naziv-slike";
-            nazivSlike.innerText = slika.name;
+            const naziv = document.createElement("div");
+            naziv.className = "naziv-slike";
+            naziv.innerText = slika.name;
 
-            slikaStavka.appendChild(img);
-            slikaStavka.appendChild(nazivSlike);
-
-            grafickiPrikazSlika.appendChild(slikaStavka);
+            stavka.appendChild(img);
+            stavka.appendChild(naziv);
+            grafickiPrikazSlika.appendChild(stavka);
         }
     });
 }
@@ -576,7 +604,6 @@ document.addEventListener("click", function (e) {
     const panel = field.querySelector(".custom-dropdown-panel");
     const isOpen = panel.classList.contains("is-open");
 
-    // Zatvori sve ostale
     document.querySelectorAll(".custom-dropdown-panel.is-open").forEach((p) => {
         if (p !== panel) {
             p.classList.remove("is-open");
@@ -588,6 +615,23 @@ document.addEventListener("click", function (e) {
 
     panel.classList.toggle("is-open", !isOpen);
     trigger.classList.toggle("is-open", !isOpen);
+
+    if (!isOpen) {
+        const rect = trigger.getBoundingClientRect();
+        const panelHeight = 260;
+        const prostorIspod = window.innerHeight - rect.bottom;
+
+        panel.style.width = rect.width + "px";
+        panel.style.left = rect.left + "px";
+
+        if (prostorIspod >= panelHeight || prostorIspod >= 150) {
+            panel.style.top = rect.bottom + 4 + "px";
+            panel.style.bottom = "auto";
+        } else {
+            panel.style.bottom = window.innerHeight - rect.top + 4 + "px";
+            panel.style.top = "auto";
+        }
+    }
 });
 
 // Zatvori ako klik van dropdowna
@@ -717,6 +761,7 @@ document.addEventListener("click", function (e) {
 //         }
 //     }
 // });
+
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".custom-dropdown-trigger").forEach((t) => {
         t.__defaultLabel = t
@@ -729,3 +774,261 @@ document.querySelectorAll(".custom-dropdown-trigger").forEach((t) => {
         .querySelector(".custom-dropdown-trigger__text")
         ?.textContent?.trim();
 });
+function validateFormBeforeSubmit() {
+    let errors = [];
+
+    // 1. Validacija video fajla (20MB)
+    const videoInput = document.querySelector('input[name="video_fajl"]');
+    if (videoInput && videoInput.files.length > 0) {
+        const videoFile = videoInput.files[0];
+        const maxSize = 20 * 1024 * 1024; // 20MB
+        const allowedTypes = [
+            "video/mp4",
+            "video/mov",
+            "video/ogg",
+            "video/quicktime",
+        ];
+
+        if (videoFile.size > maxSize) {
+            errors.push({
+                field: "video_fajl",
+                message: `Video fajl je prevelik! Veličina: ${(videoFile.size / (1024 * 1024)).toFixed(2)}MB. Maksimalna dozvoljena veličina je 20MB.`,
+            });
+        }
+
+        if (!allowedTypes.includes(videoFile.type)) {
+            errors.push({
+                field: "video_fajl",
+                message: "Video mora biti u formatu: MP4, MOV, OGG ili QT.",
+            });
+        }
+    }
+
+    // 4. Validacija GLAVNE SLIKE (obavezna samo za POST, ne za PUT)
+    // Proverite da li je metoda POST (kreiranje) ili PUT (izmena)
+    const formElement = document.getElementById("formaGeneric");
+    const methodInput = document.querySelector('input[name="_method"]');
+    const isPostMethod = !methodInput || methodInput.value === "POST";
+
+    const glavnaSlikaInput = document.querySelector(
+        'input[name="glavnaSlika"]',
+    );
+    if (isPostMethod) {
+        // Za kreiranje - glavna slika je obavezna
+        if (!glavnaSlikaInput || glavnaSlikaInput.files.length === 0) {
+            errors.push({
+                field: "glavnaSlika",
+                message:
+                    "Glavna slika je obavezno polje. Molimo vas da odaberete glavnu sliku.",
+            });
+        } else {
+            // Validacija veličine i tipa ako postoji fajl
+            const slikaFile = glavnaSlikaInput.files[0];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+            if (slikaFile.size > maxSize) {
+                errors.push({
+                    field: "glavnaSlika",
+                    message: `Glavna slika je prevelika! Veličina: ${(slikaFile.size / (1024 * 1024)).toFixed(2)}MB. Maksimalna dozvoljena veličina je 10MB.`,
+                });
+            }
+
+            if (!allowedTypes.includes(slikaFile.type)) {
+                errors.push({
+                    field: "glavnaSlika",
+                    message:
+                        "Glavna slika mora biti u formatu: JPEG, PNG ili JPG.",
+                });
+            }
+        }
+    } else {
+        // Za izmenu - glavna slika nije obavezna, ali ako je odabrana, validiraj
+        if (glavnaSlikaInput && glavnaSlikaInput.files.length > 0) {
+            const slikaFile = glavnaSlikaInput.files[0];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+            if (slikaFile.size > maxSize) {
+                errors.push({
+                    field: "glavnaSlika",
+                    message: `Glavna slika je prevelika! Veličina: ${(slikaFile.size / (1024 * 1024)).toFixed(2)}MB. Maksimalna dozvoljena veličina je 10MB.`,
+                });
+            }
+
+            if (!allowedTypes.includes(slikaFile.type)) {
+                errors.push({
+                    field: "glavnaSlika",
+                    message:
+                        "Glavna slika mora biti u formatu: JPEG, PNG ili JPG.",
+                });
+            }
+        }
+    }
+
+    // 5. Validacija POD SLIKA (obavezne samo za POST, ne za PUT)
+    const podSlikeInput = document.querySelector('input[name="podSlike[]"]');
+    if (isPostMethod) {
+        // Za kreiranje - pod slike su obavezne
+        if (!podSlikeInput || podSlikeInput.files.length === 0) {
+            errors.push({
+                field: "podSlike",
+                message:
+                    "Podslike su obavezno polje. Molimo vas da odaberete barem jednu podsliku.",
+            });
+        } else {
+            // Validacija svake pod slike
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            for (let i = 0; i < podSlikeInput.files.length; i++) {
+                const slikaFile = podSlikeInput.files[i];
+
+                if (slikaFile.size > maxSize) {
+                    errors.push({
+                        field: "podSlike",
+                        message: `Slika "${slikaFile.name}" je prevelika! Veličina: ${(slikaFile.size / (1024 * 1024)).toFixed(2)}MB. Maksimalna dozvoljena veličina je 10MB po slici.`,
+                    });
+                    break;
+                }
+
+                if (!allowedTypes.includes(slikaFile.type)) {
+                    errors.push({
+                        field: "podSlike",
+                        message: `Slika "${slikaFile.name}" mora biti u formatu: JPEG, PNG ili JPG.`,
+                    });
+                    break;
+                }
+            }
+        }
+    } else {
+        // Za izmenu - pod slike nisu obavezne, ali ako su odabrane, validiraj
+        if (podSlikeInput && podSlikeInput.files.length > 0) {
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            for (let i = 0; i < podSlikeInput.files.length; i++) {
+                const slikaFile = podSlikeInput.files[i];
+
+                if (slikaFile.size > maxSize) {
+                    errors.push({
+                        field: "podSlike",
+                        message: `Slika "${slikaFile.name}" je prevelika! Veličina: ${(slikaFile.size / (1024 * 1024)).toFixed(2)}MB. Maksimalna dozvoljena veličina je 10MB po slici.`,
+                    });
+                    break;
+                }
+
+                if (!allowedTypes.includes(slikaFile.type)) {
+                    errors.push({
+                        field: "podSlike",
+                        message: `Slika "${slikaFile.name}" mora biti u formatu: JPEG, PNG ili JPG.`,
+                    });
+                    break;
+                }
+            }
+        }
+    }
+
+    // 6. Validacija ostalih obaveznih polja
+    const nazivInput = document.querySelector('input[name="naziv"]');
+    if (nazivInput && !nazivInput.value.trim()) {
+        errors.push({
+            field: "naziv",
+            message: "Naziv je obavezno polje.",
+        });
+    }
+
+    const cenaInput = document.querySelector('input[name="cena"]');
+    if (cenaInput && !cenaInput.value.trim()) {
+        errors.push({
+            field: "cena",
+            message: "Cena je obavezno polje.",
+        });
+    } else if (
+        cenaInput &&
+        cenaInput.value.trim() &&
+        isNaN(parseFloat(cenaInput.value))
+    ) {
+        errors.push({
+            field: "cena",
+            message: "Cena mora biti broj.",
+        });
+    }
+
+    const sifraInput = document.querySelector('input[name="sifra_nekretnine"]');
+    if (sifraInput && !sifraInput.value.trim()) {
+        errors.push({
+            field: "sifra_nekretnine",
+            message: "Šifra nekretnine je obavezno polje.",
+        });
+    }
+
+    const opisEditor = editorMoj;
+    if (opisEditor && !opisEditor.getData().trim()) {
+        errors.push({
+            field: "opis",
+            message: "Opis je obavezno polje.",
+        });
+    }
+
+    return errors;
+}
+function displayValidationErrors(errors) {
+    // Prvo uklonite postojeće greške
+    const existingErrorElements = document.querySelectorAll(
+        ".text-danger.greska-ispod-polja",
+    );
+    existingErrorElements.forEach(function (errorElement) {
+        errorElement.parentNode.removeChild(errorElement);
+    });
+
+    // Uklonite i globalne greške ako postoje
+    const globalErrorContainer = document.querySelector(".ako-ima-greske");
+    if (globalErrorContainer) {
+        globalErrorContainer.innerHTML = "<p></p>";
+    }
+
+    // Prikažite nove greške
+    errors.forEach((error) => {
+        let inputField =
+            document.getElementById(error.field) ||
+            document.querySelector(`[name="${error.field}"]`) ||
+            document.querySelector(`[name="${error.field}[]"]`);
+
+        if (!inputField && error.field === "opis" && editorMoj) {
+            // Za editor, pronađite njegov container
+            inputField = document.querySelector(".ck-editor__editable");
+        }
+
+        if (inputField) {
+            const formGroup =
+                inputField.closest(".form-group") || inputField.parentNode;
+            if (formGroup) {
+                const errorElement = document.createElement("span");
+                errorElement.className = "text-danger greska-ispod-polja";
+                errorElement.style.display = "block";
+                errorElement.style.marginTop = "5px";
+                errorElement.style.fontSize = "12px";
+                errorElement.innerText = error.message;
+                formGroup.appendChild(errorElement);
+            }
+        } else {
+            // Ako ne možemo pronaći polje, prikažite globalnu grešku
+            const globalErrorContainer =
+                document.querySelector(".ako-ima-greske");
+            if (globalErrorContainer) {
+                const errorElement = document.createElement("div");
+                errorElement.className = "alert alert-danger";
+                errorElement.style.marginTop = "10px";
+                errorElement.innerText = error.message;
+                globalErrorContainer.appendChild(errorElement);
+            }
+        }
+    });
+
+    // Skrolujte do prve greške
+    const firstError = document.querySelector(".greska-ispod-polja");
+    if (firstError) {
+        firstError.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+}

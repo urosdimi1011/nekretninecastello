@@ -1,5 +1,4 @@
-    <div class="form-container">
-        <div class="lds-spinner">
+    <div class="lds-spinner">
             <div></div>
             <div></div>
             <div></div>
@@ -13,6 +12,7 @@
             <div></div>
             <div></div>
         </div>
+   <div class="form-container">
         @if(isset($insert))
         {!! Form::open(['route' => $tip.".store","enctype"=>"multipart/form-data","id"=>"formaGeneric"]) !!}
         @else
@@ -190,12 +190,17 @@
         @if(isset($dogadjaj))
 
         {!! Form::hidden('id', $podaci->id) !!}
-        {!! Form::submit('Submit',['onclick'=> $dogadjaj]) !!}
+        {!! Form::submit('Izmeni',['onclick'=> $dogadjaj,'class'=>'forma-admin-klik']) !!}
 
         @else
         {!! Form::submit(isset($insert) ? "Dodaj" : "Izmeni",["class"=>"forma-admin-klik"]) !!}
         @endif
         {!! Form::close() !!}
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
     </div>
     <script>
         (function() {

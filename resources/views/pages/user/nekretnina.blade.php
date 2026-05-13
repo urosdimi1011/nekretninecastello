@@ -70,10 +70,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="wrap-text-video-2 mt-5">
-
+                        {{-- <div class="wrap-text-video-2 mt-5">
                             <div class="text-opis mb-5">{!! $nekretnina->opis !!}</div>
-                        </div>
+                        </div> --}}
 
                         <div class="dodatne-informacije bg-white efekat-box-shadow mt-5">
                             <div class="naslov-dodane-informacije mb-4">
@@ -110,7 +109,6 @@
 
                         @if($imaVideo || $imaYoutube || $imaVirtualni)
                         <div class="video-sekcija mt-5">
-
                             @if($imaVideo)
                             <div class="video-sekcija__blok">
                                 <div class="video-sekcija__header">
@@ -168,27 +166,25 @@
                     </div>
                     <div class="col-12 col-md-12 col-lg-5 mb-5 text-za-opis">
                         <span class="naslov-nekretnine">Castello nekretnine</span>
-                        <h1 class="text-naslov">{{$nekretnina->naziv}}</h1>
+                        <h1 class="text-naslov">{{$nekretnina->prevod()->naziv}}</h1>
                         <span class="cena"><span class="konkretna-cena">{{ number_format($nekretnina->cena, 0, ',', '.') }}</span>&euro;@if($nekretnina->cena_metar!=null && $nekretnina->cena_metar == 1)/m<sup>2</sup>@endif</span>
-                        <!-- <div class="wrap-text-video">
-                            <div class="text-opis mb-5">{!! $nekretnina->opis !!}</div>
+                            <div class="text-opis mb-5">{!! $nekretnina->prevod()->opis !!}</div>
                             @if( Str::wordCount(strip_tags($nekretnina->opis))<250)
                                 @if($nekretnina->link_ka_videu !== null)
                                 <div class="video-blok">
                                     <iframe src="{{$nekretnina->link_ka_videu}}" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-
                                     </iframe>
                                 </div>
                                 @endif
                                 @endif
-                        </div> -->
+                        </div>
                     </div>
                 </div>
             </div>
 
         </div>
 
-
+{{-- 
         <!-- @if(Str::wordCount(strip_tags($nekretnina->opis))>250 && $nekretnina->link_ka_videu !== null)
         <div class="video-blok veci-blok-video">
             <iframe src="{{$nekretnina->link_ka_videu}}" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
@@ -204,7 +200,7 @@
 
             </iframe>
         </div>
-        @endif -->
+        @endif --> --}}
     </div>
 </div>
 

@@ -16,7 +16,9 @@
         "laravelcollective/html": "^6.4",
         "league/flysystem-aws-s3-v3": "^3.32",
         "league/flysystem-ftp": "3.0",
-        "mailersend/laravel-driver": "^2.2"
+        "mailersend/laravel-driver": "^2.2",
+        "mcamara/laravel-localization": "1.8",
+        "stichoza/google-translate-php": "^5.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

@@ -52,9 +52,7 @@ class NekretnineAtributiVrednostFormServices extends BaseFormServices
                 ),
                 'id_tip_nekretnine_atribut' => new SimpleDropdownField(
                     values: collect($model->get('atributi')),
-                    checkedValues: collect($model->get('atributiVrednosti'))
-                        ->pluck('vrednost', 'id')
-                        ->toArray()
+                    checkedValues: $model->get('atributiVrednosti')
                 ),
             ]
         ];

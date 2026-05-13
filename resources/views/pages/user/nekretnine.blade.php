@@ -49,15 +49,15 @@ strtolower($s) . ' na prodaju vrsac, ' .
     <div class="banner-kontakt bg-fixed">
         <div class="inner-banner-kontakt">
             <h1>
-                Nekretnine Vršac
+                {{ __('nekretnine.banner') }}
                 <span class="tip-naslov @if(request('tip')===null) tip-naslov--prazan @endif">
                     @if(request("tip") !== null)
-                    @foreach($tipoviNekretnina as $n)
-                    @php $tipSaDonjomCrtom = strtolower(str_replace('_', ' ', request("tip"))); @endphp
-                    @if(strtolower(strpos($tipSaDonjomCrtom, 'ku') === 0 ? str_replace("c","ć",$tipSaDonjomCrtom) : $tipSaDonjomCrtom) == strtolower($n->tip))
-                    {{ $n->tip }}
-                    @endif
-                    @endforeach
+                        @foreach($tipoviNekretnina as $n)
+                        @php $tipSaDonjomCrtom = strtolower(str_replace('_', ' ', request("tip"))); @endphp
+                        @if(strtolower(strpos($tipSaDonjomCrtom, 'ku') === 0 ? str_replace("c","ć",$tipSaDonjomCrtom) : $tipSaDonjomCrtom) == strtolower($n->tip))
+                            {{ $n->tip }}
+                        @endif
+                        @endforeach
                     @endif
                 </span>
             </h1>
@@ -65,43 +65,42 @@ strtolower($s) . ' na prodaju vrsac, ' .
     </div>
 
     <div class="container pt-5">
-
         <div class="filter-bar">
             <span class="filter-bar__count">
-                <span class="rez">{{ $nekretnine->total() }}</span> rezultata
+                <span class="rez">{{ $nekretnine->total() }}</span> {{ __('nekretnine.rezultata') }}
             </span>
             <div class="filter-bar__selects">
                 <div class="filter-group">
-                    <label>Tip nekretnine</label>
+                    <label>{{ __('nekretnine.tip_label') }}</label>
                     <select class="custom-select sources tipNekretnine-select"
-                        placeholder="Početni filter">
-                        <option value="">Sve nekretnine</option>
+                        placeholder="{{ __('nekretnine.tip_placeholder') }}">
+                        <option value="">{{ __('nekretnine.sve_nekretnine') }}</option>
                         @foreach($tipoviNekretnina as $n)
-                        @if($n->tip == "Beograd") @break @endif
-                        <option
-                            @if(request("tip")==$n->id || ucfirst(str_replace("c","ć",request("tip"))) == $n->tip) selected @endif
-                            value="{{ $n->id }}">{{ $n->tip }}
-                        </option>
+                            @if($n->tip == "Beograd") @break @endif
+                            <option
+                                @if(request("tip")==$n->id || ucfirst(str_replace("c","ć",request("tip"))) == $n->tip) selected @endif
+                                value="{{ $n->id }}">{{ $n->prevod()->tip }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
                 <div class="filter-divider"></div>
                 <div class="filter-group">
-                    <label>Sortiraj po</label>
+                    <label>{{ __('nekretnine.sort_label') }}</label>
                     <select class="custom-select sources"
-                        placeholder="Početni filter">
-                        <option value="">Početni filter</option>
-                        <option value="cena-asc">Cena — manja ka većoj</option>
-                        <option value="cena-desc">Cena — veća ka manjoj</option>
-                        <option value="created_at-asc">Datum — stariji ka novijem</option>
-                        <option value="created_at-desc">Datum — noviji ka starijem</option>
+                        placeholder="{{ __('nekretnine.sort_placeholder') }}">
+                        <option value="">{{ __('nekretnine.sort_placeholder') }}</option>
+                        <option value="cena-asc">{{ __('nekretnine.sort_cena_asc') }}</option>
+                        <option value="cena-desc">{{ __('nekretnine.sort_cena_desc') }}</option>
+                        <option value="created_at-asc">{{ __('nekretnine.sort_datum_asc') }}</option>
+                        <option value="created_at-desc">{{ __('nekretnine.sort_datum_desc') }}</option>
                     </select>
                 </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
+            <div class="col-12">
                 <div class="row row-gap nekretnine-sve-js">
                     @forelse($nekretnine as $n)
                     <div class="col-12 col-md-6 col-lg-4">
@@ -109,51 +108,38 @@ strtolower($s) . ' na prodaju vrsac, ' .
                     </div>
                     @empty
                     <div class="col-12 text-center ako-nema-nekretnina-poruka">
-                        <p>Trenutno nema nekretnina za zadati kriterijum filtriranja</p>
+                        <p>{{ __('nekretnine.prazno') }}</p>
                     </div>
                     @endforelse
-
-
                 </div>
                 <div class="mt-5 pag justify-content-center">
-                    {{$nekretnine->withQueryString()->links('partials.custom-pagination')}}
+                    {{ $nekretnine->withQueryString()->links('partials.custom-pagination') }}
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 @endsection
+
 @push('scripts')
 <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [{
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Početna",
-                "item": "{{ url('/') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "{{ $s }} Vršac",
-                "item": "{{ url()->current() }}"
-            }
-        ]
-    }
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "{{ __('nekretnine.breadcrumb_pocetna') }}", "item": "{{ url('/') }}" },
+        { "@type": "ListItem", "position": 2, "name": "{{ $s }} Vršac", "item": "{{ url()->current() }}" }
+    ]
+}
 </script>
 <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "SearchResultsPage",
-        "name": "{{ $s }} Vršac – Castello Nekretnine",
-        "url": "{{ url()->current() }}",
-        "description": "Prodaja {{ strtolower($s_genitiv) }} u Vršcu",
-        "provider": {
-            "@id": "{{ url('/') }}#agency"
-        }
-    }
+{
+    "@context": "https://schema.org",
+    "@type": "SearchResultsPage",
+    "name": "{{ $s }} Vršac – Castello Nekretnine",
+    "url": "{{ url()->current() }}",
+    "description": "{{ strtolower($s_genitiv) }}",
+    "provider": { "@id": "{{ url('/') }}#agency" }
+}
 </script>
 @endpush

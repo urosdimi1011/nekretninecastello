@@ -1,104 +1,140 @@
 @extends('layouts.user')
 
-@section('title', 'CASTELLO NEKRETNINE VRŠAC - 065 823 4501 Pozovite nas!')
-@section('description', 'Kvalitetna ponuda kuća, stanova, lokala i placeva, pravna pomoć i savetovanje. Na jednom mestu završite sve i uselite se u vaš novi dom.')
+@section('title', __('kontakt.title'))
+@section('description', __('kontakt.description'))
+@section('keywords', __('kontakt.keywords'))
 
-@section('keywords', 'nekretnine,vrsac,kupi')
 @section('content')
-    <div class="nova-slika-kontakt">
-        <div class="banner-kontakt bg-fixed">
-            <div class="inner-banner-kontakt">
-                <h1>Kontaktirate nas za sve informacije</h1>
-            </div>
-        </div>
-
-        <div class="container mt-5 pt-5 pb-5">
-            <div class="row">
-                <div class="col-12 mb-5 mb-md-0 col-md-7 col-lg-7">
-                    <div class="forma-blok efekat-box-shadow">
-                        <form class="forma-kontakt" id="forma-kontakt">
-                            <div class="informacije-header">
-                                <h3><i class="fa fa-address-book"></i> Kontaktirate nas:</h3>
-                            </div>
-                            <div class="bottom-form-kontakt p-4">
-                                <div class="form-row">
-                                    <div class="form-group red-moj">
-                                        <label for="imeIPrezime">Ime i prezime *</label>
-                                        <input type="text" class="form-control" id="imeIPrezime" placeholder="Unesite ime i prezime">
-                                        <small></small>
-                                    </div>
-                                    <div class="form-group red-moj">
-                                        <label for="brojTelefona">Broj telefona *</label>
-                                        <input type="text" class="form-control" id="brojTelefona" placeholder="Unesite broj telefona">
-                                        <p></p>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email *</label>
-                                    <input type="text" class="form-control" id="email" placeholder="Unesite email">
-                                    <p></p>
-                                </div>
-
-                                <div class="form-group postion-relative">
-                                    <label for="poruka">Vaša poruka</label>
-                                    <div class="postion-relative">
-                                        <textarea class="form-control" id="poruka" rows="8"></textarea>
-                                        <div id="brojPreostalihKaraktera" class="position-absolute">250</div>
-                                    </div>
-                                    <p></p>
-                                </div>
-                                @if(config('services.recaptcha.key'))
-                                    <div class="g-recaptcha"
-                                         data-sitekey="{{config('services.recaptcha.key')}}">
-                                    </div>
-                                @endif
-                                <button type="submit" class="btn btn-primary w-100 mt-5 color-zuta dugme-forme-kontakt">Pošalji poruku</button>
-                            </div>
-                        </form>
-                        <p class="greska-sa-servera"></p>
-                    </div>
-                </div>
-                <div class="col-12 col-md-5 col-lg-5">
-                    <div class="kontakt-slika-block">
-                        <img src="{{asset("assets/img/wallpapers/Castello-nekretnine-vrsac.jpg")}}" alt="kontakt banner slika" width="526" height="636"/>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-5">
-                <div class="mapa col-12 mt-5 mb-5 mt-md-0 mb-md-0 col-md-7 col-lg-7">
-                    <iframe  id="gmap_canvas" src="https://maps.google.com/maps?width=520&amp;height=400&amp;hl=en&amp;q=Sterijina%2034%20Vrsac+()&amp;t=&amp;z=12&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
-                </div>
-                <div class="col-12 col-md-5 col-lg-5">
-                    <div class="informacije-blok efekat-box-shadow">
-                        <div class="informacije-top">
-                            <div class="informacije-header">
-                                <h3><i class="fa-regular fa-map"></i> Castello nekretnine:</h3>
-                            </div>
-                            <ul class="info p-4">
-                                <li>
-                                    <strong><i class="fa-regular fa-user"></i> Igor Popović</strong>
-                                    Menadžer prodaje nekretnina
-                                    065/8234501
-                                    castellonekretnine@gmail.com
-                                </li>
-                                <li>
-                                    <strong><i class="fa-solid fa-location-dot"></i> Lokacija</strong>
-                                    <p>Vaska Pope 2 (Ulaz iz Gavrila Principa)</p>
-                                </li>
-                                <li>
-                                    <strong><i class="fa-regular fa-clock"></i> Radno vreme</strong>
-                                    <p>Pon-Pet: 09-16h, Sub: 09-13h</p>
-                                </li>
-                            </ul>
-                        </div>
-                        {{--                                <div class="informacije-middle">--}}
-                        {{--                                    <div class="informacije-header">--}}
-
-                        {{--                                    </div>--}}
-                        {{--                                </div>--}}
-                    </div>
-                </div>
-            </div>
+<div class="nova-slika-kontakt">
+    <div class="banner-kontakt bg-fixed">
+        <div class="inner-banner-kontakt">
+            <h1>{{ __('kontakt.banner') }}
+                <span class="tip-naslov tip-naslov--prazan"></span>
+            </h1>
         </div>
     </div>
+
+    <div class="container mt-5 pt-3 pb-5">
+
+        <div class="row mb-4" style="row-gap: 24px;">
+            <div class="col-12 col-md-7">
+                <div class="kontakt-forma-blok">
+                    <div class="kontakt-forma-header">
+                        <i class="fa-regular fa-envelope"></i>
+                        {{ __('kontakt.forma_naslov') }}
+                    </div>
+                    <div class="kontakt-forma-body">
+                        <form id="forma-kontakt">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="imeIPrezime">{{ __('kontakt.ime') }}</label>
+                                    <input type="text" id="imeIPrezime"
+                                        placeholder="{{ __('kontakt.ime_ph') }}">
+                                    <small></small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="brojTelefona">{{ __('kontakt.telefon') }}</label>
+                                    <input type="text" id="brojTelefona"
+                                        placeholder="{{ __('kontakt.telefon_ph') }}">
+                                    <p></p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">{{ __('kontakt.email') }}</label>
+                                <input type="text" id="email"
+                                    placeholder="{{ __('kontakt.email_ph') }}">
+                                <p></p>
+                            </div>
+
+                            <div class="form-group" style="position:relative">
+                                <label for="poruka">{{ __('kontakt.poruka') }}</label>
+                                <div style="position:relative">
+                                    <textarea id="poruka" rows="6"></textarea>
+                                    <div id="brojPreostalihKaraktera"
+                                        style="position:absolute;bottom:10px;right:10px;font-size:12px;color:#aaa">
+                                        250
+                                    </div>
+                                </div>
+                                <p></p>
+                            </div>
+
+                            @if(config('services.recaptcha.key'))
+                            <div class="g-recaptcha mb-3"
+                                data-sitekey="{{ config('services.recaptcha.key') }}">
+                            </div>
+                            @endif
+
+                            <button type="submit" class="kontakt-submit dugme-forme-kontakt">
+                                {{ __('kontakt.posalji') }}
+                            </button>
+                        </form>
+                        <p class="greska-sa-servera mt-2" style="color:#dc3545;font-size:13px"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-5">
+                <div class="kontakt-slika-block" style="height:100%;min-height:300px">
+                    <img src="{{ asset('assets/img/wallpapers/Castello-nekretnine-vrsac.jpg') }}"
+                        alt="Castello Nekretnine Vršac kancelarija"
+                        width="526" height="636" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="row-gap: 24px;">
+            <div class="col-12 col-md-7">
+                <div class="kontakt-mapa-wrap">
+                    <iframe id="gmap_canvas"
+                        src="https://maps.google.com/maps?width=520&height=400&hl=en&q=Sterijina%2034%20Vrsac+()&t=&z=12&ie=UTF8&iwloc=B&output=embed"
+                        loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-5">
+                <div class="kontakt-info-blok">
+                    <div class="kontakt-info-header">
+                        <i class="fa-regular fa-map"></i>
+                        {{ __('kontakt.info_naslov') }}
+                    </div>
+                    <ul class="kontakt-info-lista">
+                        <li class="kontakt-info-item">
+                            <div class="kontakt-info-ikona">
+                                <i class="fa-regular fa-user"></i>
+                            </div>
+                            <div class="kontakt-info-tekst">
+                                <strong>Igor Popović</strong>
+                                <span>{{ __('kontakt.menadzer') }}</span>
+                                <a href="tel:0658234501">065/823-4501</a>
+                                <a href="mailto:castellonekretnine@gmail.com">castellonekretnine@gmail.com</a>
+                            </div>
+                        </li>
+                        <li class="kontakt-info-item">
+                            <div class="kontakt-info-ikona">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div class="kontakt-info-tekst">
+                                <strong>{{ __('kontakt.lokacija') }}</strong>
+                                <span>{{ __('kontakt.adresa') }}</span>
+                            </div>
+                        </li>
+                        <li class="kontakt-info-item">
+                            <div class="kontakt-info-ikona">
+                                <i class="fa-regular fa-clock"></i>
+                            </div>
+                            <div class="kontakt-info-tekst">
+                                <strong>{{ __('kontakt.radno_vreme') }}</strong>
+                                <span>{{ __('kontakt.radno') }}</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 @endsection
+{{-- FALI SCRIPTA ZA SEO! --}}

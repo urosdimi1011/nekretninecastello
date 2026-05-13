@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\NekretnineAtributiVrednost;
 use App\Repositories\NekretnineAtributiVrednostRepository;
 
 class NekretnineAtributiVrednostServices extends OwnServices
@@ -12,18 +11,16 @@ class NekretnineAtributiVrednostServices extends OwnServices
         parent::__construct($atributi);
     }
 
-    public function generisanjeObjektaZaUpis($idNekretnine,$atributi){
-
-        foreach ($atributi as $a){
-
-            if($a['vrednost'] == "nee"){
-                $red = $this->getAll()->where("id_nekretnine",$idNekretnine)->where("id_tip_nekretnine_atributi",$a['id_tip_nekretnine_atributi'])->first();
-                if($red != null){
+    public function generisanjeObjektaZaUpis($idNekretnine, $atributi)
+    {
+        foreach ($atributi as $a) {
+            if ($a['vrednost'] == "nee") {
+                $red = $this->getAll()->where("id_nekretnine", $idNekretnine)->where("id_tip_nekretnine_atributi", $a['id_tip_nekretnine_atributi'])->first();
+                if ($red != null) {
                     $this->delete($red->id);
                     continue;
                 }
             }
-
             $this->createOrUpdate(
                 [
                     'id_nekretnine' => $idNekretnine,
@@ -35,12 +32,10 @@ class NekretnineAtributiVrednostServices extends OwnServices
     }
 
 
-    public function pokaziSveAtributeINjihoveVrednostiZaKonkretnuNekretninu($idNekretnine){
-        $nekretnina = $this->getAll()->where("id_nekretnine",$idNekretnine)->load("atributi");
+    public function pokaziSveAtributeINjihoveVrednostiZaKonkretnuNekretninu($idNekretnine)
+    {
+        $nekretnina = $this->getAll()->where("id_nekretnine", $idNekretnine)->load("atributi");
 
         return $nekretnina;
     }
-
-
-
 }
