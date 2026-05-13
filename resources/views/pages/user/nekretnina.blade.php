@@ -25,7 +25,7 @@
                                         <li class="splide__slide nekretnina-slika">
                                             <a data-pswp-src="{{asset("assets/img/".$a->putanja)}}">
 
-                                                <img src="{{asset("assets/img/".$a->putanja)}}" alt="{{$a->alt}}" loading="lazy">
+                                                <img src="{{asset("assets/img/".$a->putanja)}}" alt="{{$a->alt}}" >
 
                                             </a>
                                         </li>
@@ -38,11 +38,9 @@
                                     <div class="splide__track">
                                         <ul class="splide__list">
                                             @foreach($nekretnina->slike as $a)
-
                                             <li class="splide__slide male-slike-slider">
-                                                <img src="{{asset("assets/img/".$a->putanja)}}" alt="{{$a->alt}}" loading="lazy">
+                                                <img src="{{asset("assets/img/".$a->putanja)}}" alt="{{$a->alt}}">
                                             </li>
-
                                             @endforeach
                                         </ul>
                                     </div>
@@ -181,7 +179,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
 {{-- 

@@ -89,11 +89,10 @@ strtolower($s) . ' na prodaju vrsac, ' .
                     <label>{{ __('nekretnine.sort_label') }}</label>
                     <select class="custom-select sources"
                         placeholder="{{ __('nekretnine.sort_placeholder') }}">
-                        <option value="">{{ __('nekretnine.sort_placeholder') }}</option>
                         <option value="cena-asc">{{ __('nekretnine.sort_cena_asc') }}</option>
                         <option value="cena-desc">{{ __('nekretnine.sort_cena_desc') }}</option>
                         <option value="created_at-asc">{{ __('nekretnine.sort_datum_asc') }}</option>
-                        <option value="created_at-desc">{{ __('nekretnine.sort_datum_desc') }}</option>
+                        <option value="created_at-desc" selected>{{ __('nekretnine.sort_datum_desc') }}</option>
                     </select>
                 </div>
             </div>

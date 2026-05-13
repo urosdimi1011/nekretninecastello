@@ -410,12 +410,12 @@
     </script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="{{asset("assets/js/app.js")}}"></script>
-    <script src="{{asset("assets/js/splide-4.1.3/dist/js/splide.min.js")}}"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="{{asset("assets/js/main.js")}}"></script>
+    <script src="{{asset("assets/js/main.js")}}"></script>
     <script src="https://www.google.com/recaptcha/api.js" async></script>
+    <script src="{{asset("assets/js/splide-4.1.3/dist/js/splide.min.js")}}"></script>
     @stack('scripts')
 
     @if(session('success'))

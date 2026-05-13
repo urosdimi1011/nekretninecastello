@@ -15,9 +15,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Services\Table\PretplatniciTableService;
+use Illuminate\Http\Request;
 
 class PretplatnikController extends Controller
 {
+    protected $tableService;
+
+    public function __construct(PretplatniciTableService $tableService)
+    {
+        $this->tableService = $tableService;
+    }
     public function getFilteri($tipId)
     {
         $filteri = FilterDefinicija::aktivni()
@@ -210,5 +218,187 @@ class PretplatnikController extends Controller
         }
 
         return redirect('/')->with('success', 'Uspešno ste se odjavili od obaveštenja.');
+    }
+
+    public function index(Request $request)
+    {
+        $query = Pretplatnik::query()
+            ->with([
+                'filteri' => function ($q) {
+                    $q->with([
+                        'tip',
+                        'vrednosti.definicija',
+                        'mesta.definicija'
+                    ]);
+                }
+            ])
+            ->orderBy('id', 'desc');
+
+        if ($request->filled('keywords')) {
+            $keywords = $request->input('keywords');
+            $query->where('email', 'like', "%{$keywords}%");
+        }
+
+        if ($request->has('status')) {
+            if ($request->input('status') === 'verifikovani') {
+                $query->whereHas('filteri', function ($q) {
+                    $q->whereNotNull('verified_at');
+                });
+            } elseif ($request->input('status') === 'neverifikovani') {
+                $query->whereHas('filteri', function ($q) {
+                    $q->whereNull('verified_at');
+                });
+            }
+        }
+
+        $pretplatnici = $query->paginate(12)->withQueryString();
+
+        $pretplatnici->getCollection()->transform(function ($pretplatnik) {
+            $tipovi = $pretplatnik->filteri
+                ->pluck('tip.tip')
+                ->filter()
+                ->unique()
+                ->implode(', ');
+
+            $sviVerifikovani = $pretplatnik->filteri->every(fn($f) => $f->jeVerifikovan());
+            $imaBarJedanVerifikovan = $pretplatnik->filteri->contains(fn($f) => $f->jeVerifikovan());
+
+            $verifikovanStatus = 'Neaktivno';
+            if ($sviVerifikovani) {
+                $verifikovanStatus = 'Verifikovan';
+            } elseif ($imaBarJedanVerifikovan) {
+                $verifikovanStatus = 'Delimično';
+            }
+
+            $filteriDetalji = $this->formatirajFilterDetalje($pretplatnik->filteri);
+
+            $prviFilter = $pretplatnik->filteri->sortBy('created_at')->first();
+            $datumPretplate = $prviFilter
+                ? $prviFilter->created_at->format('d.m.Y H:i')
+                : '—';
+
+            $pretplatnik->tipovi_nekretnina = $tipovi ?: '—';
+            $pretplatnik->filteri_detalji    = $filteriDetalji;
+            $pretplatnik->verifikovan        = $verifikovanStatus;
+            $pretplatnik->datum_pretplate    = $datumPretplate;
+
+            return $pretplatnik;
+        });
+
+        return view("tableView", [
+            "column"   => $this->tableService->getColumn(),
+            "data"     => $pretplatnici,
+            "tip"      => "pretplatnici",
+        ]);
+    }
+
+    private function formatirajFilterDetalje($filteri): string
+    {
+        $delovi = [];
+
+        foreach ($filteri as $filter) {
+            $linija = '<strong>' . e($filter->tip->tip ?? 'Nepoznat tip') . '</strong>: ';
+
+            $kriterijumi = [];
+
+            if ($filter->cena_min || $filter->cena_max) {
+                $cenaOd = $filter->cena_min ? number_format($filter->cena_min, 0, ',', '.') . '€' : '0€';
+                $cenaDo = $filter->cena_max ? number_format($filter->cena_max, 0, ',', '.') . '€' : '∞';
+                $poMetru = $filter->cena_po_metru ? '/m²' : '';
+                $kriterijumi[] = "Cena: {$cenaOd} - {$cenaDo}{$poMetru}";
+            }
+
+            if ($filter->kvadratura_min || $filter->kvadratura_max) {
+                $kvOd = $filter->kvadratura_min ? $filter->kvadratura_min . 'm²' : '0m²';
+                $kvDo = $filter->kvadratura_max ? $filter->kvadratura_max . 'm²' : '∞';
+                $kriterijumi[] = "Kvadratura: {$kvOd} - {$kvDo}";
+            }
+
+            foreach ($filter->vrednosti as $vrednost) {
+                $def = $vrednost->definicija;
+                if (!$def) continue;
+
+                $nazivFiltera = $def->naziv;
+
+                if ($def->tip === \App\Models\FilterDefinicija::TIP_RASPON) {
+                    $od = $vrednost->vrednost_min ?? '0';
+                    $do = $vrednost->vrednost_max ?? '∞';
+                    $jedinica = $def->jedinica ? ' ' . $def->jedinica : '';
+                    $kriterijumi[] = "{$nazivFiltera}: {$od} - {$do}{$jedinica}";
+                } elseif (in_array($def->tip, [
+                    \App\Models\FilterDefinicija::TIP_KATEGORIJA,
+                    \App\Models\FilterDefinicija::TIP_BOOLEAN,
+                    \App\Models\FilterDefinicija::TIP_VISE_IZBORA,
+                ])) {
+                    $vrednostPrikaz = $vrednost->vrednost;
+                    // Ako postoje opcije, pokušaj da nađeš labelu
+                    if ($def->opcije) {
+                        $opcije = is_array($def->opcije) ? $def->opcije : [];
+                        $pronadjena = collect($opcije)->firstWhere('value', $vrednost->vrednost);
+                        if ($pronadjena && isset($pronadjena['label'])) {
+                            $vrednostPrikaz = $pronadjena['label'];
+                        }
+                    }
+                    $kriterijumi[] = "{$nazivFiltera}: {$vrednostPrikaz}";
+                }
+            }
+
+            $mestaNazivi = $filter->mesta
+                ->pluck('vrednost')
+                ->filter()
+                ->toArray();
+
+            if (!empty($mestaNazivi)) {
+                $kriterijumi[] = "Lokacije: " . implode(', ', $mestaNazivi);
+            }
+
+            $status = $filter->jeVerifikovan()
+                ? '✅'
+                : '⏳';
+
+            $linija .= (empty($kriterijumi) ? 'Bez dodatnih filtera' : implode(' | ', $kriterijumi));
+            $linija .= ' ' . $status;
+
+            $delovi[] = '<div class="filter-linija">' . $linija . '</div>';
+        }
+
+        return implode('', $delovi);
+    }
+
+    public function destroy($id, Request $request)
+    {
+        $pretplatnik = Pretplatnik::with('filteri')->findOrFail($id);
+
+        if (isset($request->prikaziFormu)) {
+            $brojFiltera = $pretplatnik->filteri->count();
+            $poruka = "Pretplatnik {$pretplatnik->email} ima {$brojFiltera} filtera. ";
+            $poruka .= "Da li ste sigurni da želite da obrišete ovog pretplatnika i sve njegove filtere?";
+
+            return view('confirm-delete', [
+                "tip"    => "pretplatnika",
+                "poruka" => $poruka,
+                "putanjaZaBrisanje" => "/admin/pretplatnici/{$id}",
+            ]);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($pretplatnik->filteri as $filter) {
+                $filter->vrednosti()->delete();
+                $filter->delete();
+            }
+            $pretplatnik->delete();
+
+            DB::commit();
+            return redirect()
+                ->route('tabelarniPrikazPretplatnika')
+                ->with('success', 'Pretplatnik je uspešno obrisan.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()
+                ->route('tabelarniPrikazPretplatnika')
+                ->with('error', 'Došlo je do greške: ' . $e->getMessage());
+        }
     }
 }

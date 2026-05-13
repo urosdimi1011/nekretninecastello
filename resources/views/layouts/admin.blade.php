@@ -39,28 +39,62 @@
                 <div class="sidebar-links mt-5">
                     <ul>
                         <li class="tooltip-element" data-tooltip="0">
-                            <a href="{{route("tabelarniPrikazNekretnina")}}" rel="noopener noreferrer" class="{{ Request::route()->getName() === 'tabelarniPrikazNekretnina' ? 'active' : '' }}" data-active="0">
+                            <a href="{{route("tabelarniPrikazNekretnina")}}" 
+                            rel="noopener noreferrer" 
+                            class="{{ Request::route()->getName() === 'tabelarniPrikazNekretnina' ? 'active' : '' }}" 
+                            data-active="0">
+                                <i class="fa-solid fa-building"></i>
                                 <span class="link hide">Nekretnine</span>
                             </a>
                         </li>
                         <li class="tooltip-element" data-tooltip="1">
-                            <a href="{{route("tabelarniPrikazAtrbuti")}}" rel="noopener noreferrer" class="{{ Request::route()->getName() === 'tabelarniPrikazAtrbuti' ? 'active' : '' }}" data-active="0">
+                            <a href="{{route("tabelarniPrikazAtrbuti")}}" 
+                            rel="noopener noreferrer" 
+                            class="{{ Request::route()->getName() === 'tabelarniPrikazAtrbuti' ? 'active' : '' }}" 
+                            data-active="0">
+                                <i class="fa-solid fa-list-check"></i>
                                 <span class="link hide">Atrbuti</span>
                             </a>
                         </li>
                         <li class="tooltip-element" data-tooltip="2">
-                            <a href="{{route("tabelarniPrikazTipNekretnine")}}" rel="noopener noreferrer" class="{{ Request::route()->getName() === 'tabelarniPrikazTipNekretnine' ? 'active' : '' }}" data-active="0">
+                            <a href="{{route("tabelarniPrikazTipNekretnine")}}" 
+                            rel="noopener noreferrer" 
+                            class="{{ Request::route()->getName() === 'tabelarniPrikazTipNekretnine' ? 'active' : '' }}" 
+                            data-active="0">
+                                <i class="fa-solid fa-tags"></i>
                                 <span class="link hide">Tipovi nekretnina</span>
                             </a>
                         </li>
                         <li class="tooltip-element" data-tooltip="3">
-                            <a href="{{route("tabelarniPrikazTipNekretnineAtributi")}}" rel="noopener noreferrer" class="{{ Request::route()->getName() === 'tabelarniPrikazTipNekretnineAtributi' ? 'active' : '' }}" data-active="0">
+                            <a href="{{route("tabelarniPrikazTipNekretnineAtributi")}}" 
+                            rel="noopener noreferrer" 
+                            class="{{ Request::route()->getName() === 'tabelarniPrikazTipNekretnineAtributi' ? 'active' : '' }}" 
+                            data-active="0">
+                                <i class="fa-solid fa-link"></i>
                                 <span class="link hide">Tipovi nekretnina i atributi</span>
                             </a>
                         </li>
-                        <li class="tooltip-element" data-tooltip="3">
-                            <a href="{{route("prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima")}}" rel="noopener noreferrer" class="{{ Request::route()->getName() === 'prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima' ? 'active' : '' }}" data-active="0">
+                        <li class="tooltip-element" data-tooltip="4">
+                            <a href="{{route("prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima")}}" 
+                            rel="noopener noreferrer" 
+                            class="{{ Request::route()->getName() === 'prikazTabelarniNekretnineITipoveSaKonkretnimVrednostima' ? 'active' : '' }}" 
+                            data-active="0">
+                                <i class="fa-solid fa-table-list"></i>
                                 <span class="link hide">Nekretnine i tipovi i atributi</span>
+                            </a>
+                        </li>
+                        <li class="tooltip-element" data-tooltip="5">
+                            <a href="{{ route('tabelarniPrikazMesta') }}"
+                            class="{{ Request::route()->getName() === 'tabelarniPrikazMesta' ? 'active' : '' }}">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <span class="link hide">Mesta</span>
+                            </a>
+                        </li>
+                        <li class="tooltip-element" data-tooltip="6">
+                            <a href="{{ route('tabelarniPrikazPretplatnika') }}"
+                            class="{{ Request::route()->getName() === 'tabelarniPrikazPretplatnika' ? 'active' : '' }}">
+                                <i class="fa-solid fa-bell"></i>
+                                <span class="link hide">Pretplatnici</span>
                             </a>
                         </li>
                     </ul>
@@ -114,11 +148,6 @@
             @yield('content')
         </div>
     </main>
-
-    <footer>
-        <!-- Zajednički deo podnožja -->
-
-    </footer>
 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>

@@ -813,7 +813,7 @@ function validateFormBeforeSubmit() {
     const glavnaSlikaInput = document.querySelector(
         'input[name="glavnaSlika"]',
     );
-    if (isPostMethod) {
+    if (isPostMethod && glavnaSlikaInput) {
         // Za kreiranje - glavna slika je obavezna
         if (!glavnaSlikaInput || glavnaSlikaInput.files.length === 0) {
             errors.push({
@@ -868,7 +868,7 @@ function validateFormBeforeSubmit() {
 
     // 5. Validacija POD SLIKA (obavezne samo za POST, ne za PUT)
     const podSlikeInput = document.querySelector('input[name="podSlike[]"]');
-    if (isPostMethod) {
+    if (isPostMethod && podSlikeInput) {
         // Za kreiranje - pod slike su obavezne
         if (!podSlikeInput || podSlikeInput.files.length === 0) {
             errors.push({
