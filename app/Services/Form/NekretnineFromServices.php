@@ -115,7 +115,8 @@ class NekretnineFromServices extends BaseFormServices
                     values: collect($tipovi),
                     checkedValues: $nekretnina->tip?->id
                 ),
-            ]
+            ],
+            video: $nekretnina->video,
         );
     }
     protected function prepareModelDataForInsert($podaci)

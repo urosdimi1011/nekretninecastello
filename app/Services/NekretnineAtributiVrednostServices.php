@@ -38,4 +38,9 @@ class NekretnineAtributiVrednostServices extends OwnServices
 
         return $nekretnina;
     }
+
+    public function getAllForNekretnine(array $ids)
+    {
+        return $this->model->whereInColumn('id_nekretnine', $ids);
+    }
 }

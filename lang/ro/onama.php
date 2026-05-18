@@ -41,4 +41,8 @@ return [
     'breadcrumb_onama'  => 'Despre noi',
     'schema_naziv'      => 'Despre noi – Castello Nekretnine Vršac',
     'schema_opis'       => 'Castello Nekretnine Vršac – agenție cu ani de experiență în intermedierea imobiliară.',
+
+    'uslovi_naslov'  => 'Termeni de afaceri',
+    'uslovi_uvod'    => 'Vizualizați documentul nostru privind termenii de afaceri și condițiile de intermediere imobiliară.',
+    'uslovi_preuzmi' => 'Vezi termenii de afaceri',
 ];

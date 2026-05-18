@@ -7,7 +7,7 @@ return [
     'o_nama'            => 'About Us',
     'kreditni_kalk'     => 'Mortgage Calculator',
     'beograd'           => 'Belgrade',
-    'radno_vreme'       => 'WORKING HOURS: MON-FRI 08-16h SAT: 09-15h',
+    'radno_vreme'       => 'WORKING HOURS: MON-FRI 09-16h SAT: 09-13h',
 
     'footer_slogan'     => 'Find your new home',
     'kontakt_info'      => 'Contact Information',
@@ -64,4 +64,5 @@ return [
     'notif_uspeh_naslov'    => 'Successfully subscribed!',
     'notif_uspeh_opis'      => 'We have sent you a verification email. Confirm your email address to activate notifications.',
     'notif_uspeh_hint'      => 'If the message did not arrive in your inbox, check your spam or promotions folder.',
+    'uslovi_poslovanja' => 'Terms of Business',
 ];

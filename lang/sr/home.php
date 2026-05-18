@@ -5,9 +5,9 @@ return [
     'keywords'      => 'nekretnine vrsac, vrsac nekretnine, prodaja nekretnina vrsac, kuce vrsac, stanovi vrsac, lokali vrsac, placevi vrsac, poljoprivredno zemljiste vrsac, castello nekretnine, agencija za nekretnine vrsac',
 
     'slider_1_alt'      => 'Nekretnine Vršac - Castello nekretnine',
-    'slider_1_naslov'   => 'Nekretnine Vršac – pronađite vaš novi dom',
+    'slider_1_naslov'   => 'Pronađite vaš novi dom',
     'slider_2_alt'      => 'Prodaja kuća i stanova u Vršcu',
-    'slider_2_naslov'   => 'Prodaja kuća, stanova i placeva u Vršcu',
+    'slider_2_naslov'   => 'Siguran korak do prodaje',
     'pozovite'          => 'POZOVITE ODMAH',
     'telefon_alt'       => 'Pozovite Castello nekretnine',
 

@@ -5,9 +5,9 @@ return [
     'keywords'      => 'real estate vrsac, vrsac properties, property for sale vrsac, houses vrsac, apartments vrsac, shops vrsac, plots vrsac, agricultural land vrsac, castello nekretnine, real estate agency vrsac',
 
     'slider_1_alt'      => 'Real Estate Vršac - Castello Nekretnine',
-    'slider_1_naslov'   => 'Real Estate Vršac – find your new home',
+    'slider_1_naslov'   => 'Find your new home',
     'slider_2_alt'      => 'Sale of houses and apartments in Vršac',
-    'slider_2_naslov'   => 'Sale of houses, apartments and plots in Vršac',
+    'slider_2_naslov'   => 'A sure step towards sale',
     'pozovite'          => 'CALL NOW',
     'telefon_alt'       => 'Call Castello Nekretnine',
 

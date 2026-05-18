@@ -26,14 +26,14 @@ class MestaTableService extends BaseTableServices
             "index" => "izmeni",
             "label" => "Izmeni",
             "type" => "button",
-            "icon" => '<i class="fas fa-edit text-info"></i>',
+            "icon" => '<i class="ph ph-pencil-simple text-info"></i>',
             "undoIcon" => '<i class="fa fa-undo" aria-hidden="true"></i>'
         ],
         [
             "index" => "obrisi",
             "label" => "Obriši",
             "type" => "button",
-            "icon" => "<i class='fa fa-trash text-danger'></i>",
+            "icon" => "<i class='ph ph-trash text-danger'></i>",
             "undoIcon" => '<i class="fa fa-undo" aria-hidden="true"></i>'
         ]
     ];

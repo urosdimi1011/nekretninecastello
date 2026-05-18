@@ -41,4 +41,8 @@ return [
     'breadcrumb_onama'  => 'About Us',
     'schema_naziv'      => 'About Us – Castello Nekretnine Vršac',
     'schema_opis'       => 'Castello Nekretnine Vršac – agency with years of experience in real estate brokerage.',
+
+    'uslovi_naslov'  => 'Business Terms',
+    'uslovi_uvod'    => 'View our document on business terms and real estate brokerage conditions.',
+    'uslovi_preuzmi' => 'View Business Terms',
 ];

@@ -20,6 +20,7 @@ class NekretnineDTO
     public $mesto_id;
     public $mesta;
     public array $dropdowns;
+    public $video;
 
 
     public function __construct(
@@ -37,7 +38,8 @@ class NekretnineDTO
         $slug,
         $mesto_id,
         $mesta,
-        array $dropdowns = []
+        array $dropdowns = [],
+        $video = null
     ) {
         $this->id = $id;
         $this->naziv = $naziv;
@@ -54,5 +56,6 @@ class NekretnineDTO
         $this->mesto_id = $mesto_id;
         $this->mesta = $mesta;
         $this->dropdowns = $dropdowns;
+        $this->video = $video;
     }
 }

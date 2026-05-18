@@ -7,7 +7,7 @@ return [
     'o_nama'            => 'Despre noi',
     'kreditni_kalk'     => 'Calculator credit',
     'beograd'           => 'Belgrad',
-    'radno_vreme'       => 'PROGRAM: LUN-VI 08-16h SAM: 09-15h',
+    'radno_vreme'       => 'PROGRAM: LUN-VI 09-16h SAM: 09-13h',
 
     'footer_slogan'     => 'Găsiți-vă noua casă',
     'kontakt_info'      => 'Informații de contact',
@@ -64,4 +64,5 @@ return [
     'notif_uspeh_naslov'    => 'V-ați abonat cu succes!',
     'notif_uspeh_opis'      => 'V-am trimis un e-mail de verificare. Confirmați adresa pentru a activa notificările.',
     'notif_uspeh_hint'      => 'Dacă mesajul nu a ajuns în căsuța de e-mail, verificați folderul spam sau promotions.',
+    'uslovi_poslovanja' => 'Termeni de afaceri',
 ];

@@ -14,6 +14,7 @@ use App\Services\SlikaServices;
 use App\Services\Table\NekretnineTableService;
 use App\Services\TipNekretnineServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class NekeretnineController extends Controller
@@ -51,11 +52,16 @@ class NekeretnineController extends Controller
             $tipName,
             $column,
             $direction,
-            ['slika', 'slike', 'tip.atributi']
+            ['slika', 'tip']
         );
-        $svi = $query->paginate(12)->withQueryString();
-        $svi->getCollection()->each(function ($nekretnina) {
-            $this->dodajAtributeNekretnini($nekretnina);
+        $svi = $query->paginate(2)->withQueryString();
+
+        $nekretninaIds = $svi->pluck('id')->toArray();
+
+        $sviAtributi = $this->nekretnineAtributiVrednostServices
+            ->getAllForNekretnine($nekretninaIds);
+        $svi->getCollection()->each(function ($nekretnina) use ($sviAtributi) {
+            $this->dodajAtributeNekretnini($nekretnina, $sviAtributi);
         });
 
         if ($request->ajax()) {
@@ -175,11 +181,12 @@ class NekeretnineController extends Controller
         }
 
         if (isset($search->keywords)) {
-            $svi = $svi->filterByColumns($filters, "like")
+            $svi = $svi->sortByColumn('created_at', 'desc')
+                ->filterByColumns($filters, "like")
                 ->paginate(12);
             $data = ["column" => $this->tableService->getColumn(), "data" => $svi, "tip" => "nekretnine"];
         } else {
-            $svi = $svi->getAllWithPaginate(["slika", "tip"], 4);
+            $svi =  $svi->sortByColumn('created_at', 'desc')->getAllWithPaginate(["slika", "tip"], 12);
             $data = ["column" => $this->tableService->getColumn(), "data" => $svi, "tip" => "nekretnine", "keywords" => $search->keywords];
         }
 
@@ -230,6 +237,12 @@ class NekeretnineController extends Controller
             $podSlike = $request->file("podSlike");
             $glavnaSlika = $request->file("glavnaSlika");
 
+            $cena = $request->input('cena');
+            if ($cena) {
+                $cena = str_replace('.', '', $cena);
+                $cena = str_replace(',', '.', $cena);
+                $request->merge(['cena' => floatval($cena)]);
+            }
             $idSlike = $this->servisZaSliku->sacuvajSliku($glavnaSlika, "glavnaSlika");
 
             $idijeviDodatihSlika = $this->servisZaSliku->sacuvajViseSlikaIVratiIDjeve($podSlike, "podSlike");
@@ -242,6 +255,9 @@ class NekeretnineController extends Controller
 
             app(PrevodService::class)->prevediNekretninu($dodat);
             DB::commit();
+
+            Cache::forget('istaknute_nekretnine');
+
             echo json_encode(["uspeh" => "Uspesno ste dodali nekretninu"]);
         } catch (\Exception $e) {
             DB::rollback();
@@ -252,7 +268,7 @@ class NekeretnineController extends Controller
     public function show($identifier)
     {
         $nekretnina = $this->nekretnineServices
-            ->findByIdOrSlug($identifier, ['slika', 'slike', 'tip.atributi', 'video']);
+            ->findByIdOrSlug($identifier, ['slika', 'slike', 'tip.atributi.prevodi', 'video']);
 
         if (!$nekretnina) {
             abort(404);
@@ -265,23 +281,23 @@ class NekeretnineController extends Controller
         return view("pages.user.nekretnina", ['nekretnina' => $nekretnina]);
     }
 
-    public function dodajAtributeNekretnini($nekretnina)
+    public function dodajAtributeNekretnini($nekretnina, $sviAtributi = null)
     {
         $noviNizZaLaksiZapis = [];
 
-        $nekretnineAtributiVrednostServices = $this->nekretnineAtributiVrednostServices->getAll();
+        $nekretnineAtributiVrednostServices = $sviAtributi
+            ?? $this->nekretnineAtributiVrednostServices->getAll();
 
         foreach ($nekretnina->tip->atributi as $s) {
             $nesto = collect($nekretnineAtributiVrednostServices)
                 ->where("id_tip_nekretnine_atributi", $s->pivot->id)
                 ->where("id_nekretnine", $nekretnina->id)
                 ->first();
-
             if ($nesto != null) {
                 $nizZaLaksiZapis = new \stdClass();
                 $nizZaLaksiZapis->id_nekretnine = $nekretnina->id;
                 $nizZaLaksiZapis->tip = $nekretnina->tip->tip;
-                $nizZaLaksiZapis->atribut = $s->naziv;
+                $nizZaLaksiZapis->atribut = $s;
                 $nizZaLaksiZapis->klasaIkonice = $s->ikonica_klasa;
                 $nizZaLaksiZapis->vrednost = $nesto->vrednost;
 
@@ -313,6 +329,13 @@ class NekeretnineController extends Controller
             $cenaMetar = filter_var($request->input('cena_metar'), FILTER_VALIDATE_BOOLEAN);
 
             $req = array_merge($request->except(["_method", "_token"]), ["istaknuta" => $istaknuto, "cena_metar" => $cenaMetar]);
+            $cena = $request->input('cena');
+
+            if ($cena) {
+                $cena = str_replace('.', '', $cena);
+                $cena = str_replace(',', '.', $cena);
+                $req = array_merge($req, ['cena' => floatval($cena)]);
+            }
 
             $nekretnina = $this->nekretnineServices->getById($id);
 
@@ -340,11 +363,18 @@ class NekeretnineController extends Controller
                 $this->servisZaSliku->obrisiSlikeIzBaze($ids);
             }
 
+            if ($request->hasFile('video_fajl')) {
+                $postojeciVideo = $nekretnina->video;
+                if ($postojeciVideo) {
+                    $this->nekretnineServices->obrisiVideo($nekretnina);
+                }
+                $this->nekretnineServices->procesuirajISacuvajVideo($request, $nekretnina);
+            }
             $nekretnina->update($req);
-
             app(PrevodService::class)->prevediNekretninu($nekretnina);
             DB::commit();
 
+            Cache::forget('istaknute_nekretnine');
             echo json_encode(["uspeh" => "Uspesno ste azurirali nekretninu"]);
         } catch (\Exception $e) {
             DB::rollback();
@@ -382,5 +412,17 @@ class NekeretnineController extends Controller
         }
 
         return redirect()->route('tabelarniPrikazNekretnina')->with('success', 'Nekretnine je uspesno izmenjena.');
+    }
+    public function obrisiVideo($id)
+    {
+        $nekretnina = $this->nekretnineServices->getById($id);
+
+        if (!$nekretnina) {
+            return response()->json(['neuspeh' => 'Nekretnina nije pronađena.'], 404);
+        }
+
+        $this->nekretnineServices->obrisiVideo($nekretnina);
+
+        return response()->json(['uspeh' => 'Video je uspešno obrisan.']);
     }
 }

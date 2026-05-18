@@ -20,7 +20,7 @@ class PrevodService
                 ['nekretnina_id' => $nekretnina->id, 'locale' => $locale],
                 [
                     'naziv' => $tr->translate($nekretnina->naziv),
-                    'opis'  => $tr->translate(strip_tags($nekretnina->opis)),
+                    'opis'  => $tr->translate($nekretnina->opis),
                 ]
             );
         }

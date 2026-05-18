@@ -1,5 +1,19 @@
 let editorMoj = null;
 let promenjenRedosled = [];
+
+document.addEventListener(
+    "wheel",
+    function (e) {
+        if (
+            document.activeElement &&
+            document.activeElement.type === "number"
+        ) {
+            e.preventDefault();
+        }
+    },
+    { passive: false },
+);
+
 function sortTable(columnIndex) {
     const table = document.getElementsByTagName("table")[0];
     const rows = Array.from(table.rows).slice(1);
@@ -259,6 +273,50 @@ function openModal(target, data = null) {
                     });
             });
             initVideoUpload();
+            const obrisiBtn = document.getElementById("obrisiPostojeciVideo");
+            if (obrisiBtn) {
+                obrisiBtn.addEventListener("click", async function () {
+                    if (
+                        !confirm(
+                            "Da li ste sigurni da želite da obrišete video?",
+                        )
+                    )
+                        return;
+
+                    const btn = this;
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                        </svg>
+                        Brisanje...
+                    `;
+
+                    const url = btn.dataset.url;
+                    const res = await fetch(url, {
+                        method: "DELETE",
+                        headers: {
+                            "X-CSRF-TOKEN": document.querySelector(
+                                'meta[name="csrf-token"]',
+                            ).content,
+                            Accept: "application/json",
+                        },
+                    });
+
+                    const data = await res.json();
+                    if (data.uspeh) {
+                        document.getElementById("existingVideoBox").remove();
+                        const dropZone =
+                            document.getElementById("videoDropZone");
+                        if (dropZone) dropZone.style.display = "flex";
+                    } else {
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                        alert("Greška: " + data.neuspeh);
+                    }
+                });
+            }
         })
         .catch((xhr) => {
             ukiniSpiner();
@@ -1032,3 +1090,40 @@ function displayValidationErrors(errors) {
         firstError.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 }
+
+document.addEventListener("input", function (e) {
+    if (e.target.classList.contains("cena-input")) {
+        let cursorPos = e.target.selectionStart;
+        let cista = e.target.value.replace(/[^\d]/g, "");
+
+        if (!cista) {
+            e.target.value = "";
+            return;
+        }
+
+        let formatirano = cista.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        // Sačuvaj poziciju kursora
+        let diff = formatirano.length - e.target.value.length;
+
+        e.target.value = formatirano;
+        e.target.setSelectionRange(cursorPos + diff, cursorPos + diff);
+    }
+});
+
+// Pre slanja forme, očisti tačke
+document
+    .getElementById("formaGeneric")
+    ?.addEventListener("submit", function () {
+        const cenaInput = this.querySelector(".cena-input");
+        if (cenaInput) {
+            // Sačuvaj čistu vrednost bez tačaka za slanje
+            cenaInput.dataset.cistaVrednost = cenaInput.value.replace(
+                /\./g,
+                "",
+            );
+
+            // Zameni vrednost čistom
+            cenaInput.value = cenaInput.dataset.cistaVrednost;
+        }
+    });

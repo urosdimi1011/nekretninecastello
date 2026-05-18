@@ -8,7 +8,7 @@ return [
     'o_nama'            => 'O nama',
     'kreditni_kalk'     => 'Kreditni Kalkulator',
     'beograd'           => 'Beograd',
-    'radno_vreme'       => 'RADNO VREME: PON-PET 08-16h SUB: 09-15h',
+    'radno_vreme'       => 'RADNO VREME: PON-PET 09-16h SUB: 09-13h',
 
     // Footer
     'footer_slogan'     => 'Pronađite vaš novi dom',
@@ -67,4 +67,5 @@ return [
     'notif_uspeh_naslov'    => 'Uspešno ste se prijavili!',
     'notif_uspeh_opis'      => 'Poslali smo vam verifikacioni mejl. Potvrdite email adresu da aktivirate obaveštenja.',
     'notif_uspeh_hint'      => 'Ako poruka nije stigla u prijemno sanduče, proverite i spam ili promotions folder.',
+    'uslovi_poslovanja' => 'Uslovi poslovanja',
 ];

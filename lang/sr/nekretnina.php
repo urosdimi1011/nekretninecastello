@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'castello_nekretnine' => 'Castello nekretnine Vršac',
+    'podeli_nekretninu' => 'Podeli nekretninu',
+    'podeli_na_whatsapp' => 'Podeli na WhatsApp',
+    'podeli_na_viber' => 'Podeli na Viber',
+    'podeli_na_messenger' => 'Podeli na Messenger',
+    'kopiraj_link' => 'Kopiraj link',
+    'dodatne_informacije' => 'Dodatne informacije',
+    'nema_dodatnih_info' => 'Dodatne informacije nisu unete za ovu nekretninu.',
+    'kvadratura' => 'Kvadratura',
+    'povrsina_placa' => 'Površina placa',
+    'video_nekretnine' => 'Video nekretnine',
+    'video_prezentacija' => 'Video prezentacija',
+    'virtuelna_tura' => 'Virtuelna tura',
+    'opis' => 'Opis',
+    'cena' => 'Cena',
+    'galerija_fotografija' => 'Galerija fotografija nekretnine',
+    'minijature' => 'Minijature fotografija',
+    'fotografija_nekretnine' => 'fotografija',
+    'video_snimak' => 'Video snimak nekretnine',
+    'pretrazivac_ne_podrzava_video' => 'Vaš pretraživač ne podržava video.',
+    'procitaj_vise' => 'Pročitaj više',
+    'pogledaj_nekretninu' => 'Pogledajte ovu nekretninu',
+    'link_kopiran' => 'Link je kopiran u clipboard!',
+];
