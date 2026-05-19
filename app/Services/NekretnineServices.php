@@ -22,6 +22,7 @@ class NekretnineServices extends OwnServices
     {
         $tip->slike()->sync($ids);
     }
+
     public function findByIdOrSlug($identifier, array $relations = [])
     {
         return $this->model->query()
@@ -33,8 +34,8 @@ class NekretnineServices extends OwnServices
 
     public function procesuirajISacuvajVideo($request, $nekretnina)
     {
+        set_time_limit(120);
         $videoUrl = null;
-
         if ($request->hasFile('video_fajl')) {
             $file = $request->file('video_fajl');
             
@@ -45,11 +46,6 @@ class NekretnineServices extends OwnServices
 
             $videoUrl = $disk->url($path);
         }
-
-        // elseif ($request->filled('link_ka_videu')) {
-        //     $videoUrl = $request->input('link_ka_videu');
-        // }
-
         if ($videoUrl) {
             return $nekretnina->video()->create([
                 'url' => $videoUrl
@@ -77,5 +73,23 @@ class NekretnineServices extends OwnServices
         $direction = in_array($direction, ['asc', 'desc']) ? $direction : 'desc';
 
         return $query->orderBy($column, $direction);
+    }
+
+    public function obrisiVideo($nekretnina)
+    {
+        $video = $nekretnina->video;
+        if (!$video) return false;
+
+        $url = $video->url;
+        $path = parse_url($url, PHP_URL_PATH);
+        $path = ltrim($path, '/');
+
+        $disk = Storage::disk('r2');
+        if ($disk->exists($path)) {
+            $disk->delete($path);
+        }
+
+        $video->delete();
+        return true;
     }
 }

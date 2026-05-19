@@ -22,7 +22,7 @@ class NekretnineRequest extends ownRequest
             "sifra_nekretnine" => "required|string",
             "id_tip_nekretnine" => "required",
             "opis" => "required",
-            "cena" => "required|numeric",
+            "cena" => "required|numeric|string",
             "mesto_id" => "required|exists:mesta,id",
         ];
 

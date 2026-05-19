@@ -43,6 +43,10 @@ Route::prefix('admin')->group(function () {
     Route::get('/nekretnine/vrati/{id}', [\App\Http\Controllers\NekeretnineController::class, 'vratiNekretninu'])->name("vratiNekretninu");
 
     Route::middleware(['auth.user'])->group(function () {
+
+        Route::delete('/admin/nekretnine/{id}/video', [NekeretnineController::class, 'obrisiVideo'])
+            ->name('obrisiVideoNekretnine');
+
         Route::patch('/mesta/{id}', [MestaController::class, 'update'])
             ->name('mesta.update');
         Route::get('/mesta', [MestaController::class, 'index'])

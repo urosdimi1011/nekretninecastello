@@ -3,6 +3,7 @@ let trenutniTipNekretnine = null;
 const pathname = window.location.pathname;
 const baseUrl = window.AppConfig.baseUrl;
 const locale = window.AppConfig.locale;
+
 function jeStranica(naziv) {
     const path = pathname.replace(/^\/(en|ro|sr)/, "");
     if (naziv === "home") return path === "/" || path === "";
@@ -70,58 +71,84 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             perMove: 1,
             gap: 40,
-            arrows: false,
+            arrows: true,
             autoplay: true,
+            pagination: true,
         });
         splide1.mount();
         splide2.mount();
-    } else if (jeStranica("nekretnine")) {
-        var elementiZaSlider =
-            document.getElementsByClassName("nekretnina-slider");
-
-        var elementiZaSlider2 =
-            document.getElementsByClassName("thumbnail-carousel");
-
-        for (var i = 0; i < elementiZaSlider.length; i++) {
-            var main = new Splide(elementiZaSlider[i], {
-                gap: 10,
-                pagination: false,
-                rewind: true,
-                autoplay: true,
-                snap: true,
-                focus: "center",
-                breakpoints: {
-                    600: {
-                        fixedWidth: 60,
-                        fixedHeight: 44,
-                    },
-                },
-            });
-
-            var thumbnails = new Splide(elementiZaSlider2[i], {
-                fixedWidth: 100,
-                fixedHeight: 60,
-                gap: 10,
-                rewind: true,
-                pagination: false,
-                isNavigation: true,
-                arrows: false,
-                focus: "center",
-                breakpoints: {
-                    600: {
-                        fixedWidth: 60,
-                        fixedHeight: 44,
-                    },
-                },
-            });
-
-            main.sync(thumbnails);
-            main.mount();
-            thumbnails.mount();
-        }
+    } else if (jeStranica("nekretnine/")) {
+        initSplideNekretnina();
     }
 });
 
+let photoSwipeClickHandler = null;
+
+function initSplideNekretnina() {
+    var elementiZaSlider = document.getElementsByClassName("nekretnina-slider");
+    var elementiZaSlider2 =
+        document.getElementsByClassName("thumbnail-carousel");
+
+    for (var i = 0; i < elementiZaSlider.length; i++) {
+        var main = new Splide(elementiZaSlider[i], {
+            gap: 10,
+            pagination: false,
+            rewind: true,
+            autoplay: true,
+            snap: true,
+            focus: "center",
+            breakpoints: {
+                600: { fixedWidth: 60, fixedHeight: 44 },
+            },
+        });
+
+        var thumbnails = new Splide(elementiZaSlider2[i], {
+            fixedWidth: 100,
+            fixedHeight: 60,
+            gap: 10,
+            rewind: true,
+            pagination: false,
+            isNavigation: true,
+            arrows: false,
+            focus: "center",
+            breakpoints: {
+                600: { fixedWidth: 60, fixedHeight: 44 },
+            },
+        });
+
+        main.sync(thumbnails);
+        main.mount();
+        thumbnails.mount();
+    }
+
+    initPhotoSwipe();
+}
+
+function initPhotoSwipe() {
+    if (photoSwipeClickHandler) {
+        document.removeEventListener("click", photoSwipeClickHandler);
+        photoSwipeClickHandler = null;
+    }
+
+    document.querySelectorAll(".pswp").forEach((el) => el.remove());
+
+    photoSwipeClickHandler = function (e) {
+        const pswp = new PhotoSwipeLightbox({
+            gallery: "#my-gallery",
+            children: "a",
+            pswpModule: () => import("photoswipe"),
+        });
+        // pswp.on("close", () => {
+        //     setTimeout(() => {
+        //         document.querySelectorAll(".pswp").forEach((el) => el.remove());
+        //     }, 100);
+        // });
+
+        pswp.init();
+    };
+
+    document.addEventListener("click", photoSwipeClickHandler);
+}
 function sliderZaNekretnine() {
     var elms = document.getElementsByClassName("istaknuti");
     console.log(elms);
@@ -438,7 +465,7 @@ document.querySelectorAll(".custom-select-trigger").forEach(function (trigger) {
 });
 
 document.querySelectorAll(".custom-option").forEach(function (option) {
-    option.addEventListener("click", function () {
+    option.addEventListener("click", function (e) {
         dodajSpiner();
 
         var select = this.closest(".custom-select-wrapper").querySelector(
@@ -577,7 +604,11 @@ function ispisiNekretnine(ne) {
     let html = "";
     document.querySelector(".rez").innerHTML = ne.pagination.total;
     let obj = document.querySelector(".nekretnine-sve-js");
-    console.log(ne);
+
+    const count = document.querySelector(".filter-bar__count");
+    if (count) count.classList.remove("is-loading");
+    document.querySelector(".rez").innerHTML = ne.pagination.total;
+
     if (ne.components.length) {
         ne.components.forEach((x) => {
             html += '<div class="col-12 col-md-6 col-lg-4">';
@@ -588,14 +619,23 @@ function ispisiNekretnine(ne) {
         obj.innerHTML = html;
 
         ispisPaginacije(ne.pagination, document.querySelector(".pag"));
+
         const paginationNav = document.querySelector(".custom-pagination");
         if (paginationNav) {
             paginationNav.addEventListener("click", function (event) {
                 const targetLink = event.target.closest("a[data-page]");
 
                 if (!targetLink) return;
-
                 event.preventDefault();
+
+                const filterBar = document.querySelector(".filter-bar");
+                if (filterBar) {
+                    const y =
+                        filterBar.getBoundingClientRect().top +
+                        window.scrollY -
+                        40;
+                    window.scrollTo({ top: y, behavior: "smooth" });
+                }
 
                 if (targetLink.parentElement.classList.contains("disabled")) {
                     return;
@@ -646,6 +686,16 @@ function dodajSpiner() {
         '<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>';
 
     obj.innerHTML = spinner;
+    showSkeleton();
+    hidePaginacija();
+}
+function showSkeleton() {
+    const count = document.querySelector(".filter-bar__count");
+    if (count) count.classList.add("is-loading");
+}
+function hidePaginacija() {
+    const pag = document.querySelector(".pag");
+    if (pag) pag.innerHTML = "";
 }
 
 function azurirajBrojKaraktera() {
@@ -1139,4 +1189,3 @@ cenaMinInput.addEventListener("input", function () {
 cenaMaxInput.addEventListener("input", function () {
     formatirajCenu(this);
 });
-// ===== KRAJ NOTIFIKACIJE =====

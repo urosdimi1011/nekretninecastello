@@ -20,7 +20,6 @@ class PretplatniciTableService extends BaseTableServices
         [
             "index" => "verifikovan",
             "label" => "Verifikovan",
-            "type" => "toggle"
         ],
         [
             "index" => "datum_pretplate",
@@ -30,7 +29,7 @@ class PretplatniciTableService extends BaseTableServices
             "index" => "obrisi",
             "label" => "Obriši",
             "type" => "button",
-            "icon" => "<i class='fa fa-trash text-danger'></i>",
+            "icon" => "<i class='ph ph-trash text-danger'></i>",
             "undoIcon" => '<i class="fa fa-undo" aria-hidden="true"></i>'
         ]
     ];

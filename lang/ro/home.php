@@ -5,9 +5,9 @@ return [
     'keywords'      => 'imobile vrsac, proprietati vrsac, vanzare imobile vrsac, case vrsac, apartamente vrsac, localuri vrsac, terenuri vrsac, teren agricol vrsac, castello nekretnine, agentie imobiliara vrsac',
 
     'slider_1_alt'      => 'Imobile Vršac - Castello Nekretnine',
-    'slider_1_naslov'   => 'Imobile Vršac – găsiți-vă noua casă',
+    'slider_1_naslov'   => 'Găsiți noua dvs. casă',
     'slider_2_alt'      => 'Vânzare case și apartamente în Vršac',
-    'slider_2_naslov'   => 'Vânzare case, apartamente și terenuri în Vršac',
+    'slider_2_naslov'   => 'Un pas sigur către vânzare',
     'pozovite'          => 'SUNAȚI ACUM',
     'telefon_alt'       => 'Sunați Castello Nekretnine',
 

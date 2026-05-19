@@ -44,6 +44,11 @@ class Repository
         return $this->model->destroy($id);
     }
 
+    public function whereInColumn($column, $ids)
+    {
+        return $this->model->whereIn($column, $ids)->get();
+    }
+
     public function createMoreData(array $data)
     {
         return $this->model->insert($data);

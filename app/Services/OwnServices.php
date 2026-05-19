@@ -100,4 +100,20 @@ abstract class OwnServices
         $this->model =  $this->model->dohvatiSve();
         return $this;
     }
+
+    public function sortByColumn($column, $direction = 'asc')
+    {
+        $this->model = $this->model->sort($column, $direction);
+        return $this;
+    }
+
+    public function sortByColumns($columns)
+    {
+        foreach ($columns as $column => $direction) {
+            if ($column && $direction) {
+                $this->model = $this->model->sort($column, $direction);
+            }
+        }
+        return $this;
+    }
 }

@@ -6,6 +6,7 @@ use App\Services\NekretnineAtributiVrednostServices;
 use App\Services\NekretnineServices;
 use App\Services\TipNekretnineServices;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
@@ -13,50 +14,45 @@ class HomeController extends Controller
     protected $nekretnineAtributiVrednostServices;
 
     protected $tipNekretnineServices;
-    public function __construct(NekretnineServices $nekretnineServices,NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices,TipNekretnineServices $tipNekretnineServices){
+    public function __construct(NekretnineServices $nekretnineServices, NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices, TipNekretnineServices $tipNekretnineServices)
+    {
         $this->nekretnineServices = $nekretnineServices;
         $this->nekretnineAtributiVrednostServices = $nekretnineAtributiVrednostServices;
-        $this->tipNekretnineServices=$tipNekretnineServices;
+        $this->tipNekretnineServices = $tipNekretnineServices;
     }
 
 
     public function index()
     {
-        //voditi racuan o referencijalnim tipovima podataka!!
-        //Ovaj deo izdvojiti u posebnu metodu!!!!!
-        $istaknuti = $this->nekretnineServices->getAllWithRelation(['slika','slike','tip.atributi'])->where("istaknuta",1)->all();
-        $nekretnineAtributiVrednostServices = $this->nekretnineAtributiVrednostServices->getAll();
+        $istaknuti = Cache::remember('istaknute_nekretnine', 1800, function () {
+            $nekretnine = $this->nekretnineServices
+                ->getAllWithRelation(['slika', 'tip.atributi'])
+                ->where("istaknuta", 1)
+                ->values();
 
-        $noviNizIstaknutih = [];
+            $ids = $nekretnine->pluck('id')->toArray();
+            $sviAtributi = $this->nekretnineAtributiVrednostServices
+                ->getAllForNekretnine($ids);
 
-        foreach ($istaknuti as $i) {
-            $noviNizZaLaksiZapis = [];
-
-            foreach ($i->tip->atributi as $s) {
-                $nesto = collect($nekretnineAtributiVrednostServices)
-                    ->where("id_tip_nekretnine_atributi", $s->pivot->id)
-                    ->where("id_nekretnine", $i->id)
-                    ->first();
-
-                if ($nesto != null) {
-                    $nizZaLaksiZapis = new \stdClass();
-                    $nizZaLaksiZapis->id_nekretnine = $i->id;
-                    $nizZaLaksiZapis->tip = $i->tip->tip;
-                    $nizZaLaksiZapis->atribut = $s->naziv;
-                    $nizZaLaksiZapis->klasaIkonice = $s->ikonica_klasa;
-                    $nizZaLaksiZapis->vrednost = $nesto->vrednost;
-
-                    $noviNizZaLaksiZapis[] = $nizZaLaksiZapis;
+            foreach ($nekretnine as $i) {
+                $noviNiz = [];
+                foreach ($i->tip->atributi as $s) {
+                    $nesto = collect($sviAtributi)
+                        ->where("id_tip_nekretnine_atributi", $s->pivot->id)
+                        ->where("id_nekretnine", $i->id)
+                        ->first();
+                    if ($nesto) {
+                        $obj = new \stdClass();
+                        $obj->atribut = $s->naziv;
+                        $obj->klasaIkonice = $s->ikonica_klasa;
+                        $obj->vrednost = $nesto->vrednost;
+                        $noviNiz[] = $obj;
+                    }
                 }
+                $i->a = $noviNiz;
             }
-
-            $i->a = $noviNizZaLaksiZapis;
-            $noviNizIstaknutih[] = $i;
-        }
-
-        $istaknuti = $noviNizIstaknutih;
-
-
+            return $nekretnine;
+        });
 
         return view("pages.user.index", ['istaknuti' => $istaknuti]);
     }

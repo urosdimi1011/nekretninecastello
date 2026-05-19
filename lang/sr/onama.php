@@ -41,4 +41,8 @@ return [
     'breadcrumb_onama'  => 'O nama',
     'schema_naziv'      => 'O nama – Castello Nekretnine Vršac',
     'schema_opis'       => 'Castello Nekretnine Vršac – agencija sa dugogodišnjim iskustvom u posredovanju nekretninama.',
+
+    'uslovi_naslov'  => 'Uslovi poslovanja',
+    'uslovi_uvod'    => 'Preuzmite naš dokument o uslovima poslovanja i posredovanja u prometu nekretnina.',
+    'uslovi_preuzmi' => 'Pogledajte uslove poslovanja',
 ];

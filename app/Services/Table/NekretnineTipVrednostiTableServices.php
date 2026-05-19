@@ -6,19 +6,18 @@ class NekretnineTipVrednostiTableServices extends BaseTableServices
 {
     protected $column = [
         [
-            "index"=>"naziv",
-            "label"=>"Naziv"
+            "index" => "naziv",
+            "label" => "Naziv"
         ],
         [
-            "index"=>"slika",
-            "label"=>"Slika"
+            "index" => "slika",
+            "label" => "Slika"
         ],
         [
-            "index"=>"izmeni",
-            "label"=>"Izmeni",
-            "type"=>"button",
-            "icon"=>'<i class="fas fa-edit text-info"></i>'
+            "index" => "izmeni",
+            "label" => "Izmeni",
+            "type" => "button",
+            "icon" => '<i class="ph ph-pencil-simple text-info"></i>'
         ]
     ];
-
 }
