@@ -15,7 +15,9 @@ class PretplatniciTableService extends BaseTableServices
         ],
         [
             "index" => "filteri_detalji",
-            "label" => "Filter kriterijumi"
+            "label" => "Filter kriterijumi",
+            "type"  => "filteri_modal",
+            "icon"  => '<i class="ph ph-funnel text-primary"></i>',
         ],
         [
             "index" => "verifikovan",

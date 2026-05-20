@@ -64,6 +64,15 @@
                         </div>
                     </td>
                     @break
+                    @case('filteri_modal')
+                    <td>
+                        <button onclick="openFiltriModal(this)"
+                                data-html="{{ $d[$c['index']] }}"
+                                title="Pogledaj filtere">
+                            {!! $c['icon'] !!}
+                        </button>
+                    </td>
+                    @break
                     @endswitch
                     @else
                     @if($c['index'] == 'slika')
@@ -125,4 +134,27 @@
         </div>
     </div>
 </div>
+
+<div id="filteriModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeFiltriModal()">&times;</span>
+        <h3 style="margin-bottom:1rem;">Filter kriterijumi</h3>
+        <div id="filteriModalContent"></div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function openFiltriModal(btn) {
+    document.getElementById('filteriModalContent').innerHTML = btn.dataset.html;
+    document.getElementById('filteriModal').style.display = 'block';
+}
+function closeFiltriModal() {
+    document.getElementById('filteriModal').style.display = 'none';
+}
+document.getElementById('filteriModal').addEventListener('click', function(e) {
+    if (e.target === this) closeFiltriModal();
+});
+</script>
+@endpush
 @endsection

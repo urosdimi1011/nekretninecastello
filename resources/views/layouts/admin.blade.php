@@ -158,6 +158,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
     {{--<script src="https://cdn.ckeditor.com/ckeditor5/40.2.0/super-build/ckeditor.js"></script>--}}
     <script src="{{asset("assets/js/admin.js")}}"></script>
+    @stack('scripts')
 </body>
 
 </html>

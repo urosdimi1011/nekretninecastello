@@ -52,7 +52,7 @@ class NekeretnineController extends Controller
             $tipName,
             $column,
             $direction,
-            ['slika', 'tip']
+            ['slika', 'tip', 'mesto']
         );
         $svi = $query->paginate(12)->withQueryString();
 
@@ -186,7 +186,7 @@ class NekeretnineController extends Controller
                 ->paginate(12);
             $data = ["column" => $this->tableService->getColumn(), "data" => $svi, "tip" => "nekretnine"];
         } else {
-            $svi =  $svi->sortByColumn('created_at', 'desc')->getAllWithPaginate(["slika", "tip"], 12);
+            $svi =  $svi->sortByColumn('created_at', 'desc')->getAllWithPaginate(["slika", "tip", "mesto"], 12);
             $data = ["column" => $this->tableService->getColumn(), "data" => $svi, "tip" => "nekretnine", "keywords" => $search->keywords];
         }
 

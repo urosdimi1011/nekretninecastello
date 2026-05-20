@@ -58,6 +58,13 @@ class PretplatnikController extends Controller
         ]));
     }
 
+    public function getMesta(): JsonResponse
+    {
+        return response()->json(
+            Mesto::aktivni()->orderBy('naziv')->get(['id', 'naziv'])
+        );
+    }
+
     private function pronadjiPostojeci(Pretplatnik $pretplatnik, int $tipId): ?PretplatnikFilter
     {
         return PretplatnikFilter::with('tip')
@@ -253,7 +260,9 @@ class PretplatnikController extends Controller
 
         $pretplatnici = $query->paginate(12)->withQueryString();
 
-        $pretplatnici->getCollection()->transform(function ($pretplatnik) {
+        $mestaMap = Mesto::pluck('naziv', 'id');
+
+        $pretplatnici->getCollection()->transform(function ($pretplatnik) use ($mestaMap) {
             $tipovi = $pretplatnik->filteri
                 ->pluck('tip.tip')
                 ->filter()
@@ -270,7 +279,7 @@ class PretplatnikController extends Controller
                 $verifikovanStatus = 'Delimično';
             }
 
-            $filteriDetalji = $this->formatirajFilterDetalje($pretplatnik->filteri);
+            $filteriDetalji = $this->formatirajFilterDetalje($pretplatnik->filteri, $mestaMap);
 
             $prviFilter = $pretplatnik->filteri->sortBy('created_at')->first();
             $datumPretplate = $prviFilter
@@ -286,13 +295,14 @@ class PretplatnikController extends Controller
         });
 
         return view("tableView", [
-            "column"   => $this->tableService->getColumn(),
-            "data"     => $pretplatnici,
-            "tip"      => "pretplatnici",
+            "column"      => $this->tableService->getColumn(),
+            "data"        => $pretplatnici,
+            "tip"         => "pretplatnici",
+            "insertNovog" => true,
         ]);
     }
 
-    private function formatirajFilterDetalje($filteri): string
+    private function formatirajFilterDetalje($filteri, $mestaMap = null): string
     {
         $delovi = [];
 
@@ -329,7 +339,7 @@ class PretplatnikController extends Controller
                     \App\Models\FilterDefinicija::TIP_KATEGORIJA,
                     \App\Models\FilterDefinicija::TIP_BOOLEAN,
                     \App\Models\FilterDefinicija::TIP_VISE_IZBORA,
-                ])) {
+                ]) && $def->kljuc !== 'lokacija') {
                     $vrednostPrikaz = $vrednost->vrednost;
                     // Ako postoje opcije, pokušaj da nađeš labelu
                     if ($def->opcije) {
@@ -343,13 +353,18 @@ class PretplatnikController extends Controller
                 }
             }
 
-            $mestaNazivi = $filter->mesta
-                ->pluck('vrednost')
-                ->filter()
-                ->toArray();
+            $mestoIds = $filter->mesta->pluck('vrednost')->filter()->map(fn($v) => (int) $v);
 
-            if (!empty($mestaNazivi)) {
-                $kriterijumi[] = "Lokacije: " . implode(', ', $mestaNazivi);
+            if ($mestoIds->isNotEmpty()) {
+                $mestaNazivi = $mestoIds
+                    ->map(fn($id) => $mestaMap ? ($mestaMap[$id] ?? null) : null)
+                    ->filter()
+                    ->values()
+                    ->all();
+
+                if (!empty($mestaNazivi)) {
+                    $kriterijumi[] = "Lokacije: " . implode(', ', $mestaNazivi);
+                }
             }
 
             $status = $filter->jeVerifikovan()
