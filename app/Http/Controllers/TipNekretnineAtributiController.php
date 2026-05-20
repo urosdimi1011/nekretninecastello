@@ -42,7 +42,7 @@ class TipNekretnineAtributiController extends Controller
         $svi = $this->tipAtributiServis->getAllWithPaginate("atributi");
         //        return $svi;
         //        $oniKojiTrebaju =  $this->tipAtributiServis->dohvatiSveTipoveINjhoveAtribute($svi);
-        return view("tableView", ["column" => $this->tipNekretnineAtributiTableServices->getColumn(), "data" => $svi, "tip" => "tipnekretnineatributi", "insertNovog" => true]);
+        return view("tableView", ["column" => $this->tipNekretnineAtributiTableServices->getColumn(), "data" => $svi, "tip" => "tipnekretnineatributi"]);
     }
 
 

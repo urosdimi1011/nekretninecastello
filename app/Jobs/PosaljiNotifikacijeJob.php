@@ -21,7 +21,7 @@ class PosaljiNotifikacijeJob implements ShouldQueue
     public function handle(): void
     {
         $noveNekretnine = Nekretnine::with(['tip', 'slika', 'mesto', 'atributiVrednosti.nestoMoje.ucitajAtribut'])
-            ->whereDate('created_at', today())
+            ->where('created_at', '>=', now()->subDay()->setTime(17, 0, 0))
             ->get();
         if ($noveNekretnine->isEmpty()) {
             return;
@@ -55,14 +55,18 @@ class PosaljiNotifikacijeJob implements ShouldQueue
         $cenaZaPoredjenje = (int)$nekretnina->cena;
 
         if ($filter->cena_po_metru) {
-            $kvadratura = (int)$nekretnina->atributiVrednosti
-                ->firstWhere('naziv', 'Kvadratura')?->vrednost;
+            if ($nekretnina->cena_metar) {
+                $cenaZaPoredjenje = $nekretnina->cena_metar;
+            } else {
+                $kvadratura = (int)$nekretnina->atributiVrednosti
+                    ->firstWhere('naziv', 'Kvadratura')?->vrednost;
 
-            if (! $kvadratura || $kvadratura <= 0) {
-                return false;
+                if (!$kvadratura || $kvadratura <= 0) {
+                    return true;
+                }
+
+                $cenaZaPoredjenje = $nekretnina->cena / $kvadratura;
             }
-
-            $cenaZaPoredjenje = $nekretnina->cena / $kvadratura;
         }
         if ($filter->cena_min !== null && $cenaZaPoredjenje < $filter->cena_min) {
             return false;

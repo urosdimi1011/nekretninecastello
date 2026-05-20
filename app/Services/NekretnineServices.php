@@ -4,12 +4,17 @@ namespace App\Services;
 
 use App\Models\Nekretnine;
 use App\Repositories\NekretnineRepository;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class NekretnineServices extends OwnServices
 {
-    public function __construct(NekretnineRepository $atributi)
-    {
+    public const CACHE_TTL_ISTAKNUTE = 1800;
+    public const CACHE_KEY_ISTAKNUTE = 'istaknute_nekretnine';
+    public function __construct(
+        NekretnineRepository $atributi,
+        public NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices,
+    ) {
         parent::__construct($atributi);
     }
 
@@ -91,5 +96,48 @@ class NekretnineServices extends OwnServices
 
         $video->delete();
         return true;
+    }
+
+    public function getIstaknuteSaAtributima(): Collection
+    {
+        $nekretnine = $this->model
+            ->getAllWithRelation(['slika', 'tip.atributi', 'mesto'])
+            ->where('istaknuta', 1)
+            ->values();
+
+        if ($nekretnine->isEmpty()) {
+            return $nekretnine;
+        }
+
+        $atributi = $this->nekretnineAtributiVrednostServices->getAllForNekretnine(
+            $nekretnine->pluck('id')->toArray()
+        );
+
+        return $nekretnine->each(fn($n) => $this->mapirajAtribute($n, $atributi));
+    }
+
+    private function mapirajAtribute($nekretnina, $atributi): void
+    {
+        $nekretnina->a = $nekretnina->tip->atributi
+            ->map(fn($s) => $this->napraviAtribut($s, $nekretnina->id, $atributi))
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function napraviAtribut($atribut, int $nekretninaId, $sviAtributi): ?object
+    {
+        $vrednost = $sviAtributi
+            ->where('id_tip_nekretnine_atributi', $atribut->pivot->id)
+            ->where('id_nekretnine', $nekretninaId)
+            ->first();
+
+        if (!$vrednost) return null;
+
+        return (object) [
+            'atribut' => $atribut->naziv,
+            'klasaIkonice' => $atribut->ikonica_klasa,
+            'vrednost' => $vrednost->vrednost,
+        ];
     }
 }

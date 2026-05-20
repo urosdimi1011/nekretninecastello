@@ -20,6 +20,12 @@
             <a
                 href="{{ route('prikaziNekretninu', ['identifier' => $nekretnina->slug ?? $nekretnina->id]) }}">{{ $nekretnina->prevod()->naziv }}</a>
         </h2>
+        @if($nekretnina->mesto)
+        <div class="lokacija-block">
+            <i class="ph ph-map-pin"></i>
+            <span>{{ $nekretnina->mesto->naziv }}</span>
+        </div>
+        @endif
         <div class="info-nekretnine-block">
             @foreach ($nekretnina->a as $svojstvo)
                 @php

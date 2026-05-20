@@ -14,46 +14,25 @@ class HomeController extends Controller
     protected $nekretnineAtributiVrednostServices;
 
     protected $tipNekretnineServices;
-    public function __construct(NekretnineServices $nekretnineServices, NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices, TipNekretnineServices $tipNekretnineServices)
-    {
+    public function __construct(
+        NekretnineServices $nekretnineServices,
+        NekretnineAtributiVrednostServices $nekretnineAtributiVrednostServices,
+        TipNekretnineServices $tipNekretnineServices
+    ) {
         $this->nekretnineServices = $nekretnineServices;
         $this->nekretnineAtributiVrednostServices = $nekretnineAtributiVrednostServices;
         $this->tipNekretnineServices = $tipNekretnineServices;
     }
 
 
-    public function index()
+    public function index(): \Illuminate\View\View
     {
-        $istaknuti = Cache::remember('istaknute_nekretnine', 1800, function () {
-            $nekretnine = $this->nekretnineServices
-                ->getAllWithRelation(['slika', 'tip.atributi', 'mesto'])
-                ->where("istaknuta", 1)
-                ->values();
+        $istaknuti = Cache::remember(
+            NekretnineServices::CACHE_KEY_ISTAKNUTE,
+            now()->addMinutes(30),
+            fn() => $this->nekretnineServices->getIstaknuteSaAtributima()
+        );
 
-            $ids = $nekretnine->pluck('id')->toArray();
-            $sviAtributi = $this->nekretnineAtributiVrednostServices
-                ->getAllForNekretnine($ids);
-
-            foreach ($nekretnine as $i) {
-                $noviNiz = [];
-                foreach ($i->tip->atributi as $s) {
-                    $nesto = collect($sviAtributi)
-                        ->where("id_tip_nekretnine_atributi", $s->pivot->id)
-                        ->where("id_nekretnine", $i->id)
-                        ->first();
-                    if ($nesto) {
-                        $obj = new \stdClass();
-                        $obj->atribut = $s->naziv;
-                        $obj->klasaIkonice = $s->ikonica_klasa;
-                        $obj->vrednost = $nesto->vrednost;
-                        $noviNiz[] = $obj;
-                    }
-                }
-                $i->a = $noviNiz;
-            }
-            return $nekretnine;
-        });
-
-        return view("pages.user.index", ['istaknuti' => $istaknuti]);
+        return view('pages.user.index', compact('istaknuti'));
     }
 }
