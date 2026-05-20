@@ -47,7 +47,6 @@ function sortTable(columnIndex) {
     table.sortedAscending = ascending;
 }
 function isTextCell(cell) {
-    // Proverava da li je ćelija sa tekstom (nije slika i nije tipa buttona)
     return (
         cell.children.length === 0 ||
         (cell.children[0].tagName !== "IMG" &&
@@ -92,6 +91,11 @@ function openModal(target, data = null) {
 
             if (document.getElementById("graficki-prikaz-slika")) {
                 ispisUploadovaneSlikeIMenjanjeRedosleda();
+            }
+
+            const cenaInputEdit = document.querySelector(".cena-input");
+            if (cenaInputEdit && cenaInputEdit.value) {
+                formatirajCenuZaPrikaz(cenaInputEdit);
             }
 
             if (document.querySelector("#editor")) {
@@ -1094,24 +1098,43 @@ function displayValidationErrors(errors) {
 document.addEventListener("input", function (e) {
     if (e.target.classList.contains("cena-input")) {
         let cursorPos = e.target.selectionStart;
-        let cista = e.target.value.replace(/[^\d]/g, "");
-
-        if (!cista) {
-            e.target.value = "";
-            return;
-        }
-
-        let formatirano = cista.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-        // Sačuvaj poziciju kursora
-        let diff = formatirano.length - e.target.value.length;
-
-        e.target.value = formatirano;
-        e.target.setSelectionRange(cursorPos + diff, cursorPos + diff);
+        formatirajCenu(e.target, true);
     }
 });
+function formatirajCenuZaPrikaz(input) {
+    // Samo za inicijalni prikaz pri editu — ukloni decimale
+    let vrednost = input.value;
+    let bezDecimala = vrednost.split(".")[0].split(",")[0];
+    let cista = bezDecimala.replace(/[^\d]/g, "");
 
-// Pre slanja forme, očisti tačke
+    if (!cista) {
+        input.value = "";
+        return;
+    }
+
+    input.value = cista.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+function formatirajCenu(input, sacuvajKursor = false) {
+    // Za unos — ukloni separatore pa reformatiraj
+    let cursorPos = sacuvajKursor ? input.selectionStart : 0;
+
+    let bezSeparatora = input.value.replace(/\./g, ""); // ukloni separatore hiljada
+    let cista = bezSeparatora.replace(/[^\d]/g, ""); // ukloni sve osim cifara
+
+    if (!cista) {
+        input.value = "";
+        return;
+    }
+
+    let formatirano = cista.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    let diff = formatirano.length - input.value.length;
+    input.value = formatirano;
+
+    if (sacuvajKursor) {
+        input.setSelectionRange(cursorPos + diff, cursorPos + diff);
+    }
+}
 document
     .getElementById("formaGeneric")
     ?.addEventListener("submit", function () {

@@ -26,7 +26,7 @@ class HomeController extends Controller
     {
         $istaknuti = Cache::remember('istaknute_nekretnine', 1800, function () {
             $nekretnine = $this->nekretnineServices
-                ->getAllWithRelation(['slika', 'tip.atributi'])
+                ->getAllWithRelation(['slika', 'tip.atributi', 'mesto'])
                 ->where("istaknuta", 1)
                 ->values();
 
