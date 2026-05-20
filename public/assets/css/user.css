@@ -36,7 +36,13 @@
    31. Responsive — max-width: 768px
    32. Responsive — max-width: 510px
    ============================================================================= */
-
+.cena {
+    word-spacing: 0;
+    letter-spacing: 0;
+}
+.konkretna-cena span {
+    margin-left: -5px;
+}
    .skeleton {
     background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
     background-size: 200% 100%;

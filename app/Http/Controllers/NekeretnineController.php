@@ -54,7 +54,7 @@ class NekeretnineController extends Controller
             $direction,
             ['slika', 'tip']
         );
-        $svi = $query->paginate(2)->withQueryString();
+        $svi = $query->paginate(12)->withQueryString();
 
         $nekretninaIds = $svi->pluck('id')->toArray();
 

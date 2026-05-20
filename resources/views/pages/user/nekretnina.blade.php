@@ -19,11 +19,13 @@
                             <span class="naslov-nekretnine">{{ __('nekretnina.castello_nekretnine') }}</span>
                             <h1 class="text-naslov">{{ $nekretnina->prevod()->naziv }}</h1>
                             <p class="cena">
-                                <span class="konkretna-cena">{{ number_format($nekretnina->cena, 0, ',', '.') }}</span>
-                                &euro;
-                                @if ($nekretnina->cena_metar != null && $nekretnina->cena_metar == 1)
-                                    / m<sup>2</sup>
-                                @endif
+                                <span class="konkretna-cena" itemprop="price"
+                                    content="{{ $nekretnina->cena }}">{{ number_format($nekretnina->cena, 0, ',', '.') }}&euro;
+                                    @if ($nekretnina->cena_metar != null && $nekretnina->cena_metar == 1)
+                                        <span>/m<sup>2</sup></span>
+                                    @endif
+                                </span>
+                                <meta itemprop="priceCurrency" content="EUR">
                             </p>
                         </div>
 
@@ -31,13 +33,14 @@
                             aria-label="{{ __('nekretnine.galerija_fotografija') }}">
 
                             <div class="slider-nekretnine">
-                                <section class="splide nekretnina-slider my-gallery h-100"
+                                <section id="my-gallery" class="splide nekretnina-slider my-gallery h-100"
                                     aria-label="{{ __('nekretnine.galerija_fotografija') }}">
                                     <div class="splide__track">
                                         <ul class="splide__list">
                                             @foreach ($nekretnina->slike as $a)
-                                                <li class="splide__slide nekretnina-slika" id="my-gallery">
-                                                    <a target="_blank">
+                                                <li class="splide__slide nekretnina-slika">
+                                                    <a href="{{ asset('assets/img/' . $a->putanja) }}"
+                                                        data-pswp-width="1600" data-pswp-height="1200" target="_blank">
                                                         <img src="{{ asset('assets/img/' . $a->putanja) }}"
                                                             alt="{{ $a->alt ?? $nekretnina->prevod()->naziv . ' - ' . __('nekretnina.fotografija_nekretnine') }}" />
                                                     </a>
@@ -209,15 +212,14 @@
                                 {{ $nekretnina->prevod()->naziv }}
                             </h1>
                             <p class="cena d-none d-lg-block">
-                                <span class="konkretna-cena" itemprop="price" content="{{ $nekretnina->cena }}">
-                                    {{ number_format($nekretnina->cena, 0, ',', '.') }}
-                                </span>&euro;
+                                <span class="konkretna-cena" itemprop="price"
+                                    content="{{ $nekretnina->cena }}">{{ number_format($nekretnina->cena, 0, ',', '.') }}&euro;
+                                    @if ($nekretnina->cena_metar != null && $nekretnina->cena_metar == 1)
+                                        <span>/m<sup>2</sup></span>
+                                    @endif
+                                </span>
                                 <meta itemprop="priceCurrency" content="EUR">
-                                @if ($nekretnina->cena_metar != null && $nekretnina->cena_metar == 1)
-                                    / m<sup>2</sup>
-                                @endif
                             </p>
-
                             <div class="text-opis mb-5" itemprop="description">
                                 {!! $nekretnina->prevod()->opis !!}
                             </div>

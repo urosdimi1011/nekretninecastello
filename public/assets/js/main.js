@@ -125,29 +125,31 @@ function initSplideNekretnina() {
 }
 
 function initPhotoSwipe() {
-    if (photoSwipeClickHandler) {
-        document.removeEventListener("click", photoSwipeClickHandler);
-        photoSwipeClickHandler = null;
+    if (typeof PhotoSwipeLightbox === "undefined") {
+        console.error("PhotoSwipeLightbox nije učitan");
+        return;
     }
+    document.querySelectorAll("#my-gallery a").forEach((link) => {
+        const img = link.querySelector("img");
+        if (!img) return;
 
-    document.querySelectorAll(".pswp").forEach((el) => el.remove());
-
-    photoSwipeClickHandler = function (e) {
-        const pswp = new PhotoSwipeLightbox({
-            gallery: "#my-gallery",
-            children: "a",
-            pswpModule: () => import("photoswipe"),
-        });
-        // pswp.on("close", () => {
-        //     setTimeout(() => {
-        //         document.querySelectorAll(".pswp").forEach((el) => el.remove());
-        //     }, 100);
-        // });
-
-        pswp.init();
-    };
-
-    document.addEventListener("click", photoSwipeClickHandler);
+        if (img.naturalWidth) {
+            link.dataset.pswpWidth = img.naturalWidth;
+            link.dataset.pswpHeight = img.naturalHeight;
+        } else {
+            img.addEventListener("load", () => {
+                link.dataset.pswpWidth = img.naturalWidth;
+                link.dataset.pswpHeight = img.naturalHeight;
+            });
+        }
+    });
+    const lightbox = new PhotoSwipeLightbox({
+        gallery: "#my-gallery",
+        children: "a",
+        pswpModule: () =>
+            import("https://cdn.jsdelivr.net/npm/photoswipe@5/dist/photoswipe.esm.min.js"),
+    });
+    lightbox.init();
 }
 function sliderZaNekretnine() {
     var elms = document.getElementsByClassName("istaknuti");
@@ -589,7 +591,6 @@ function ispisPaginacije(celaPaginacija, blokZaPaginaciju) {
         }
     }
 
-    // Next Page
     if (paginacija.current_page < paginacija.last_page) {
         paginacijaHtml += `<li><a href="#" data-page="${paginacija.current_page + 1}">&raquo;</a></li>`;
     } else {
